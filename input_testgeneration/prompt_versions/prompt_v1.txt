@@ -1,0 +1,25 @@
+Generate unit tests in C for the following function under test:
+
+{function_under_test}
+
+Use the Unity test framework exclusively.
+
+Requirements:
+- Include setUp(void) and tearDown(void) (non-static, visible to Unity).
+- Include main() with UNITY_BEGIN/UNITY_END.
+- Handle segmentation faults gracefully via signal handling (SIGSEGV) and report them as test failures.
+
+Test strategy:
+- Analyze all distinct code paths, branches, and return values of the function.
+- Write exactly ONE test per unique behavioral path.
+- Do NOT write redundant tests that cover the same branch with different input values.
+- Name each test clearly after the behavior/path it covers.
+
+Required includes:
+#include "../unity/unity.h"
+#include "../src/{header_name}"
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+
+Return ONLY raw C code. No markdown, no explanation, no backticks.
