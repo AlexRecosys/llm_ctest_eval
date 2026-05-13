@@ -6,11 +6,25 @@ import re
 import shutil
 from pathlib import Path
 import yaml
+import traceback
+import subprocess
 
 
 def load_config():
-    with open("config.yaml") as f:
-        return yaml.safe_load(f)
+
+    script_dir = Path(__file__).parent
+    config_path = script_dir.parent.parent / "config.yaml"
+    
+    with open(config_path) as f:
+        cfg =  yaml.safe_load(f)
+    
+    project_root = config_path.parent
+
+    for key, value in cfg["paths"].items():
+        p = Path(value)
+        if not p.is_absolute():
+            cfg["paths"][key] = str(project_root / p)
+    return cfg
 
 
 def find_source_files(src_dir, codebase_name):
@@ -30,13 +44,20 @@ def codebase_for_function(func_name, functions_dir):
     return None
 
 
-def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags):
-    """Kompiliert einen Test mit gcc und gcov-Flags. Gibt (success, log) zurück."""
+def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags, cfg):
     build_dir.mkdir(parents=True, exist_ok=True)
-    exe = build_dir / "test_exe"
-    cmd = ["gcc"] + gcc_flags + [str(test_file), str(unity_c)]
-    cmd += [str(f) for f in src_files]
-    cmd += ["-o", str(exe), "-lm"]
+    exe = (build_dir / "test_exe").resolve()
+    unity_include = Path(cfg["paths"]["unity_dir"]).resolve()
+    src_root = Path(cfg["paths"]["src_dir"]).resolve()
+    unique_codebase_dirs = {f.parent.resolve() for f in src_files}
+
+    compiler        = ["gcc"]
+    flags           = gcc_flags
+    includes        = [f"-I{unity_include}", f"-I{src_root}"] + [f"-I{d}" for d in unique_codebase_dirs]
+    sources         = [str(test_file.resolve()), str(unity_c.resolve())] + [str(f.resolve()) for f in src_files]
+    output          = ["-o", str(exe), "-lm"]
+
+    cmd = compiler + flags + includes + sources + output
 
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
     log = result.stdout + result.stderr
@@ -104,6 +125,11 @@ def process_model(model_name, cfg):
     unity_c = Path(cfg["paths"]["unity_dir"]) / "unity.c"
     gcc_flags = cfg["experiment"]["gcc_flags"]
 
+    print(f'unity_c: {unity_c}')
+    print(f'tests_base: {tests_base}')
+    print(f'tests_base exists: {tests_base.exists()}')
+    print(f'{tests_base.absolute()}')
+
     all_metrics = {}
 
     if not tests_base.exists():
@@ -127,7 +153,7 @@ def process_model(model_name, cfg):
             clean_build(build_dir)
 
             compiled, compile_log, exe = compile_test(
-                test_file, src_files, unity_c, build_dir, gcc_flags
+                test_file, src_files, unity_c, build_dir, gcc_flags, cfg
             )
 
             run_result = {
@@ -147,12 +173,25 @@ def process_model(model_name, cfg):
                 except subprocess.TimeoutExpired:
                     run_result["tests_passed"] = False
                     run_result["error"] = "timeout"
+                except Exception:
+                    error_stack = traceback.format_exc()
+                    run_result["tests_passed"] = False
+                    run_result["error"] = error_stack
+            else:
+                run_result["compiled"] = False
+                run_result["error"] = f"Compilation failed: {compile_log.strip()}"
+                print(compile_log)
 
+            error_msg = ""
+            if run_result.get("error"):
+                lines = [line for line in run_result["error"].strip().splitlines() if line.strip()]
+                error_msg = f" | Msg: {lines[-1]}" if lines else " | Msg: Unknown error"
+                   
             func_metrics.append(run_result)
             status = "OK" if compiled else "FAIL"
             cov = run_result["line_coverage"]
             cov_str = f"{cov['percent']}%" if cov else "n/a"
-            print(f"  [{status}] {model_name}/{func_name}/{run_name} -> line_cov: {cov_str}")
+            print(f"  [{status}] {model_name}/{func_name}/{run_name} -> line_cov: {cov_str} {error_msg}")
 
         all_metrics[func_name] = func_metrics
 
