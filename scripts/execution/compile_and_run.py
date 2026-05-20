@@ -30,6 +30,7 @@ def load_config():
 def find_source_files(src_dir, codebase_name):
     """Findet alle .c-Dateien einer Codebase für die Kompilierung."""
     codebase_path = Path(src_dir) / codebase_name
+    print(f"Looking for source files in: {codebase_path}")
     return list(codebase_path.glob("*.c"))
 
 
@@ -38,9 +39,11 @@ def codebase_for_function(func_name, functions_dir):
     for codebase_dir in Path(functions_dir).iterdir():
         if not codebase_dir.is_dir():
             continue
-        for f in codebase_dir.glob("*.txt"):
+        
+        for f in codebase_dir.rglob("*.txt"):
             if f.stem == func_name:
                 return codebase_dir.name
+                
     return None
 
 
@@ -141,6 +144,9 @@ def process_model(model_name, cfg):
             continue
         func_name = func_dir.name
         codebase = codebase_for_function(func_name, cfg["paths"]["functions_dir"])
+        print(f'CODEBASE: {codebase}')
+        print(f'FUNC_DIR: {func_dir}')
+        print(F'FUNC_NAME: {func_name}')
         if not codebase:
             print(f"  [WARN] Keine Codebase für {func_name}")
             continue
