@@ -1,0 +1,201 @@
+{
+  "csv_clear_row": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": false
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": false
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": false
+    }
+  ],
+  "csv_get_field": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": true
+    }
+  ],
+  "csv_insert_field": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": false
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": false
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": false
+    }
+  ],
+  "parse_number": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 6.74,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 12.82,
+        "total": 944
+      },
+      "tests_passed": false
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 6.74,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 12.82,
+        "total": 944
+      },
+      "tests_passed": false
+    },
+    {
+      "run": "run_03_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: In file included from /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:40:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/src/cjson_codebase/cJSON.c:156:16: error: redefinition of \u2018struct internal_hooks\u2019\n  156 | typedef struct internal_hooks\n      |                ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:15:16: note: originally defined here\n   15 | typedef struct internal_hooks\n      |                ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/src/cjson_codebase/cJSON.c:161:3: error: conflicting types for \u2018internal_hooks\u2019; have \u2018struct internal_hooks\u2019\n  161 | } internal_hooks;\n      |   ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:20:3: note: previous declaration of \u2018internal_hooks\u2019 with type \u2018internal_hooks\u2019\n   20 | } internal_hooks;\n      |   ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/src/cjson_codebase/cJSON.c:296:3: error: conflicting types for \u2018parse_buffer\u2019; have \u2018struct <anonymous>\u2019\n  296 | } parse_buffer;\n      |   ^~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:29:3: note: previous declaration of \u2018parse_buffer\u2019 with type \u2018parse_buffer\u2019\n   29 | } parse_buffer;\n      |   ^~~~~~~~~~~~"
+    }
+  ],
+  "parse_string": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 1410
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "total": 944
+      },
+      "tests_passed": true
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "claude": {
+    "overall": {
+      "compile_rate": 0,
+      "avg_line_coverage": 0,
+      "avg_branch_coverage": 0
+    },
+    "per_function": {}
+  },
+  "deepseek": {
+    "overall": {
+      "compile_rate": 0,
+      "avg_line_coverage": 0,
+      "avg_branch_coverage": 0
+    },
+    "per_function": {}
+  },
+  "qwen": {
+    "overall": {
+      "compile_rate": 0,
+      "avg_line_coverage": 0,
+      "avg_branch_coverage": 0
+    },
+    "per_function": {}
+  }
+}

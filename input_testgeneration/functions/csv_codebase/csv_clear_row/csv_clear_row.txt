@@ -1,0 +1,37 @@
+int csv_clear_row(CSV_BUFFER *buffer, size_t row)
+{
+
+        CSV_FIELD **temp_row;
+
+        /* If the requested field is the last one, simply remove it. */
+        if (row == buffer->rows-1) {
+                if (remove_last_row(buffer) != 0)
+                        return 1;
+                else
+                        return 0;
+        }
+
+        /* Destroy every field but the last one */
+        int i;
+        for (i = buffer->width[row] - 1; i > 0; i--) {
+                destroy_field(buffer->field[row][i]);
+        }
+        /* Clear the last field */
+        set_field(buffer->field[row][0], "\0");
+
+        temp_row = realloc(buffer->field[row], sizeof (CSV_FIELD*));
+        /* If it didn't shrink, recreate the destroyed fields */
+        if (temp_row == NULL) { 
+                for (i = 1; i < buffer->width[row]; i++) {
+                        append_field(buffer, row);
+                        set_field(buffer->field[row][i], "\0");
+                }
+                return 1;
+        } else {
+                buffer->field[row] = temp_row;
+        }
+
+        buffer->width[row] = 1;
+
+        return 0;
+}

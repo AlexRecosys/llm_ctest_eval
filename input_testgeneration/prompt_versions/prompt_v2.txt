@@ -1,0 +1,23 @@
+
+Generate a Unity unit test for this function:
+{function_under_test}
+
+
+Constraints:
+DO NOT MOCK. Use the actual project functions for setup and teardown.
+No nested functions. Define all helpers at the top level.
+Standard Unity only. Use TEST_ASSERT_EQUAL_INT, etc.
+
+Necessary Context:
+
+Structs: {relevant_structs}
+Setup API: {helper_functions}
+
+Assumptions: {asssumptions}
+
+Required includes:
+
+#include "unity.h"
+#include "{header_name}"
+#include <stdlib.h>
+#include <string.h>
