@@ -1,3 +1,0 @@
-first successfull run with claude
-
-Qwen did not include header csv.header

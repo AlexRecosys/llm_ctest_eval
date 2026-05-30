@@ -3,40 +3,22 @@
     {
       "run": "run_01_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
-      },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "line_coverage": null,
+      "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_02_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
-      },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "line_coverage": null,
+      "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_03_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
-      },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "line_coverage": null,
+      "branch_coverage": null,
       "tests_passed": false
     }
   ],
@@ -45,39 +27,33 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
+        "percent": 100.0,
+        "total": 16,
+        "covered": 16
       },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": true
     },
     {
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
+        "percent": 93.75,
+        "total": 16,
+        "covered": 15
       },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": true
     },
     {
       "run": "run_03_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
+        "percent": 93.75,
+        "total": 16,
+        "covered": 15
       },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": true
     }
   ],
@@ -85,40 +61,22 @@
     {
       "run": "run_01_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
-      },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "line_coverage": null,
+      "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_02_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
-      },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "line_coverage": null,
+      "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_03_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
-      },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "line_coverage": null,
+      "branch_coverage": null,
       "tests_passed": false
     }
   ],
@@ -127,26 +85,22 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 6.74,
-        "total": 1410
+        "percent": 93.18,
+        "total": 44,
+        "covered": 41
       },
-      "branch_coverage": {
-        "percent": 12.82,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 6.74,
-        "total": 1410
+        "percent": 88.64,
+        "total": 44,
+        "covered": 39
       },
-      "branch_coverage": {
-        "percent": 12.82,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": false
     },
     {
@@ -162,39 +116,33 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
+        "percent": 81.16,
+        "total": 69,
+        "covered": 56
       },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": true
     },
     {
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
+        "percent": 73.91,
+        "total": 69,
+        "covered": 51
       },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": true
     },
     {
       "run": "run_03_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 0.0,
-        "total": 1410
+        "percent": 73.91,
+        "total": 69,
+        "covered": 51
       },
-      "branch_coverage": {
-        "percent": 0.0,
-        "total": 944
-      },
+      "branch_coverage": null,
       "tests_passed": true
     }
   ]

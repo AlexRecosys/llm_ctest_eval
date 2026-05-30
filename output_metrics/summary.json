@@ -1,26 +1,214 @@
 {
   "claude": {
     "overall": {
-      "compile_rate": 0,
-      "avg_line_coverage": 0,
-      "avg_branch_coverage": 0
+      "n_runs": 15,
+      "n_compiled": 14,
+      "compile_rate": 93.33333333333333,
+      "line_coverage": {
+        "percent": 82.79883381924198,
+        "covered": 284,
+        "total": 343,
+        "n_valid_runs": 8
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "covered": 0,
+        "total": 0,
+        "n_valid_runs": 0
+      }
     },
-    "per_function": {}
-  },
-  "deepseek": {
-    "overall": {
-      "compile_rate": 0,
-      "avg_line_coverage": 0,
-      "avg_branch_coverage": 0
-    },
-    "per_function": {}
+    "per_function": {
+      "csv_clear_row": {
+        "n_runs": 3,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "csv_get_field": {
+        "n_runs": 3,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
+        "line_coverage": {
+          "percent": 95.83333333333334,
+          "covered": 46,
+          "total": 48,
+          "n_valid_runs": 3
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "csv_insert_field": {
+        "n_runs": 3,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "parse_number": {
+        "n_runs": 3,
+        "n_compiled": 2,
+        "compile_rate": 66.66666666666666,
+        "line_coverage": {
+          "percent": 90.9090909090909,
+          "covered": 80,
+          "total": 88,
+          "n_valid_runs": 2
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "parse_string": {
+        "n_runs": 3,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
+        "line_coverage": {
+          "percent": 76.32850241545893,
+          "covered": 158,
+          "total": 207,
+          "n_valid_runs": 3
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      }
+    }
   },
   "qwen": {
     "overall": {
-      "compile_rate": 0,
-      "avg_line_coverage": 0,
-      "avg_branch_coverage": 0
+      "n_runs": 15,
+      "n_compiled": 0,
+      "compile_rate": 0.0,
+      "line_coverage": {
+        "percent": 0.0,
+        "covered": 0,
+        "total": 0,
+        "n_valid_runs": 0
+      },
+      "branch_coverage": {
+        "percent": 0.0,
+        "covered": 0,
+        "total": 0,
+        "n_valid_runs": 0
+      }
     },
-    "per_function": {}
+    "per_function": {
+      "csv_clear_row": {
+        "n_runs": 3,
+        "n_compiled": 0,
+        "compile_rate": 0.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "csv_get_field": {
+        "n_runs": 3,
+        "n_compiled": 0,
+        "compile_rate": 0.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "csv_insert_field": {
+        "n_runs": 3,
+        "n_compiled": 0,
+        "compile_rate": 0.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "parse_number": {
+        "n_runs": 3,
+        "n_compiled": 0,
+        "compile_rate": 0.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      },
+      "parse_string": {
+        "n_runs": 3,
+        "n_compiled": 0,
+        "compile_rate": 0.0,
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0,
+          "total": 0,
+          "n_valid_runs": 0
+        }
+      }
+    }
   }
 }

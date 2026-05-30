@@ -56,7 +56,7 @@ int csv_get_field(char *dest, size_t dest_len,
 
 2. File-scope static variables / fixtures
 
-3. All helper functions and macros at the TOP of the file, before any test case
+3. All necessary helper functions and macros at the TOP of the file, before any test case
 
 4. All test cases
 

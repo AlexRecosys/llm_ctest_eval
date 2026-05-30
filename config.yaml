@@ -4,6 +4,7 @@
 
 
 # === Modell-Endpunkte ===
+
 models:
   claude:
     api_url: "https://api.anthropic.com/v1/messages"
