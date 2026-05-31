@@ -1,0 +1,86 @@
+You are a C testing expert specializing in the Unity test framework. Generate a complete, compilable Unity unit test file for the following C function: 
+
+{function_under_test}
+
+## Requirements
+
+
+**Setup & Teardown**
+
+
+
+- Do NOT use mocks, stubs, or fakes of any kind
+
+- Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
+
+- Initialize all real dependencies the function under test requires
+
+- Clean up all allocated resources in tearDown() to prevent leaks between tests
+ 
+**File Structure (in this exact order)**
+
+1. All `#include` directives (Unity + project headers)
+
+2. File-scope static variables / fixtures
+
+3. All helper functions and macros at the TOP of the file, before any test case
+
+4. All test cases
+
+5. `main(void)` with `UNITY_BEGIN()`, `RUN_TEST(...)` for every test, and `UNITY_END()`
+
+ 
+**Assertions**
+
+- Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`. Pick from:
+
+  - `TEST_ASSERT_EQUAL_INT`, `TEST_ASSERT_EQUAL_UINT`, `TEST_ASSERT_EQUAL_HEX`, `TEST_ASSERT_EQUAL_FLOAT`, `TEST_ASSERT_EQUAL_DOUBLE` for scalars of the matching type
+
+  - `TEST_ASSERT_EQUAL_UINT` for size_t scalars
+
+  - `TEST_ASSERT_EQUAL_STRING`, `TEST_ASSERT_EQUAL_STRING_LEN` for C strings
+
+  - `TEST_ASSERT_EQUAL_MEMORY` for byte buffers / structs
+
+  - `TEST_ASSERT_EQUAL_*_ARRAY` for arrays
+
+  - `TEST_ASSERT_NULL`, `TEST_ASSERT_NOT_NULL` for pointers
+
+  - `TEST_ASSERT_TRUE`, `TEST_ASSERT_FALSE` for booleans
+
+  - `TEST_ASSERT_GREATER_THAN`, `TEST_ASSERT_LESS_THAN`, `TEST_ASSERT_WITHIN` for ranges
+
+- Always pass a descriptive message via the `_MESSAGE` variants when a failure would otherwise be ambiguous
+ 
+**Coverage**
+
+Generate 5 test cases.
+ 
+**Constraints**
+
+- Output ONLY the C source file — no prose, no markdown fences, no explanation
+
+- Code must compile cleanly with `-Wall -Wextra` against the provided project headers
+
+- Use the exact identifier names from the project context — do not invent function or type names
+
+- Include setUp(void) and tearDown(void) (non-static, visible to Unity).
+ 
+---
+ 
+## Project context:
+
+Include the following header files: 
+
+{header_name}
+
+This is the content of the headers for reference:
+
+{header_name}
+{header_code}
+
+
+This is the context of the function:
+{context}
+
+Now you can Generate the testcases.
