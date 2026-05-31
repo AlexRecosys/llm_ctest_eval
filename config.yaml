@@ -22,7 +22,7 @@ models:
 # === Experiment-Parameter ===
 experiment:
   runs_per_function: 3
-  prompt_version: "prompt_v5.txt"
+  prompt_version: "prompt_v6.txt"
   gcc_flags: ["-fprofile-arcs", "-ftest-coverage", "-Wall"]
 
 # === Pfade ===

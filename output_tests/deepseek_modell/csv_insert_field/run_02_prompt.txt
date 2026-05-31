@@ -46,7 +46,20 @@ int csv_insert_field(CSV_BUFFER *buffer, size_t row, size_t entry,
 
 4. All test cases
 
-5. `main(void)` with `UNITY_BEGIN()`, `RUN_TEST(...)` for every test, and `UNITY_END()`
+5. `main(void)` — MANDATORY, NEVER OMIT THIS FUNCTION.
+   You MUST output this function as the final block of the file.
+   Dynamically include every test you generated above:
+
+   int main(void) {
+       UNITY_BEGIN();
+       RUN_TEST(test_case_name_1);
+       RUN_TEST(test_case_name_2);
+       ...
+       return UNITY_END();
+   }
+
+A file without main(void) does NOT compile. It is invalid output.
+
  
 **Assertions**
 

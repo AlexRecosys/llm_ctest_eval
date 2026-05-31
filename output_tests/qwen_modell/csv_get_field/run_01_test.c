@@ -20,86 +20,121 @@ void tearDown(void)
 static void setup_test_row_with_field(const char *field_text)
 {
     int ret;
-    ret = csv_set_field(buffer, 0, 0, (char *)field_text);
+    ret = csv_set_field(buffer, 0, 0, field_text);
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
-static void setup_multi_field_row(size_t row, size_t num_fields, const char **fields)
+static void setup_multi_field_row(size_t row, const char *field1, const char *field2)
 {
-    size_t i;
     int ret;
+    ret = csv_set_field(buffer, row, 0, field1);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, row, 1, field2);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+}
 
-    for (i = 0; i < num_fields; i++) {
-        ret = csv_set_field(buffer, row, i, (char *)fields[i]);
-        TEST_ASSERT_EQUAL_INT(0, ret);
+static void setup_two_rows(void)
+{
+    int ret;
+    ret = csv_set_field(buffer, 0, 0, "row0col0");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 0, 1, "row0col1");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 1, 0, "row1col0");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+}
+
+static void fill_dest_with_pattern(char *dest, size_t len)
+{
+    for (size_t i = 0; i < len; i++) {
+        dest[i] = 'X';
     }
+}
+
+static int compare_dest_with_expected(const char *dest, size_t dest_len, const char *expected)
+{
+    size_t expected_len = strlen(expected);
+    size_t copy_len = (dest_len <= expected_len) ? dest_len : expected_len;
+    if (copy_len > 0) {
+        if (strncmp(dest, expected, copy_len) != 0) {
+            return 1;
+        }
+    }
+    if (dest_len > 0 && dest[dest_len - 1] != '\0') {
+        return 2;
+    }
+    return 0;
 }
 
 void test_csv_get_field_success_full_copy(void)
 {
-    const char *test_text = "Hello, World!";
-    char dest[64];
+    char dest[32];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
-    setup_test_row_with_field(test_text);
+    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
-    int result = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_STRING(test_text, dest);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    TEST_ASSERT_EQUAL_STRING("hello", dest);
 }
 
 void test_csv_get_field_truncation_returns_1(void)
 {
-    const char *test_text = "This is a long string";
-    char dest[10];
+    char dest[6];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
-    setup_test_row_with_field(test_text);
+    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
-    int result = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-
-    TEST_ASSERT_EQUAL_INT(1, result);
-    TEST_ASSERT_EQUAL_STRING_LEN("This is a ", dest, sizeof(dest) - 1);
-    TEST_ASSERT_EQUAL_INT('\0', dest[sizeof(dest) - 1]);
+    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_EQUAL_STRING_LEN("hello", dest, 5);
+    TEST_ASSERT_EQUAL_INT('\0', dest[5]);
 }
 
 void test_csv_get_field_empty_field_returns_2(void)
 {
-    const char *empty_text = "";
-    char dest[64];
+    char dest[32];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("");
 
-    setup_test_row_with_field(empty_text);
+    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
-    int result = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-
-    TEST_ASSERT_EQUAL_INT(2, result);
+    TEST_ASSERT_EQUAL_INT(2, ret);
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-void test_csv_get_field_invalid_row_or_entry_returns_2(void)
+void test_csv_get_field_invalid_row_or_entry_clears_dest_returns_2(void)
 {
-    const char *test_text = "Some data";
-    char dest[64];
+    char dest[32];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
-    setup_test_row_with_field(test_text);
+    int ret = csv_get_field(dest, sizeof(dest), buffer, 99, 0);
 
-    int result;
-
-    result = csv_get_field(dest, sizeof(dest), buffer, 99, 0);
-    TEST_ASSERT_EQUAL_INT(2, result);
-    TEST_ASSERT_EQUAL_STRING("", dest);
-
-    result = csv_get_field(dest, sizeof(dest), buffer, 0, 99);
-    TEST_ASSERT_EQUAL_INT(2, result);
+    TEST_ASSERT_EQUAL_INT(2, ret);
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
 void test_csv_get_field_zero_dest_len_returns_3(void)
 {
-    char dest[64];
+    char dest[32];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
-    setup_test_row_with_field("Some data");
+    int ret = csv_get_field(dest, 0, buffer, 0, 0);
 
-    int result = csv_get_field(dest, 0, buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(3, ret);
+    // dest should remain unchanged (no write attempted)
+    TEST_ASSERT_EQUAL_INT('X', dest[0]);
+}
 
-    TEST_ASSERT_EQUAL_INT(3, result);
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_csv_get_field_success_full_copy);
+    RUN_TEST(test_csv_get_field_truncation_returns_1);
+    RUN_TEST(test_csv_get_field_empty_field_returns_2);
+    RUN_TEST(test_csv_get_field_invalid_row_or_entry_clears_dest_returns_2);
+    RUN_TEST(test_csv_get_field_zero_dest_len_returns_3);
+    return UNITY_END();
 }

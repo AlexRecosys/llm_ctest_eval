@@ -6,7 +6,7 @@ static CSV_BUFFER *buffer = NULL;
 void setUp(void)
 {
     buffer = csv_create_buffer();
-    TEST_ASSERT_NOT_NULL_MESSAGE(buffer, "Failed to create buffer");
+    TEST_ASSERT_NOT_NULL(buffer);
 }
 
 void tearDown(void)
@@ -19,110 +19,140 @@ void tearDown(void)
 
 static void populate_row_with_fields(CSV_BUFFER *buf, size_t row, size_t field_count)
 {
-    for (size_t i = 0; i < field_count; i++) {
-        char field_text[32];
-        snprintf(field_text, sizeof(field_text), "field_%zu_%zu", row, i);
-        TEST_ASSERT_EQUAL_INT_MESSAGE(0, csv_set_field(buf, row, i, field_text),
-                                      "Failed to set field");
+    int ret;
+    ret = csv_set_field(buf, row, 0, "first");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    for (size_t i = 1; i < field_count; i++) {
+        ret = csv_set_field(buf, row, i, "extra");
+        TEST_ASSERT_EQUAL_INT(0, ret);
     }
 }
 
-static void verify_row_cleared(CSV_BUFFER *buf, size_t row, const char *expected_text)
+static void verify_row_cleared(CSV_BUFFER *buf, size_t row)
 {
-    char dest[256] = {0};
-    int result = csv_get_field(dest, sizeof(dest), buf, row, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_get_field should succeed");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE(expected_text, dest, "Field content mismatch");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buf, row),
-                                  "Row width should be 1 after clear");
+    char dest[64] = {0};
+    int ret = csv_get_field(dest, sizeof(dest), buf, row, 0);
+    TEST_ASSERT_EQUAL_INT(2, ret);  // empty field
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buf, row));
 }
 
-static void verify_row_not_cleared(CSV_BUFFER *buf, size_t row, size_t expected_width,
-                                   const char *expected_first_field)
+static void verify_row_not_cleared(CSV_BUFFER *buf, size_t row, size_t expected_width)
 {
-    char dest[256] = {0};
-    int result = csv_get_field(dest, sizeof(dest), buf, row, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_get_field should succeed");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE(expected_first_field, dest, "First field content mismatch");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(expected_width, csv_get_width(buf, row),
-                                  "Row width should be unchanged");
+    TEST_ASSERT_EQUAL_INT(expected_width, (size_t)csv_get_width(buf, row));
 }
 
-TEST(csv_clear_row, should_clear_single_field_row)
+static void create_multi_row_buffer_with_fields(size_t num_rows, size_t fields_per_row)
 {
-    // Setup: Add one row with one field
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, csv_set_field(buffer, 0, 0, "initial"),
-                                  "Failed to set initial field");
-
-    // Act
-    int result = csv_clear_row(buffer, 0);
-
-    // Assert
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Function should return 0 on success");
-    verify_row_cleared(buffer, 0, "");
+    int ret;
+    for (size_t r = 0; r < num_rows; r++) {
+        ret = csv_set_field(buffer, r, 0, "row");
+        TEST_ASSERT_EQUAL_INT(0, ret);
+        for (size_t f = 1; f < fields_per_row; f++) {
+            ret = csv_set_field(buffer, r, f, "col");
+            TEST_ASSERT_EQUAL_INT(0, ret);
+        }
+    }
 }
 
-TEST(csv_clear_row, should_clear_multi_field_row)
+TEST(csv_clear_row, should_clear_last_row_efficiently)
 {
-    // Setup: Add one row with 3 fields
-    populate_row_with_fields(buffer, 0, 3);
+    // Setup: create 2 rows, each with 3 fields
+    create_multi_row_buffer_with_fields(2, 3);
 
-    // Act
-    int result = csv_clear_row(buffer, 0);
-
-    // Assert
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Function should return 0 on success");
-    verify_row_cleared(buffer, 0, "");
-}
-
-TEST(csv_clear_row, should_clear_last_row_via_remove_last_row_path)
-{
-    // Setup: Add two rows, then clear the last one (row 1)
-    populate_row_with_fields(buffer, 0, 2);
-    populate_row_with_fields(buffer, 1, 3);
-
-    // Act: Clear the last row (row 1)
+    // Act: clear the last row (row 1)
     int result = csv_clear_row(buffer, 1);
 
     // Assert
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Function should return 0 on success");
-    verify_row_cleared(buffer, 1, "");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(buffer),
-                                  "Buffer height should remain 2");
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(1, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));  // row 1 now has 1 field
+    verify_row_cleared(buffer, 1);
 }
 
-TEST(csv_clear_row, should_fail_gracefully_on_invalid_row)
+TEST(csv_clear_row, should_clear_middle_row_and_preserve_other_rows)
 {
-    // Setup: Empty buffer (0 rows)
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, csv_get_height(buffer), "Buffer should start empty");
+    // Setup: create 3 rows, each with 4 fields
+    create_multi_row_buffer_with_fields(3, 4);
 
-    // Act
+    // Act: clear middle row (row 1)
+    int result = csv_clear_row(buffer, 1);
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(3, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(4, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));
+    TEST_ASSERT_EQUAL_INT(4, csv_get_width(buffer, 2));
+    verify_row_cleared(buffer, 1);
+}
+
+TEST(csv_clear_row, should_handle_row_with_single_field)
+{
+    // Setup: create 1 row with 1 field
+    csv_set_field(buffer, 0, 0, "single");
+
+    // Act: clear the only row
     int result = csv_clear_row(buffer, 0);
 
-    // Assert: Function should return 1 (error) for invalid row
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Function should return 1 for invalid row");
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(1, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));
+    verify_row_cleared(buffer, 0);
+}
+
+TEST(csv_clear_row, should_handle_row_with_many_fields)
+{
+    // Setup: create 1 row with 10 fields
+    create_multi_row_buffer_with_fields(1, 10);
+
+    // Act: clear the row
+    int result = csv_clear_row(buffer, 0);
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(1, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));
+    verify_row_cleared(buffer, 0);
 }
 
 TEST(csv_clear_row, should_preserve_other_rows_when_clearing_non_last_row)
 {
-    // Setup: Two rows, each with multiple fields
-    populate_row_with_fields(buffer, 0, 3);
-    populate_row_with_fields(buffer, 1, 2);
+    // Setup: create 3 rows with varying field counts
+    csv_set_field(buffer, 0, 0, "row0col0");
+    csv_set_field(buffer, 0, 1, "row0col1");
+    csv_set_field(buffer, 1, 0, "row1col0");
+    csv_set_field(buffer, 1, 1, "row1col1");
+    csv_set_field(buffer, 1, 2, "row1col2");
+    csv_set_field(buffer, 2, 0, "row2col0");
 
-    // Act: Clear row 0
-    int result = csv_clear_row(buffer, 0);
+    // Act: clear middle row (row 1)
+    int result = csv_clear_row(buffer, 1);
 
     // Assert
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Function should return 0 on success");
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(3, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(2, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 2));
 
-    // Verify row 0 is cleared
-    verify_row_cleared(buffer, 0, "");
+    // Verify content of preserved rows
+    char dest[64] = {0};
+    csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+    TEST_ASSERT_EQUAL_STRING("row0col0", dest);
+    csv_get_field(dest, sizeof(dest), buffer, 2, 0);
+    TEST_ASSERT_EQUAL_STRING("row2col0", dest);
+    verify_row_cleared(buffer, 1);
+}
 
-    // Verify row 1 is unchanged
-    char dest[256] = {0};
-    int get_result = csv_get_field(dest, sizeof(dest), buffer, 1, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, get_result, "csv_get_field should succeed for row 1");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("field_1_0", dest, "Row 1 first field should be unchanged");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_width(buffer, 1),
-                                  "Row 1 width should be unchanged");
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(csv_clear_row_should_clear_last_row_efficiently);
+    RUN_TEST(csv_clear_row_should_clear_middle_row_and_preserve_other_rows);
+    RUN_TEST(csv_clear_row_should_handle_row_with_single_field);
+    RUN_TEST(csv_clear_row_should_handle_row_with_many_fields);
+    RUN_TEST(csv_clear_row_should_preserve_other_rows_when_clearing_non_last_row);
+    return UNITY_END();
 }

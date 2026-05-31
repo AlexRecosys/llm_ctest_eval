@@ -20,114 +20,124 @@ void tearDown(void)
 static void setup_test_row_with_field(const char *field_text)
 {
     int ret;
-    ret = csv_set_field(buffer, 0, 0, (char *)field_text);
+    ret = csv_set_field(buffer, 0, 0, field_text);
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
-static void setup_multi_field_row(size_t row, size_t num_fields, const char **fields)
+static void setup_test_row_with_multiple_fields(const char *f0, const char *f1, const char *f2)
 {
-    size_t i;
     int ret;
-
-    for (i = 0; i < num_fields; i++) {
-        ret = csv_set_field(buffer, row, i, (char *)fields[i]);
-        TEST_ASSERT_EQUAL_INT(0, ret);
-    }
+    ret = csv_set_field(buffer, 0, 0, f0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 0, 1, f1);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 0, 2, f2);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 static void setup_two_rows(void)
 {
-    const char *row0_fields[] = {"A1", "A2"};
-    const char *row1_fields[] = {"B1", "B2", "B3"};
     int ret;
+    ret = csv_set_field(buffer, 0, 0, "row0col0");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 1, 0, "row1col0");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+}
 
-    ret = csv_set_field(buffer, 0, 0, (char *)row0_fields[0]);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_set_field(buffer, 0, 1, (char *)row0_fields[1]);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+static void fill_dest_with_pattern(char *dest, size_t len)
+{
+    for (size_t i = 0; i < len; i++) {
+        dest[i] = 'X';
+    }
+}
 
-    ret = csv_set_field(buffer, 1, 0, (char *)row1_fields[0]);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_set_field(buffer, 1, 1, (char *)row1_fields[1]);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_set_field(buffer, 1, 2, (char *)row1_fields[2]);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+static int compare_dest_with_expected(const char *dest, size_t dest_len, const char *expected)
+{
+    size_t copy_len = (dest_len > 0) ? dest_len - 1 : 0;
+    if (copy_len == 0) {
+        return (dest[0] == '\0') ? 0 : -1;
+    }
+    if (strncmp(dest, expected, copy_len) != 0) {
+        return -1;
+    }
+    if (dest[copy_len] != '\0') {
+        return -2;
+    }
+    return 0;
 }
 
 void test_csv_get_field_success_full_copy(void)
 {
-    const char *test_field = "Hello";
-    char dest[64] = {0};
-
-    setup_test_row_with_field(test_field);
+    char dest[100];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
     int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_STRING_MESSAGE(test_field, dest, "Field content mismatch");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello", dest, "Field content mismatch");
 }
 
 void test_csv_get_field_truncation_returns_1(void)
 {
-    const char *test_field = "HelloWorld";
-    char dest[6] = {0};  // only 5 chars + null
-
-    setup_test_row_with_field(test_field);
+    char dest[6];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
     int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(1, ret);
-    TEST_ASSERT_EQUAL_STRING_LEN_MESSAGE("Hello", dest, 5, "Truncated content mismatch");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello", dest, "Truncated content mismatch");
 }
 
-void test_csv_get_field_empty_or_missing_returns_2(void)
+void test_csv_get_field_empty_field_returns_2(void)
 {
-    char dest[64] = {0};
+    char dest[100];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("");
 
-    // First test: empty field (row exists, entry 0 exists but is empty)
-    int ret = csv_set_field(buffer, 0, 0, "");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+
     TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Empty field should yield empty string");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Empty field should produce empty string");
+}
 
-    // Second test: non-existent row
+void test_csv_get_field_invalid_row_or_entry_returns_2(void)
+{
+    char dest[100];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
+
+    int ret;
+
     ret = csv_get_field(dest, sizeof(dest), buffer, 99, 0);
     TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Non-existent row should yield empty string");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Invalid row should clear dest");
 
-    // Third test: non-existent entry in existing row
     ret = csv_get_field(dest, sizeof(dest), buffer, 0, 99);
     TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Non-existent entry should yield empty string");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Invalid entry should clear dest");
 }
 
 void test_csv_get_field_zero_dest_len_returns_3(void)
 {
-    char dest[64] = {0};
-
-    setup_test_row_with_field("test");
+    char dest[100];
+    fill_dest_with_pattern(dest, sizeof(dest));
+    setup_test_row_with_field("hello");
 
     int ret = csv_get_field(dest, 0, buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(3, ret);
-    // Per spec: dest[0] = '\0' is set for invalid cases
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Zero-length dest should be cleared");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Zero dest_len should clear dest");
 }
 
-void test_csv_get_field_negative_row_entry_handling(void)
+int main(void)
 {
-    char dest[64] = {0};
-
-    setup_test_row_with_field("test");
-
-    // Test negative row (cast to size_t makes it huge, so >= rows)
-    int ret = csv_get_field(dest, sizeof(dest), buffer, (size_t)-1, 0);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Negative row should be treated as invalid");
-
-    // Test negative entry (cast to size_t makes it huge)
-    ret = csv_get_field(dest, sizeof(dest), buffer, 0, (size_t)-1);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Negative entry should be treated as invalid");
+    UNITY_BEGIN();
+    RUN_TEST(test_csv_get_field_success_full_copy);
+    RUN_TEST(test_csv_get_field_truncation_returns_1);
+    RUN_TEST(test_csv_get_field_empty_field_returns_2);
+    RUN_TEST(test_csv_get_field_invalid_row_or_entry_returns_2);
+    RUN_TEST(test_csv_get_field_zero_dest_len_returns_3);
+    return UNITY_END();
 }

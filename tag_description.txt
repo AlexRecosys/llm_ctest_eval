@@ -1,20 +1,3 @@
-Die vom Qwen Modell generierten Tests folgen in 40% der Fälle der Falschen Unity-Syntax, mit falsch verwendeten Makros, trotz expliziter Regulierung im Prompt V5:
+Abgesehen von einem Ausreiser in der csv_clear_row Funktion, konnten mit dem prompt_v6 die untersuchten Qwen Funktionen der CSV Codebase kompilieren.
 
-
-- Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`. Pick from:
-
-  - `TEST_ASSERT_EQUAL_INT`, `TEST_ASSERT_EQUAL_UINT`, `TEST_ASSERT_EQUAL_HEX`, `TEST_ASSERT_EQUAL_FLOAT`, `TEST_ASSERT_EQUAL_DOUBLE` for scalars of the matching type
-
-  - `TEST_ASSERT_EQUAL_UINT` for size_t scalars
-
-  - `TEST_ASSERT_EQUAL_STRING`, `TEST_ASSERT_EQUAL_STRING_LEN` for C strings
-
-  - `TEST_ASSERT_EQUAL_MEMORY` for byte buffers / structs
-
-  - `TEST_ASSERT_EQUAL_*_ARRAY` for arrays
-
-  - `TEST_ASSERT_NULL`, `TEST_ASSERT_NOT_NULL` for pointers
-
-  - `TEST_ASSERT_TRUE`, `TEST_ASSERT_FALSE` for booleans
-
-  - `TEST_ASSERT_GREATER_THAN`, `TEST_ASSERT_LESS_THAN`, `TEST_ASSERT_WITHIN` for ranges
+Als nächstes werden Verbesserungen der Segmentation Faults für einzelne Tests geprüft um nachvollziehbare Messwerte zu erhalten.
