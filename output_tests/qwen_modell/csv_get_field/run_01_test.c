@@ -27,8 +27,10 @@ static void setup_test_row_with_field(const char *field_text)
 static void setup_multi_field_row(size_t row, size_t num_fields, const char **fields)
 {
     size_t i;
+    int ret;
+
     for (i = 0; i < num_fields; i++) {
-        int ret = csv_set_field(buffer, row, i, (char *)fields[i]);
+        ret = csv_set_field(buffer, row, i, (char *)fields[i]);
         TEST_ASSERT_EQUAL_INT(0, ret);
     }
 }
@@ -36,9 +38,10 @@ static void setup_multi_field_row(size_t row, size_t num_fields, const char **fi
 void test_csv_get_field_success_full_copy(void)
 {
     const char *test_text = "Hello, World!";
+    char dest[64];
+
     setup_test_row_with_field(test_text);
 
-    char dest[64] = {0};
     int result = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(0, result);
@@ -48,21 +51,24 @@ void test_csv_get_field_success_full_copy(void)
 void test_csv_get_field_truncation_returns_1(void)
 {
     const char *test_text = "This is a long string";
+    char dest[10];
+
     setup_test_row_with_field(test_text);
 
-    char dest[10] = {0};
     int result = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(1, result);
-    TEST_ASSERT_EQUAL_STRING_LEN(test_text, dest, sizeof(dest) - 1);
+    TEST_ASSERT_EQUAL_STRING_LEN("This is a ", dest, sizeof(dest) - 1);
     TEST_ASSERT_EQUAL_INT('\0', dest[sizeof(dest) - 1]);
 }
 
 void test_csv_get_field_empty_field_returns_2(void)
 {
-    setup_test_row_with_field("");
+    const char *empty_text = "";
+    char dest[64];
 
-    char dest[64] = {0};
+    setup_test_row_with_field(empty_text);
+
     int result = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(2, result);
@@ -71,32 +77,29 @@ void test_csv_get_field_empty_field_returns_2(void)
 
 void test_csv_get_field_invalid_row_or_entry_returns_2(void)
 {
-    const char *test_text = "Valid data";
+    const char *test_text = "Some data";
+    char dest[64];
+
     setup_test_row_with_field(test_text);
 
-    char dest[64] = {0};
     int result;
 
-    // Test invalid row (row >= buffer rows)
-    result = csv_get_field(dest, sizeof(dest), buffer, 10, 0);
+    result = csv_get_field(dest, sizeof(dest), buffer, 99, 0);
     TEST_ASSERT_EQUAL_INT(2, result);
     TEST_ASSERT_EQUAL_STRING("", dest);
 
-    // Test invalid entry (entry >= row width)
-    result = csv_get_field(dest, sizeof(dest), buffer, 0, 10);
+    result = csv_get_field(dest, sizeof(dest), buffer, 0, 99);
     TEST_ASSERT_EQUAL_INT(2, result);
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
 void test_csv_get_field_zero_dest_len_returns_3(void)
 {
-    const char *test_text = "Some text";
-    setup_test_row_with_field(test_text);
+    char dest[64];
 
-    char dest[64] = {0};
+    setup_test_row_with_field("Some data");
+
     int result = csv_get_field(dest, 0, buffer, 0, 0);
 
     TEST_ASSERT_EQUAL_INT(3, result);
-    // dest should remain unchanged (no write attempted)
-    TEST_ASSERT_EQUAL_STRING("", dest);
 }

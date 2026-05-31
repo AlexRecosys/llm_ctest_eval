@@ -1,5 +1,20 @@
-Kein einziger vom Qwen Modell erstellter Test hatte eine main Methode enthalten, trotz der Prompt Version V6 mit diesem Inhalt zur Main:
+Die vom Qwen Modell generierten Tests folgen in 40% der Fälle der Falschen Unity-Syntax, mit falsch verwendeten Makros, trotz expliziter Regulierung im Prompt V5:
 
-`main(void)` with `UNITY_BEGIN()`, `RUN_TEST(...)` for every test, and `UNITY_END()`
 
--> weshalb der Prompt geändert wird und diese Version getagged.
+- Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`. Pick from:
+
+  - `TEST_ASSERT_EQUAL_INT`, `TEST_ASSERT_EQUAL_UINT`, `TEST_ASSERT_EQUAL_HEX`, `TEST_ASSERT_EQUAL_FLOAT`, `TEST_ASSERT_EQUAL_DOUBLE` for scalars of the matching type
+
+  - `TEST_ASSERT_EQUAL_UINT` for size_t scalars
+
+  - `TEST_ASSERT_EQUAL_STRING`, `TEST_ASSERT_EQUAL_STRING_LEN` for C strings
+
+  - `TEST_ASSERT_EQUAL_MEMORY` for byte buffers / structs
+
+  - `TEST_ASSERT_EQUAL_*_ARRAY` for arrays
+
+  - `TEST_ASSERT_NULL`, `TEST_ASSERT_NOT_NULL` for pointers
+
+  - `TEST_ASSERT_TRUE`, `TEST_ASSERT_FALSE` for booleans
+
+  - `TEST_ASSERT_GREATER_THAN`, `TEST_ASSERT_LESS_THAN`, `TEST_ASSERT_WITHIN` for ranges
