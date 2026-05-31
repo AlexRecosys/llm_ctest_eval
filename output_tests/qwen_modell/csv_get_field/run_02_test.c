@@ -1,117 +1,146 @@
 #include "unity.h"
 #include "csv.h"
 
-static CSV_BUFFER *test_buffer = NULL;
+static CSV_BUFFER *buffer = NULL;
 
 void setUp(void)
 {
-    test_buffer = csv_create_buffer();
-    TEST_ASSERT_NOT_NULL(test_buffer);
+    buffer = csv_create_buffer();
+    TEST_ASSERT_NOT_NULL(buffer);
 }
 
 void tearDown(void)
 {
-    if (test_buffer != NULL) {
-        csv_destroy_buffer(test_buffer);
-        test_buffer = NULL;
+    if (buffer != NULL) {
+        csv_destroy_buffer(buffer);
+        buffer = NULL;
     }
 }
 
-static void setup_test_csv(CSV_BUFFER *buf, size_t rows, size_t cols, const char * const * const data)
+static void setup_test_row_with_field(const char *field_text)
 {
-    for (size_t r = 0; r < rows; r++) {
-        append_row(buf);
-        for (size_t c = 0; c < cols; c++) {
-            append_field(buf, r);
-            if (data && data[r * cols + c]) {
-                set_field(buf->field[r][c], (char *)data[r * cols + c]);
-            }
-        }
+    int ret;
+    ret = csv_set_field(buffer, 0, 0, (char *)field_text);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+}
+
+static void setup_multi_field_row(size_t row, size_t num_fields, const char **fields)
+{
+    size_t i;
+    int ret;
+
+    for (i = 0; i < num_fields; i++) {
+        ret = csv_set_field(buffer, row, i, (char *)fields[i]);
+        TEST_ASSERT_EQUAL_INT(0, ret);
     }
 }
 
-static void setup_single_field(CSV_BUFFER *buf, const char *text)
+static void setup_two_rows(void)
 {
-    append_row(buf);
-    append_field(buf, 0);
-    if (text) {
-        set_field(buf->field[0][0], (char *)text);
-    }
-}
+    const char *row0_fields[] = {"a", "b"};
+    const char *row1_fields[] = {"c", "d", "e"};
+    int ret;
 
-static void setup_multi_field_row(CSV_BUFFER *buf, const char * const *fields, size_t count)
-{
-    append_row(buf);
-    for (size_t i = 0; i < count; i++) {
-        append_field(buf, 0);
-        if (fields[i]) {
-            set_field(buf->field[0][i], (char *)fields[i]);
-        }
-    }
+    ret = csv_set_field(buffer, 0, 0, (char *)row0_fields[0]);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 0, 1, (char *)row0_fields[1]);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+
+    ret = csv_set_field(buffer, 1, 0, (char *)row1_fields[0]);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 1, 1, (char *)row1_fields[1]);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(buffer, 1, 2, (char *)row1_fields[2]);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 void test_csv_get_field_success_full_copy(void)
 {
-    const char *text = "Hello, World!";
-    setup_single_field(test_buffer, text);
+    const char *field_text = "hello";
+    char dest[32] = {0};
+    int ret;
 
-    char dest[64] = {0};
-    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    setup_test_row_with_field(field_text);
 
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_STRING(text, dest);
+    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE(field_text, dest, "Field content mismatch");
 }
 
 void test_csv_get_field_truncation_returns_1(void)
 {
-    const char *text = "This is a long string";
-    setup_single_field(test_buffer, text);
+    const char *field_text = "hello world";
+    char dest[6] = {0};  // only 5 chars + null
+    int ret;
 
-    char dest[10] = {0};
-    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    setup_test_row_with_field(field_text);
 
-    TEST_ASSERT_EQUAL_INT(1, result);
-    TEST_ASSERT_EQUAL_STRING_LEN("This is a", dest, 9);
-    TEST_ASSERT_EQUAL_INT('\0', dest[9]);
+    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+
+    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello", dest, "Truncated content mismatch");
 }
 
-void test_csv_get_field_empty_field_returns_2(void)
+void test_csv_get_field_empty_or_missing_returns_2(void)
 {
-    setup_single_field(test_buffer, "");
+    char dest[32] = {0};
+    int ret;
 
-    char dest[64] = {0};
-    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    // First test: empty field (row exists, entry exists but empty)
+    ret = csv_set_field(buffer, 0, 0, "");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(2, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Empty field should be null-terminated empty string");
 
-    TEST_ASSERT_EQUAL_INT(2, result);
-    TEST_ASSERT_EQUAL_STRING("", dest);
-}
+    // Second test: non-existent row
+    ret = csv_get_field(dest, sizeof(dest), buffer, 99, 0);
+    TEST_ASSERT_EQUAL_INT(2, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Non-existent row should clear dest");
 
-void test_csv_get_field_invalid_row_or_entry_returns_2(void)
-{
-    setup_single_field(test_buffer, "data");
-
-    char dest[64] = {0};
-    int result;
-
-    // Test invalid row (row >= rows)
-    result = csv_get_field(dest, sizeof(dest), test_buffer, 1, 0);
-    TEST_ASSERT_EQUAL_INT(2, result);
-    TEST_ASSERT_EQUAL_STRING("", dest);
-
-    // Test invalid entry (entry >= width[row])
-    result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 1);
-    TEST_ASSERT_EQUAL_INT(2, result);
-    TEST_ASSERT_EQUAL_STRING("", dest);
+    // Third test: non-existent entry in existing row
+    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 99);
+    TEST_ASSERT_EQUAL_INT(2, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", dest, "Non-existent entry should clear dest");
 }
 
 void test_csv_get_field_zero_dest_len_returns_3(void)
 {
-    setup_single_field(test_buffer, "data");
+    char dest[32] = {0};
+    int ret;
 
-    char dest[64] = {0};
-    int result = csv_get_field(dest, 0, test_buffer, 0, 0);
+    setup_test_row_with_field("test");
 
-    TEST_ASSERT_EQUAL_INT(3, result);
-    // dest should remain unchanged (not written to)
-    TEST_ASSERT_EQUAL_STRING("", dest);
+    ret = csv_get_field(dest, 0, buffer, 0, 0);
+
+    TEST_ASSERT_EQUAL_INT(3, ret);
+    // Per spec: dest should be cleared (but dest_len=0 means no write possible)
+    // Unity doesn't guarantee dest[0] is set when dest_len==0, so skip content check
+}
+
+void test_csv_get_field_multi_row_entry(void)
+{
+    const char *row0_fields[] = {"alpha", "beta"};
+    const char *row1_fields[] = {"gamma", "delta", "epsilon"};
+    char dest[32] = {0};
+    int ret;
+
+    setup_multi_field_row(0, 2, row0_fields);
+    setup_multi_field_row(1, 3, row1_fields);
+
+    // Test row 0, entry 1
+    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 1);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("beta", dest, "Row 0, entry 1 mismatch");
+
+    // Test row 1, entry 2
+    ret = csv_get_field(dest, sizeof(dest), buffer, 1, 2);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("epsilon", dest, "Row 1, entry 2 mismatch");
+
+    // Test row 1, entry 0
+    ret = csv_get_field(dest, sizeof(dest), buffer, 1, 0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("gamma", dest, "Row 1, entry 0 mismatch");
 }

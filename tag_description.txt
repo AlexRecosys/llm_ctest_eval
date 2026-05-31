@@ -1,0 +1,5 @@
+Kein einziger vom Qwen Modell erstellter Test hatte eine main Methode enthalten, trotz der Prompt Version V6 mit diesem Inhalt zur Main:
+
+`main(void)` with `UNITY_BEGIN()`, `RUN_TEST(...)` for every test, and `UNITY_END()`
+
+-> weshalb der Prompt geändert wird und diese Version getagged.

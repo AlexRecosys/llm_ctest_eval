@@ -1,165 +1,112 @@
 #include "unity.h"
 #include "csv.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-// File-scope static variables / fixtures
 static CSV_BUFFER *buffer = NULL;
 
-// Helper functions and macros
-static void init_buffer_with_rows_and_widths(CSV_BUFFER *buf, size_t num_rows, size_t *widths) {
-    buf->rows = num_rows;
-    buf->width = (size_t *)malloc(num_rows * sizeof(size_t));
-    TEST_ASSERT_NOT_NULL_MESSAGE(buf->width, "Failed to allocate width array");
-
-    buf->field = (CSV_FIELD ***)malloc(num_rows * sizeof(CSV_FIELD **));
-    TEST_ASSERT_NOT_NULL_MESSAGE(buf->field, "Failed to allocate field array");
-
-    for (size_t i = 0; i < num_rows; i++) {
-        buf->width[i] = widths[i];
-        buf->field[i] = (CSV_FIELD **)calloc(widths[i], sizeof(CSV_FIELD *));
-        TEST_ASSERT_NOT_NULL_MESSAGE(buf->field[i], "Failed to allocate row fields");
-
-        for (size_t j = 0; j < widths[i]; j++) {
-            buf->field[i][j] = create_field();
-            TEST_ASSERT_NOT_NULL_MESSAGE(buf->field[i][j], "Failed to create field");
-            char text[32];
-            snprintf(text, sizeof(text), "R%zuE%zu", i, j);
-            set_field(buf->field[i][j], text);
-        }
-    }
-}
-
-static void destroy_buffer_contents(CSV_BUFFER *buf) {
-    if (!buf) return;
-    for (size_t i = 0; i < buf->rows; i++) {
-        if (buf->field && buf->field[i]) {
-            for (size_t j = 0; j < buf->width[i]; j++) {
-                if (buf->field[i][j]) {
-                    destroy_field(buf->field[i][j]);
-                }
-            }
-            free(buf->field[i]);
-        }
-    }
-    if (buf->field) free(buf->field);
-    if (buf->width) free(buf->width);
-    memset(buf, 0, sizeof(CSV_BUFFER));
-}
-
-void setUp(void) {
+void setUp(void)
+{
     buffer = csv_create_buffer();
     TEST_ASSERT_NOT_NULL_MESSAGE(buffer, "Failed to create buffer");
-    buffer->field_delim = ',';
-    buffer->text_delim = '"';
 }
 
-void tearDown(void) {
-    csv_destroy_buffer(buffer);
-    buffer = NULL;
+void tearDown(void)
+{
+    if (buffer != NULL) {
+        csv_destroy_buffer(buffer);
+        buffer = NULL;
+    }
 }
 
-// Test cases
-void test_csv_insert_field_inserts_at_end_when_row_or_entry_out_of_bounds(void) {
-    // Setup: create buffer with 1 row, width 2
-    size_t widths[] = {2};
-    init_buffer_with_rows_and_widths(buffer, 1, widths);
-
-    // Insert at row=0, entry=2 (beyond current width)
-    int result = csv_insert_field(buffer, 0, 2, "NEW");
-
-    // Should have appended field (via csv_set_field)
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_UINT(3, buffer->width[0]);
-    char field_text[64];
-    int get_result = csv_get_field(field_text, sizeof(field_text), buffer, 0, 2);
-    TEST_ASSERT_EQUAL_INT(0, get_result);
-    TEST_ASSERT_EQUAL_STRING("NEW", field_text);
+static void verify_field(CSV_BUFFER *buf, size_t row, size_t entry, const char *expected)
+{
+    char actual[256] = {0};
+    int result = csv_get_field(actual, sizeof(actual), buf, row, entry);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_get_field should return 0 on success");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE(expected, actual, "Field content mismatch");
 }
 
-void test_csv_insert_field_inserts_at_existing_position_by_shifting(void) {
-    // Setup: create buffer with 1 row, width 3
-    size_t widths[] = {3};
-    init_buffer_with_rows_and_widths(buffer, 1, widths);
+static void setup_simple_2x2_buffer(void)
+{
+    csv_set_field(buffer, 0, 0, "A1");
+    csv_set_field(buffer, 0, 1, "B1");
+    csv_set_field(buffer, 1, 0, "A2");
+    csv_set_field(buffer, 1, 1, "B2");
+}
 
-    // Insert at row=0, entry=1 (middle)
+static void setup_1x3_buffer(void)
+{
+    csv_set_field(buffer, 0, 0, "X1");
+    csv_set_field(buffer, 0, 1, "X2");
+    csv_set_field(buffer, 0, 2, "X3");
+}
+
+static void setup_3x1_buffer(void)
+{
+    csv_set_field(buffer, 0, 0, "Y1");
+    csv_set_field(buffer, 1, 0, "Y2");
+    csv_set_field(buffer, 2, 0, "Y3");
+}
+
+void test_csv_insert_field_insert_at_end_of_row(void)
+{
+    setup_1x3_buffer();
+    int result = csv_insert_field(buffer, 0, 3, "NEW");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_insert_field should return 0 on success");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(4, csv_get_width(buffer, 0), "Row width should increase by 1");
+    verify_field(buffer, 0, 3, "NEW");
+    verify_field(buffer, 0, 0, "X1");
+    verify_field(buffer, 0, 1, "X2");
+    verify_field(buffer, 0, 2, "X3");
+}
+
+void test_csv_insert_field_insert_in_middle_of_row(void)
+{
+    setup_1x3_buffer();
     int result = csv_insert_field(buffer, 0, 1, "INSERTED");
-
-    // Should shift existing fields right and insert
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_UINT(4, buffer->width[0]);
-
-    char field_text[64];
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("R0E0", field_text);
-
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_STRING("INSERTED", field_text);
-
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 2);
-    TEST_ASSERT_EQUAL_STRING("R0E1", field_text);
-
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 3);
-    TEST_ASSERT_EQUAL_STRING("R0E2", field_text);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_insert_field should return 0 on success");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(4, csv_get_width(buffer, 0), "Row width should increase by 1");
+    verify_field(buffer, 0, 0, "X1");
+    verify_field(buffer, 0, 1, "INSERTED");
+    verify_field(buffer, 0, 2, "X2");
+    verify_field(buffer, 0, 3, "X3");
 }
 
-void test_csv_insert_field_inserts_at_beginning_of_row(void) {
-    // Setup: create buffer with 1 row, width 2
-    size_t widths[] = {2};
-    init_buffer_with_rows_and_widths(buffer, 1, widths);
-
-    // Insert at row=0, entry=0 (beginning)
+void test_csv_insert_field_insert_at_beginning_of_row(void)
+{
+    setup_1x3_buffer();
     int result = csv_insert_field(buffer, 0, 0, "FIRST");
-
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_UINT(3, buffer->width[0]);
-
-    char field_text[64];
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("FIRST", field_text);
-
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_STRING("R0E0", field_text);
-
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 2);
-    TEST_ASSERT_EQUAL_STRING("R0E1", field_text);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_insert_field should return 0 on success");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(4, csv_get_width(buffer, 0), "Row width should increase by 1");
+    verify_field(buffer, 0, 0, "FIRST");
+    verify_field(buffer, 0, 1, "X1");
+    verify_field(buffer, 0, 2, "X2");
+    verify_field(buffer, 0, 3, "X3");
 }
 
-void test_csv_insert_field_inserts_into_new_row_appends_row(void) {
-    // Setup: create buffer with 1 row
-    size_t widths[] = {1};
-    init_buffer_with_rows_and_widths(buffer, 1, widths);
-
-    // Insert at row=1 (nonexistent row), entry=0
-    int result = csv_insert_field(buffer, 1, 0, "NEW_ROW_FIELD");
-
-    // Should create new row and insert field
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_UINT(2, buffer->rows);
-    TEST_ASSERT_EQUAL_UINT(1, buffer->width[1]);
-
-    char field_text[64];
-    csv_get_field(field_text, sizeof(field_text), buffer, 1, 0);
-    TEST_ASSERT_EQUAL_STRING("NEW_ROW_FIELD", field_text);
+void test_csv_insert_field_insert_beyond_existing_row_creates_new_field(void)
+{
+    setup_1x3_buffer();
+    int result = csv_insert_field(buffer, 0, 5, "NEW");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_insert_field should return 0 on success");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(6, csv_get_width(buffer, 0), "Row width should be 6 (5+1)");
+    verify_field(buffer, 0, 5, "NEW");
+    verify_field(buffer, 0, 0, "X1");
+    verify_field(buffer, 0, 1, "X2");
+    verify_field(buffer, 0, 2, "X3");
+    // Verify empty fields in between are cleared
+    char empty[2] = {0};
+    int ret = csv_get_field(empty, sizeof(empty), buffer, 0, 3);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, ret, "Empty field should return 2");
+    ret = csv_get_field(empty, sizeof(empty), buffer, 0, 4);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, ret, "Empty field should return 2");
 }
 
-void test_csv_insert_field_inserts_into_empty_row_creates_first_field(void) {
-    // Setup: create buffer with 1 empty row
-    buffer->rows = 1;
-    buffer->width = (size_t *)malloc(sizeof(size_t));
-    buffer->width[0] = 0;
-    buffer->field = (CSV_FIELD ***)malloc(sizeof(CSV_FIELD **));
-    buffer->field[0] = NULL;
-
-    // Insert at row=0, entry=0 (first field in empty row)
-    int result = csv_insert_field(buffer, 0, 0, "FIRST");
-
-    TEST_ASSERT_EQUAL_INT(0, result);
-    TEST_ASSERT_EQUAL_UINT(1, buffer->width[0]);
-
-    char field_text[64];
-    csv_get_field(field_text, sizeof(field_text), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("FIRST", field_text);
+void test_csv_insert_field_insert_into_new_row(void)
+{
+    setup_1x3_buffer();
+    int result = csv_insert_field(buffer, 1, 0, "NEW_ROW");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "csv_insert_field should return 0 on success");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buffer, 1), "New row should have width 1");
+    verify_field(buffer, 1, 0, "NEW_ROW");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(buffer), "Buffer height should increase to 2");
 }

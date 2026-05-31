@@ -39,11 +39,13 @@ def load_prompt_template(cfg):
     return prompt_path.read_text()
 
 
+from pathlib import Path
+
 def get_functions(cfg):
     """Sammelt alle Funktions-Dateien und den dazugehörigen Kontext."""
     functions = []
     func_dir = Path(cfg["paths"]["functions_dir"])
-    src_dir =  Path(cfg["paths"]["src_dir"])
+    src_dir = Path(cfg["paths"]["src_dir"])
     
     for codebase_dir in sorted(func_dir.iterdir()):
         if not codebase_dir.is_dir():
@@ -51,24 +53,27 @@ def get_functions(cfg):
             
         codebase_name = codebase_dir.name
         header_name = cfg["codebases"].get(codebase_name, "unknown.h")
+        header_file = src_dir / codebase_name / header_name
+        
+        # Header-Text vorab mit Standardwert (leer) definieren
+        header_text = ""
+        if header_file.exists():
+            header_text = header_file.read_text()
         
         for func_folder in sorted(codebase_dir.iterdir()):
             if not func_folder.is_dir():
                 continue
                 
             func_name = func_folder.name
-            
             func_file = func_folder / f"{func_name}.txt"
-            header_file = src_dir / codebase_name / f"{header_name}"
-
-            if header_file.exists():
-                header_text = header_file.read_text() if header_file.exists() else ""
-            
             context_file = func_folder / "context.txt"
             
-
+            # Erst prüfen, ob die Haupt-Funktionsdatei überhaupt existiert
             if func_file.exists():
-                context_text = context_file.read_text() if context_file.exists() else ""
+                # Kontext auslesen (Standardwert leerer String, falls context.txt fehlt)
+                context_text = ""
+                if context_file.exists():
+                    context_text = context_file.read_text()
                 
                 functions.append({
                     "name": func_name,
