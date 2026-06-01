@@ -5,17 +5,20 @@
 #include <signal.h>
 #include <setjmp.h>
 
-/* Global variables for test fixtures */
-static CSV_BUFFER *test_buffer = NULL;
-static jmp_buf segv_env;
+/* Global variables for signal handling */
+static sig_atomic_t segv_occurred = 0;
+static sigjmp_buf jump_buffer;
 
 /* Signal handler for SIGSEGV */
 static void segv_handler(int sig) {
     (void)sig;
-    longjmp(segv_env, 1);
+    segv_occurred = 1;
+    siglongjmp(jump_buffer, 1);
 }
 
-/* setUp and tearDown must be non-static per requirements */
+/* Global buffer for test fixtures */
+static CSV_BUFFER *test_buffer = NULL;
+
 void setUp(void) {
     /* Install SIGSEGV handler */
     struct sigaction sa;
@@ -24,158 +27,157 @@ void setUp(void) {
     sa.sa_flags = SA_RESTART;
     sigaction(SIGSEGV, &sa, NULL);
 
+    /* Create a fresh buffer for each test */
     test_buffer = csv_create_buffer();
     TEST_ASSERT_NOT_NULL(test_buffer);
 }
 
 void tearDown(void) {
-    /* Restore default SIGSEGV handler */
+    /* Remove SIGSEGV handler */
     struct sigaction sa;
     sa.sa_handler = SIG_DFL;
     sigaction(SIGSEGV, &sa, NULL);
 
+    /* Clean up buffer */
     if (test_buffer != NULL) {
         csv_destroy_buffer(test_buffer);
         test_buffer = NULL;
     }
 }
 
-/* Helper to safely run code that might segfault */
-static int run_with_segv_protection(jmp_buf env, void (*func)(void)) {
-    int result = setjmp(env);
+/* Helper function to safely run code that might segfault */
+static int run_with_segv_protection(void (*func)(void)) {
+    segv_occurred = 0;
+    int result = sigsetjmp(jump_buffer, 1);
     if (result == 0) {
         func();
-        return 0; /* No segfault */
+        return segv_occurred ? -1 : 0;
+    } else {
+        return -1; /* segv occurred */
     }
-    return 1; /* Segfault occurred */
 }
 
-/* Test case 1: Valid field copy with sufficient buffer size */
-static void test_csv_get_field_success_full_copy(void) {
-    int ret;
-    char dest[100];
-
-    /* Add a row and a field */
-    ret = csv_set_field(test_buffer, 0, 0, "Hello, World!");
+/* Helper to set up a simple 2x2 CSV buffer */
+static void setup_2x2_buffer(void) {
+    /* Add two rows */
+    int ret = csv_set_field(test_buffer, 0, 0, "field1");
     TEST_ASSERT_EQUAL_INT(0, ret);
-
-    /* Get the field */
-    ret = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    ret = csv_set_field(test_buffer, 0, 1, "field2");
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_STRING("Hello, World!", dest);
+    ret = csv_set_field(test_buffer, 1, 0, "field3");
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    ret = csv_set_field(test_buffer, 1, 1, "field4");
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
-/* Test case 2: Truncation when destination buffer is too small */
-static void test_csv_get_field_truncation(void) {
-    int ret;
-    char dest[10];
+/* Test case 1: Normal case - whole entry copied successfully */
+static void test_csv_get_field_normal_success(void) {
+    char dest[32];
+    setup_2x2_buffer();
 
-    /* Add a field with content longer than dest */
-    ret = csv_set_field(test_buffer, 0, 0, "Hello, World!");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-
-    /* Get the field with small buffer */
-    ret = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
-    TEST_ASSERT_EQUAL_INT(1, ret);
-    TEST_ASSERT_EQUAL_STRING_LEN("Hello, Wo", dest, sizeof(dest) - 1);
-    TEST_ASSERT_EQUAL_INT('\0', dest[sizeof(dest) - 1]);
+    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_STRING("field1", dest);
 }
 
-/* Test case 3: Empty field returns 2 and clears buffer */
+/* Test case 2: Entry truncated - dest buffer too small */
+static void test_csv_get_field_truncated(void) {
+    char dest[6]; /* Only 5 chars + null terminator */
+    setup_2x2_buffer();
+
+    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(1, result);
+    TEST_ASSERT_EQUAL_STRING_LEN("field", dest, 5);
+    TEST_ASSERT_EQUAL_INT('\0', dest[5]);
+}
+
+/* Test case 3: Empty field (exists but empty string) */
 static void test_csv_get_field_empty_field(void) {
-    int ret;
-    char dest[50];
-    char expected[50] = {0};
+    char dest[32];
+    setup_2x2_buffer();
 
-    /* Add an empty field */
-    ret = csv_set_field(test_buffer, 0, 0, "");
+    /* Clear the first field to make it empty */
+    int ret = csv_clear_row(test_buffer, 0);
     TEST_ASSERT_EQUAL_INT(0, ret);
 
-    /* Get the empty field */
-    ret = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_MEMORY(expected, dest, sizeof(dest));
+    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(2, result);
+    TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-/* Test case 4: Invalid row or entry returns 2 and clears buffer */
-static void test_csv_get_field_invalid_entry(void) {
-    int ret;
-    char dest[50];
-    char expected[50] = {0};
+/* Test case 4: Non-existent row or entry */
+static void test_csv_get_field_nonexistent(void) {
+    char dest[32];
+    setup_2x2_buffer();
 
-    /* Add one row with one field */
-    ret = csv_set_field(test_buffer, 0, 0, "test");
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    /* Test non-existent row */
+    int result = csv_get_field(dest, sizeof(dest), test_buffer, 10, 0);
+    TEST_ASSERT_EQUAL_INT(2, result);
+    TEST_ASSERT_EQUAL_STRING("", dest);
 
-    /* Try to access non-existent row */
-    ret = csv_get_field(dest, sizeof(dest), test_buffer, 1, 0);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_MEMORY(expected, dest, sizeof(dest));
-
-    /* Try to access non-existent entry in existing row */
-    ret = csv_get_field(dest, sizeof(dest), test_buffer, 0, 1);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_MEMORY(expected, dest, sizeof(dest));
+    /* Test non-existent entry in existing row */
+    result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 10);
+    TEST_ASSERT_EQUAL_INT(2, result);
+    TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-/* Test case 5: Zero destination length returns 3 */
+/* Test case 5: dest_len == 0 returns 3 and does not crash */
 static void test_csv_get_field_zero_dest_len(void) {
-    int ret;
-    char dest[50];
+    char dest[32];
+    setup_2x2_buffer();
 
-    /* Add a field */
-    ret = csv_set_field(test_buffer, 0, 0, "test");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-
-    /* Get with zero length */
-    ret = csv_get_field(dest, 0, test_buffer, 0, 0);
-    TEST_ASSERT_EQUAL_INT(3, ret);
+    int result = csv_get_field(dest, 0, test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(3, result);
+    /* dest should remain unchanged (but we can't rely on contents) */
 }
 
 /* Test case 6: Segfault protection for NULL buffer */
 static void test_csv_get_field_null_buffer(void) {
-    int ret;
-    char dest[50];
-
-    /* Install protection and attempt call with NULL buffer */
-    if (run_with_segv_protection(segv_env, NULL)) {
-        /* Skip if segv protection not available */
-        TEST_FAIL_MESSAGE("SIGSEGV protection not working");
+    char dest[32];
+    int result = run_with_segv_protection(NULL);
+    if (result == -1) {
+        TEST_FAIL_MESSAGE("Segmentation fault detected");
     }
 
-    /* This should not crash */
-    ret = csv_get_field(dest, sizeof(dest), NULL, 0, 0);
-    /* If we get here without crash, we assume it's safe */
-    /* Note: behavior is undefined per spec, but we test for crash safety */
-    TEST_FAIL_MESSAGE("Should not reach here if NULL buffer causes segfault");
+    /* Now test with NULL buffer */
+    result = run_with_segv_protection(NULL);
+    if (result == -1) {
+        TEST_FAIL_MESSAGE("Segmentation fault detected");
+    }
+
+    /* Actually call with NULL buffer */
+    segv_occurred = 0;
+    result = csv_get_field(dest, sizeof(dest), NULL, 0, 0);
+    /* If segv occurred, test fails */
+    TEST_ASSERT_FALSE(segv_occurred);
+    /* If no segv, we expect undefined behavior but not crash */
 }
 
-/* Override test case 6 with proper NULL buffer handling test */
+/* Test case 7: Segfault protection for NULL dest */
 static void test_csv_get_field_null_dest(void) {
-    int ret;
+    setup_2x2_buffer();
 
-    /* Add a field */
-    ret = csv_set_field(test_buffer, 0, 0, "test");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-
-    /* Try with NULL destination (should not crash) */
-    if (run_with_segv_protection(segv_env, NULL)) {
-        TEST_FAIL_MESSAGE("SIGSEGV protection not working");
+    int result = run_with_segv_protection(NULL);
+    if (result == -1) {
+        TEST_FAIL_MESSAGE("Segmentation fault detected");
     }
 
-    ret = csv_get_field(NULL, 50, test_buffer, 0, 0);
-    /* If we get here without crash, we assume it's safe */
-    TEST_FAIL_MESSAGE("Should not reach here if NULL dest causes segfault");
+    /* Actually call with NULL dest */
+    segv_occurred = 0;
+    result = csv_get_field(NULL, 32, test_buffer, 0, 0);
+    TEST_ASSERT_FALSE(segv_occurred);
 }
 
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(test_csv_get_field_success_full_copy);
-    RUN_TEST(test_csv_get_field_truncation);
+    RUN_TEST(test_csv_get_field_normal_success);
+    RUN_TEST(test_csv_get_field_truncated);
     RUN_TEST(test_csv_get_field_empty_field);
-    RUN_TEST(test_csv_get_field_invalid_entry);
+    RUN_TEST(test_csv_get_field_nonexistent);
     RUN_TEST(test_csv_get_field_zero_dest_len);
+    RUN_TEST(test_csv_get_field_null_buffer);
+    RUN_TEST(test_csv_get_field_null_dest);
 
     return UNITY_END();
 }

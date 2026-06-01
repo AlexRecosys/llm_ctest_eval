@@ -5,22 +5,34 @@
 #include <string.h>
 #include <signal.h>
 
-/* File-scope fixtures */
+/* File-scope fixture */
 static CSV_BUFFER *buf = NULL;
 
 /* Signal handler for SIGSEGV */
 static void sigsegv_handler(int sig)
 {
     (void)sig;
-    TEST_FAIL_MESSAGE("Segmentation fault (SIGSEGV) caught during test execution");
+    TEST_FAIL_MESSAGE("Segmentation fault (SIGSEGV) caught during test");
 }
 
-/* setUp and tearDown — non-static, visible to Unity */
 void setUp(void)
 {
     signal(SIGSEGV, sigsegv_handler);
     buf = csv_create_buffer();
-    TEST_ASSERT_NOT_NULL_MESSAGE(buf, "csv_create_buffer() returned NULL in setUp");
+    TEST_ASSERT_NOT_NULL_MESSAGE(buf, "csv_create_buffer returned NULL in setUp");
+
+    /* Populate a small 2-row CSV buffer:
+     * Row 0: "hello", "world"
+     * Row 1: ""  (empty field)
+     */
+    int rc;
+    rc = csv_set_field(buf, 0, 0, "hello");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "setUp: csv_set_field row0 entry0 failed");
+    rc = csv_set_field(buf, 0, 1, "world");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "setUp: csv_set_field row0 entry1 failed");
+    /* Row 1 with an empty string */
+    rc = csv_set_field(buf, 1, 0, "");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "setUp: csv_set_field row1 entry0 failed");
 }
 
 void tearDown(void)
@@ -32,129 +44,93 @@ void tearDown(void)
     signal(SIGSEGV, SIG_DFL);
 }
 
-/* Helper: populate a single cell in the buffer at row/entry with given text.
- * Uses only externally-linked csv_set_field which internally calls append_row
- * and append_field as needed.
- */
-static void populate_cell(CSV_BUFFER *b, size_t row, size_t entry, char *text)
+/* ------------------------------------------------------------------ */
+/* Test 1: dest_len == 0 should return 3                               */
+/* ------------------------------------------------------------------ */
+void test_csv_get_field_zero_dest_len_returns_3(void)
 {
-    int rc = csv_set_field(b, row, entry, text);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field failed in helper populate_cell");
-}
-
-/* -------------------------------------------------------------------------
- * Test 1: dest_len == 0 should return 3 immediately
- * ---------------------------------------------------------------------- */
-void test_csv_get_field_dest_len_zero_returns_3(void)
-{
-    char dest[64] = "unchanged";
-
-    /* Populate a valid cell so the only reason for failure is dest_len == 0 */
-    populate_cell(buf, 0, 0, "hello");
-
+    char dest[16] = "unchanged";
     int rc = csv_get_field(dest, 0, buf, 0, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(3, rc, "Expected return 3 when dest_len is 0");
-    /* dest should be untouched because the function returns immediately */
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("unchanged", dest,
-        "dest buffer should not be modified when dest_len is 0");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, rc,
+        "Expected return 3 when dest_len is 0");
 }
 
-/* -------------------------------------------------------------------------
- * Test 2: row out of range — should clear dest and return 2
- * ---------------------------------------------------------------------- */
-void test_csv_get_field_row_out_of_range_returns_2(void)
+/* ------------------------------------------------------------------ */
+/* Test 2: row out of range should return 2 and clear dest             */
+/* ------------------------------------------------------------------ */
+void test_csv_get_field_invalid_row_returns_2(void)
 {
-    char dest[64];
+    char dest[16];
     memset(dest, 'X', sizeof(dest));
 
-    /* Buffer has 1 row (row 0); request row 5 which does not exist */
-    populate_cell(buf, 0, 0, "data");
-
-    int rc = csv_get_field(dest, sizeof(dest) - 1, buf, 5, 0);
+    int rc = csv_get_field(dest, sizeof(dest) - 1, buf, 999, 0);
     TEST_ASSERT_EQUAL_INT_MESSAGE(2, rc,
-        "Expected return 2 when requested row does not exist");
-    /* The function sets dest[0] = '\0' in a loop — first char must be NUL */
-    TEST_ASSERT_EQUAL_INT_MESSAGE('\0', (int)dest[0],
-        "dest[0] should be NUL when row is out of range");
+        "Expected return 2 for out-of-range row");
+    /* dest[0] should have been cleared to '\0' */
+    TEST_ASSERT_EQUAL_INT_MESSAGE('\0', dest[0],
+        "Expected dest[0] == '\\0' after invalid row request");
 }
 
-/* -------------------------------------------------------------------------
- * Test 3: entry out of range — should clear dest and return 2
- * ---------------------------------------------------------------------- */
-void test_csv_get_field_entry_out_of_range_returns_2(void)
+/* ------------------------------------------------------------------ */
+/* Test 3: entry out of range should return 2 and clear dest           */
+/* ------------------------------------------------------------------ */
+void test_csv_get_field_invalid_entry_returns_2(void)
 {
-    char dest[64];
+    char dest[16];
     memset(dest, 'A', sizeof(dest));
 
-    /* Row 0 has only entry 0; request entry 99 */
-    populate_cell(buf, 0, 0, "value");
-
-    int rc = csv_get_field(dest, sizeof(dest) - 1, buf, 0, 99);
+    int rc = csv_get_field(dest, sizeof(dest) - 1, buf, 0, 999);
     TEST_ASSERT_EQUAL_INT_MESSAGE(2, rc,
-        "Expected return 2 when requested entry does not exist");
-    TEST_ASSERT_EQUAL_INT_MESSAGE('\0', (int)dest[0],
-        "dest[0] should be NUL when entry is out of range");
+        "Expected return 2 for out-of-range entry");
+    TEST_ASSERT_EQUAL_INT_MESSAGE('\0', dest[0],
+        "Expected dest[0] == '\\0' after invalid entry request");
 }
 
-/* -------------------------------------------------------------------------
- * Test 4: valid cell, dest large enough — should copy text and return 0
- * ---------------------------------------------------------------------- */
-void test_csv_get_field_valid_cell_full_copy_returns_0(void)
+/* ------------------------------------------------------------------ */
+/* Test 4: successful full copy should return 0 and copy the string    */
+/* ------------------------------------------------------------------ */
+void test_csv_get_field_success_returns_0_and_copies_string(void)
 {
-    char dest[128];
+    char dest[32];
     memset(dest, 0, sizeof(dest));
 
-    const char *expected = "Hello, World!";
-    populate_cell(buf, 0, 0, (char *)expected);
-
-    /* dest_len must be at least length of string; pass sizeof(dest)-1 */
     int rc = csv_get_field(dest, sizeof(dest) - 1, buf, 0, 0);
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc,
-        "Expected return 0 when dest is large enough to hold the full entry");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE(expected, dest,
-        "dest should contain the exact field text after a successful copy");
+        "Expected return 0 for successful full copy");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello", dest,
+        "Expected dest to contain 'hello'");
 }
 
-/* -------------------------------------------------------------------------
- * Test 5: valid cell but dest too small — text truncated, return 1
- * ---------------------------------------------------------------------- */
+/* ------------------------------------------------------------------ */
+/* Test 5: dest_len smaller than field length should return 1          */
+/*         (truncation case)                                           */
+/* ------------------------------------------------------------------ */
 void test_csv_get_field_truncation_returns_1(void)
 {
-    char dest[5]; /* intentionally small */
+    /* "hello" is 5 chars; provide dest_len = 3 so it gets truncated */
+    char dest[8];
     memset(dest, 0, sizeof(dest));
 
-    /* Store a string longer than dest can hold */
-    const char *long_text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    populate_cell(buf, 0, 0, (char *)long_text);
-
-    /*
-     * dest_len = 4 (we keep one byte for the NUL that the function writes
-     * at dest[dest_len]).  The function does:
-     *   strncpy(dest, text, dest_len);   -- copies 4 chars
-     *   dest[dest_len] = '\0';           -- NUL at index 4
-     * Then checks field->length > dest_len + 1 => 26 > 5 => true => return 1
-     */
-    int rc = csv_get_field(dest, 4, buf, 0, 0);
+    int rc = csv_get_field(dest, 3, buf, 0, 0);
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc,
-        "Expected return 1 when the field is truncated to fit dest");
-    /* First 4 characters should match the beginning of long_text */
-    TEST_ASSERT_EQUAL_STRING_LEN_MESSAGE("ABCD", dest, 4,
-        "dest should contain the first dest_len characters of the field");
-    /* NUL terminator must be present at position 4 */
-    TEST_ASSERT_EQUAL_INT_MESSAGE('\0', (int)dest[4],
-        "dest[dest_len] must be NUL after truncation");
+        "Expected return 1 when field is truncated");
+    /* strncpy copies 3 chars, then dest[3] = '\0' */
+    TEST_ASSERT_EQUAL_STRING_LEN_MESSAGE("hel", dest, 3,
+        "Expected first 3 chars of 'hello' in dest");
+    TEST_ASSERT_EQUAL_INT_MESSAGE('\0', dest[3],
+        "Expected null terminator at dest[dest_len]");
 }
 
-/* -------------------------------------------------------------------------
- * main
- * ---------------------------------------------------------------------- */
+/* ------------------------------------------------------------------ */
+/* main                                                                */
+/* ------------------------------------------------------------------ */
 int main(void)
 {
     UNITY_BEGIN();
-    RUN_TEST(test_csv_get_field_dest_len_zero_returns_3);
-    RUN_TEST(test_csv_get_field_row_out_of_range_returns_2);
-    RUN_TEST(test_csv_get_field_entry_out_of_range_returns_2);
-    RUN_TEST(test_csv_get_field_valid_cell_full_copy_returns_0);
+    RUN_TEST(test_csv_get_field_zero_dest_len_returns_3);
+    RUN_TEST(test_csv_get_field_invalid_row_returns_2);
+    RUN_TEST(test_csv_get_field_invalid_entry_returns_2);
+    RUN_TEST(test_csv_get_field_success_returns_0_and_copies_string);
     RUN_TEST(test_csv_get_field_truncation_returns_1);
     return UNITY_END();
 }

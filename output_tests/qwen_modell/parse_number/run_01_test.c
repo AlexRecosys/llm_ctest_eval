@@ -13,9 +13,9 @@ static parse_buffer test_buffer;
 static jmp_buf jump_buffer;
 static volatile sig_atomic_t segv_occurred = 0;
 
-/* Signal handler for SIGSEGV */
-static void segv_handler(int signum) {
-    (void)signum;
+/* Signal handler for segmentation faults */
+static void segv_handler(int sig) {
+    (void)sig;
     segv_occurred = 1;
     longjmp(jump_buffer, 1);
 }
@@ -30,10 +30,11 @@ void setUp(void) {
     sigaction(SIGSEGV, &sa, NULL);
 
     /* Initialize test item */
-    test_item = cJSON_CreateNull();
-    TEST_ASSERT_NOT_NULL(test_item);
+    test_item = (cJSON *)malloc(sizeof(cJSON));
+    TEST_ASSERT_NOT_NULL_MESSAGE(test_item, "Failed to allocate test item");
+    memset(test_item, 0, sizeof(cJSON));
 
-    /* Initialize parse buffer with real hooks */
+    /* Initialize parse buffer with default hooks */
     memset(&test_buffer, 0, sizeof(test_buffer));
     test_buffer.hooks.allocate = malloc;
     test_buffer.hooks.deallocate = free;
@@ -44,7 +45,7 @@ void setUp(void) {
 void tearDown(void) {
     /* Clean up test item */
     if (test_item != NULL) {
-        cJSON_Delete(test_item);
+        free(test_item);
         test_item = NULL;
     }
 
@@ -75,6 +76,7 @@ void test_parse_number_simple_integer(void) {
     TEST_ASSERT_EQUAL_INT(42, test_item->valueint);
     TEST_ASSERT_EQUAL_DOUBLE(42.0, test_item->valuedouble);
     TEST_ASSERT_EQUAL_INT(cJSON_Number, test_item->type);
+    TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);
 }
 
 /* Test case 2: Parse a negative number with decimal point */
@@ -87,11 +89,13 @@ void test_parse_number_negative_decimal(void) {
     cJSON_bool result = safe_parse_number(test_item, &test_buffer);
     
     TEST_ASSERT_TRUE_MESSAGE(result, "Parsing negative decimal should succeed");
-    TEST_ASSERT_DOUBLE_WITHIN(0.00001, -3.14159, test_item->valuedouble);
+    TEST_ASSERT_DOUBLE_WITHIN(0.000001, -3.14159, test_item->valuedouble);
+    TEST_ASSERT_EQUAL_INT(-3, test_item->valueint);
     TEST_ASSERT_EQUAL_INT(cJSON_Number, test_item->type);
+    TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);
 }
 
-/* Test case 3: Parse a number in scientific notation */
+/* Test case 3: Parse a number with scientific notation */
 void test_parse_number_scientific(void) {
     const char *input = "1.23e10";
     test_buffer.content = (const unsigned char *)input;
@@ -101,8 +105,10 @@ void test_parse_number_scientific(void) {
     cJSON_bool result = safe_parse_number(test_item, &test_buffer);
     
     TEST_ASSERT_TRUE_MESSAGE(result, "Parsing scientific notation should succeed");
-    TEST_ASSERT_DOUBLE_WITHIN(0.00001, 1.23e10, test_item->valuedouble);
+    TEST_ASSERT_DOUBLE_WITHIN(0.000001, 1.23e10, test_item->valuedouble);
+    TEST_ASSERT_EQUAL_INT(12300000000, test_item->valueint);
     TEST_ASSERT_EQUAL_INT(cJSON_Number, test_item->type);
+    TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);
 }
 
 /* Test case 4: Parse a number that overflows to INT_MAX */
@@ -114,10 +120,11 @@ void test_parse_number_overflow_to_int_max(void) {
 
     cJSON_bool result = safe_parse_number(test_item, &test_buffer);
     
-    TEST_ASSERT_TRUE_MESSAGE(result, "Parsing large number should succeed");
+    TEST_ASSERT_TRUE_MESSAGE(result, "Parsing large positive number should succeed");
     TEST_ASSERT_EQUAL_INT(INT_MAX, test_item->valueint);
-    TEST_ASSERT_GREATER_THAN((double)INT_MAX, test_item->valuedouble);
+    TEST_ASSERT_EQUAL_DOUBLE(999999999999.0, test_item->valuedouble);
     TEST_ASSERT_EQUAL_INT(cJSON_Number, test_item->type);
+    TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);
 }
 
 /* Test case 5: Parse invalid input (no digits) */
@@ -130,18 +137,18 @@ void test_parse_number_invalid_input(void) {
     cJSON_bool result = safe_parse_number(test_item, &test_buffer);
     
     TEST_ASSERT_FALSE_MESSAGE(result, "Parsing invalid input should fail");
-    TEST_ASSERT_EQUAL_INT(cJSON_NULL, test_item->type); /* type should remain unchanged */
+    TEST_ASSERT_EQUAL_INT(0, test_item->valueint);
+    TEST_ASSERT_EQUAL_INT(0, test_item->valuedouble);
+    TEST_ASSERT_EQUAL_INT(cJSON_Invalid, test_item->type);
+    TEST_ASSERT_EQUAL_SIZE(0, test_buffer.offset);
 }
 
 int main(void) {
     UNITY_BEGIN();
-    
-    /* Run all test cases */
     RUN_TEST(test_parse_number_simple_integer);
     RUN_TEST(test_parse_number_negative_decimal);
     RUN_TEST(test_parse_number_scientific);
     RUN_TEST(test_parse_number_overflow_to_int_max);
     RUN_TEST(test_parse_number_invalid_input);
-    
     return UNITY_END();
 }

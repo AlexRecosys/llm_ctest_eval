@@ -42,7 +42,7 @@ void setUp(void)
 {
     signal(SIGSEGV, sigsegv_handler);
     init_cjson_item(&item);
-    memset(&buf, 0, sizeof(parse_buffer));
+    memset(&buf, 0, sizeof(buf));
 }
 
 void tearDown(void)
@@ -68,7 +68,7 @@ void test_parse_number_simple_integer(void)
 }
 
 /* Test 2: Parse a floating-point number with decimal point */
-void test_parse_number_floating_point(void)
+void test_parse_number_float(void)
 {
     const unsigned char *content = (const unsigned char *)"3.14";
     init_parse_buffer(&buf, content, strlen((const char *)content), 0);
@@ -100,13 +100,13 @@ void test_parse_number_negative(void)
 }
 
 /* Test 4: NULL input_buffer returns false */
-void test_parse_number_null_input_buffer(void)
+void test_parse_number_null_buffer(void)
 {
     init_cjson_item(&item);
 
     cJSON_bool result = parse_number(&item, NULL);
 
-    TEST_ASSERT_FALSE_MESSAGE(result, "parse_number should return false for NULL input_buffer");
+    TEST_ASSERT_FALSE_MESSAGE(result, "parse_number should return false when input_buffer is NULL");
 }
 
 /* Test 5: Parse a number in scientific notation */
@@ -129,9 +129,9 @@ int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_parse_number_simple_integer);
-    RUN_TEST(test_parse_number_floating_point);
+    RUN_TEST(test_parse_number_float);
     RUN_TEST(test_parse_number_negative);
-    RUN_TEST(test_parse_number_null_input_buffer);
+    RUN_TEST(test_parse_number_null_buffer);
     RUN_TEST(test_parse_number_scientific_notation);
     return UNITY_END();
 }

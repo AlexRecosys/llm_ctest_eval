@@ -440,7 +440,7 @@ int         csv_get_width(CSV_BUFFER *buffer, size_t row);
 add_char, create_field, destroy_field, set_field,
 append_row, append_field, remove_last_field, remove_last_row, read_next_field
 
-test.c, unity.c, and csv.c are separate translation units. Only functions with external linkage cross TU boundaries. Calling a static function from test.c fails during linking.
+test.c, unity.c, and csv.c are separate translation units. Only functions with external linkage cross Translation Unit boundaries. Calling a static function from test.c fails during linking.
 
 
 Use csv_set_field(buffer, row, entry, "text") as the 

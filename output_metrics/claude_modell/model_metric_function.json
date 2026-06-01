@@ -1,4 +1,97 @@
 {
+  "cJSON_Compare": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 84.62,
+        "total": 52,
+        "covered": 44
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 84.62,
+        "total": 52,
+        "covered": 44
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 84.62,
+        "total": 52,
+        "covered": 44
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "cJSON_Minify": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 95.83,
+        "total": 24,
+        "covered": 23
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 95.83,
+        "total": 24,
+        "covered": 23
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 87.5,
+        "total": 24,
+        "covered": 21
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "compare_pointers": [
+    {
+      "run": "run_01_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /usr/bin/ld: /tmp/cckJ3tUF.o: in function `cJSONUtils_strdup':\nrun_01_test.c:(.text+0x44): undefined reference to `cJSON_malloc'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `cJSONUtils_FindPointerFromObjectTo':\nrun_01_test.c:(.text+0xa44): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_01_test.c:(.text+0xa98): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_01_test.c:(.text+0xad8): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0xb04): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0xb8c): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_01_test.c:(.text+0xc04): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0xc30): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `get_item_from_pointer':\nrun_01_test.c:(.text+0x1030): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_01_test.c:(.text+0x1110): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `detach_path':\nrun_01_test.c:(.text+0x1860): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_01_test.c:(.text+0x1938): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0x196c): undefined reference to `cJSON_DetachItemFromObject'\n/usr/bin/ld: run_01_test.c:(.text+0x19e0): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `insert_item_in_array':\nrun_01_test.c:(.text+0x2708): undefined reference to `cJSON_AddItemToArray'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `get_object_item':\nrun_01_test.c:(.text+0x2814): undefined reference to `cJSON_GetObjectItemCaseSensitive'\n/usr/bin/ld: run_01_test.c:(.text+0x2844): undefined reference to `cJSON_GetObjectItem'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `decode_patch_operation':\nrun_01_test.c:(.text+0x28d8): undefined reference to `cJSON_IsString'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `overwrite_item':\nrun_01_test.c:(.text+0x2b58): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0x2bac): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0x2c00): undefined reference to `cJSON_Delete'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `apply_patch':\nrun_01_test.c:(.text+0x2cdc): undefined reference to `cJSON_IsString'\n/usr/bin/ld: run_01_test.c:(.text+0x2fc8): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x3068): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0x30a4): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0x31b0): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_01_test.c:(.text+0x326c): undefined reference to `cJSON_IsString'\n/usr/bin/ld: run_01_test.c:(.text+0x33e0): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x34c8): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x3674): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_01_test.c:(.text+0x36dc): undefined reference to `cJSON_AddItemToArray'\n/usr/bin/ld: run_01_test.c:(.text+0x37f4): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0x3850): undefined reference to `cJSON_DeleteItemFromObjectCaseSensitive'\n/usr/bin/ld: run_01_test.c:(.text+0x3898): undefined reference to `cJSON_DeleteItemFromObject'\n/usr/bin/ld: run_01_test.c:(.text+0x38c4): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x3924): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_01_test.c:(.text+0x3970): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `cJSONUtils_ApplyPatches':\nrun_01_test.c:(.text+0x3a04): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `cJSONUtils_ApplyPatchesCaseSensitive':\nrun_01_test.c:(.text+0x3b64): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `compose_patch':\nrun_01_test.c:(.text+0x3d40): undefined reference to `cJSON_CreateObject'\n/usr/bin/ld: run_01_test.c:(.text+0x3d94): undefined reference to `cJSON_CreateString'\n/usr/bin/ld: run_01_test.c:(.text+0x3dc4): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x3df4): undefined reference to `cJSON_CreateString'\n/usr/bin/ld: run_01_test.c:(.text+0x3e24): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x3ea8): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_01_test.c:(.text+0x3f18): undefined reference to `cJSON_CreateString'\n/usr/bin/ld: run_01_test.c:(.text+0x3f48): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x3f6c): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0x3fc0): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x3ff0): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x4018): undefined reference to `cJSON_AddItemToArray'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `create_patches':\nrun_01_test.c:(.text+0x43bc): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_01_test.c:(.text+0x45b0): undefined reference to `cJSON_free'\n/usr/bin/ld: run_01_test.c:(.text+0x4764): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_01_test.c:(.text+0x4814): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `cJSONUtils_GeneratePatches':\nrun_01_test.c:(.text+0x4a20): undefined reference to `cJSON_CreateArray'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `cJSONUtils_GeneratePatchesCaseSensitive':\nrun_01_test.c:(.text+0x4b14): undefined reference to `cJSON_CreateArray'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `merge_patch':\nrun_01_test.c:(.text+0x4c70): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0x4cbc): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_01_test.c:(.text+0x4ce4): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x4d0c): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0x4d58): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_01_test.c:(.text+0x4d78): undefined reference to `cJSON_CreateObject'\n/usr/bin/ld: run_01_test.c:(.text+0x4dcc): undefined reference to `cJSON_IsNull'\n/usr/bin/ld: run_01_test.c:(.text+0x4e30): undefined reference to `cJSON_DeleteItemFromObjectCaseSensitive'\n/usr/bin/ld: run_01_test.c:(.text+0x4e80): undefined reference to `cJSON_DeleteItemFromObject'\n/usr/bin/ld: run_01_test.c:(.text+0x4ee4): undefined reference to `cJSON_DetachItemFromObjectCaseSensitive'\n/usr/bin/ld: run_01_test.c:(.text+0x4f1c): undefined reference to `cJSON_DetachItemFromObject'\n/usr/bin/ld: run_01_test.c:(.text+0x4f9c): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_01_test.c:(.text+0x4fd8): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: /tmp/cckJ3tUF.o: in function `generate_merge_patch':\nrun_01_test.c:(.text+0x5154): undefined reference to `cJSON_CreateNull'\n/usr/bin/ld: run_01_test.c:(.text+0x517c): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0x51c8): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_01_test.c:(.text+0x51fc): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x52a4): undefined reference to `cJSON_CreateObject'\n/usr/bin/ld: run_01_test.c:(.text+0x53d0): undefined reference to `cJSON_CreateNull'\n/usr/bin/ld: run_01_test.c:(.text+0x53fc): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x5464): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_01_test.c:(.text+0x5490): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x5534): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_01_test.c:(.text+0x55ec): undefined reference to `cJSON_Delete'\ncollect2: error: ld returned 1 exit status"
+    },
+    {
+      "run": "run_02_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/compare_pointers/run_02_test.c:1:10: fatal error: cJSON_utils.c: No such file or directory\n    1 | #include \"cJSON_utils.c\"\n      |          ^~~~~~~~~~~~~~~\ncompilation terminated."
+    },
+    {
+      "run": "run_03_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /usr/bin/ld: /tmp/ccDUw9OB.o: in function `cJSONUtils_strdup':\nrun_03_test.c:(.text+0x44): undefined reference to `cJSON_malloc'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `cJSONUtils_FindPointerFromObjectTo':\nrun_03_test.c:(.text+0xa44): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_03_test.c:(.text+0xa98): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_03_test.c:(.text+0xad8): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0xb04): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0xb8c): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_03_test.c:(.text+0xc04): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0xc30): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `get_item_from_pointer':\nrun_03_test.c:(.text+0x1030): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_03_test.c:(.text+0x1110): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `detach_path':\nrun_03_test.c:(.text+0x1860): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_03_test.c:(.text+0x1938): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0x196c): undefined reference to `cJSON_DetachItemFromObject'\n/usr/bin/ld: run_03_test.c:(.text+0x19e0): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `insert_item_in_array':\nrun_03_test.c:(.text+0x2708): undefined reference to `cJSON_AddItemToArray'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `get_object_item':\nrun_03_test.c:(.text+0x2814): undefined reference to `cJSON_GetObjectItemCaseSensitive'\n/usr/bin/ld: run_03_test.c:(.text+0x2844): undefined reference to `cJSON_GetObjectItem'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `decode_patch_operation':\nrun_03_test.c:(.text+0x28d8): undefined reference to `cJSON_IsString'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `overwrite_item':\nrun_03_test.c:(.text+0x2b58): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0x2bac): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0x2c00): undefined reference to `cJSON_Delete'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `apply_patch':\nrun_03_test.c:(.text+0x2cdc): undefined reference to `cJSON_IsString'\n/usr/bin/ld: run_03_test.c:(.text+0x2fc8): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x3068): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0x30a4): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0x31b0): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_03_test.c:(.text+0x326c): undefined reference to `cJSON_IsString'\n/usr/bin/ld: run_03_test.c:(.text+0x33e0): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x34c8): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x3674): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: run_03_test.c:(.text+0x36dc): undefined reference to `cJSON_AddItemToArray'\n/usr/bin/ld: run_03_test.c:(.text+0x37f4): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0x3850): undefined reference to `cJSON_DeleteItemFromObjectCaseSensitive'\n/usr/bin/ld: run_03_test.c:(.text+0x3898): undefined reference to `cJSON_DeleteItemFromObject'\n/usr/bin/ld: run_03_test.c:(.text+0x38c4): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x3924): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_03_test.c:(.text+0x3970): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `cJSONUtils_ApplyPatches':\nrun_03_test.c:(.text+0x3a04): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `cJSONUtils_ApplyPatchesCaseSensitive':\nrun_03_test.c:(.text+0x3b64): undefined reference to `cJSON_IsArray'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `compose_patch':\nrun_03_test.c:(.text+0x3d40): undefined reference to `cJSON_CreateObject'\n/usr/bin/ld: run_03_test.c:(.text+0x3d94): undefined reference to `cJSON_CreateString'\n/usr/bin/ld: run_03_test.c:(.text+0x3dc4): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x3df4): undefined reference to `cJSON_CreateString'\n/usr/bin/ld: run_03_test.c:(.text+0x3e24): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x3ea8): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_03_test.c:(.text+0x3f18): undefined reference to `cJSON_CreateString'\n/usr/bin/ld: run_03_test.c:(.text+0x3f48): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x3f6c): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0x3fc0): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x3ff0): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x4018): undefined reference to `cJSON_AddItemToArray'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `create_patches':\nrun_03_test.c:(.text+0x43bc): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_03_test.c:(.text+0x45b0): undefined reference to `cJSON_free'\n/usr/bin/ld: run_03_test.c:(.text+0x4764): undefined reference to `cJSON_malloc'\n/usr/bin/ld: run_03_test.c:(.text+0x4814): undefined reference to `cJSON_free'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `cJSONUtils_GeneratePatches':\nrun_03_test.c:(.text+0x4a20): undefined reference to `cJSON_CreateArray'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `cJSONUtils_GeneratePatchesCaseSensitive':\nrun_03_test.c:(.text+0x4b14): undefined reference to `cJSON_CreateArray'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `merge_patch':\nrun_03_test.c:(.text+0x4c70): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0x4cbc): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_03_test.c:(.text+0x4ce4): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x4d0c): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0x4d58): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_03_test.c:(.text+0x4d78): undefined reference to `cJSON_CreateObject'\n/usr/bin/ld: run_03_test.c:(.text+0x4dcc): undefined reference to `cJSON_IsNull'\n/usr/bin/ld: run_03_test.c:(.text+0x4e30): undefined reference to `cJSON_DeleteItemFromObjectCaseSensitive'\n/usr/bin/ld: run_03_test.c:(.text+0x4e80): undefined reference to `cJSON_DeleteItemFromObject'\n/usr/bin/ld: run_03_test.c:(.text+0x4ee4): undefined reference to `cJSON_DetachItemFromObjectCaseSensitive'\n/usr/bin/ld: run_03_test.c:(.text+0x4f1c): undefined reference to `cJSON_DetachItemFromObject'\n/usr/bin/ld: run_03_test.c:(.text+0x4f9c): undefined reference to `cJSON_Delete'\n/usr/bin/ld: run_03_test.c:(.text+0x4fd8): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: /tmp/ccDUw9OB.o: in function `generate_merge_patch':\nrun_03_test.c:(.text+0x5154): undefined reference to `cJSON_CreateNull'\n/usr/bin/ld: run_03_test.c:(.text+0x517c): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0x51c8): undefined reference to `cJSON_IsObject'\n/usr/bin/ld: run_03_test.c:(.text+0x51fc): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x52a4): undefined reference to `cJSON_CreateObject'\n/usr/bin/ld: run_03_test.c:(.text+0x53d0): undefined reference to `cJSON_CreateNull'\n/usr/bin/ld: run_03_test.c:(.text+0x53fc): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x5464): undefined reference to `cJSON_Duplicate'\n/usr/bin/ld: run_03_test.c:(.text+0x5490): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x5534): undefined reference to `cJSON_AddItemToObject'\n/usr/bin/ld: run_03_test.c:(.text+0x55ec): undefined reference to `cJSON_Delete'\ncollect2: error: ld returned 1 exit status"
+    }
+  ],
   "csv_clear_row": [
     {
       "run": "run_01_test",
@@ -15,9 +108,9 @@
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 70.59,
+        "percent": 76.47,
         "total": 17,
-        "covered": 12
+        "covered": 13
       },
       "branch_coverage": null,
       "tests_passed": false
@@ -26,9 +119,9 @@
       "run": "run_03_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 76.47,
+        "percent": 70.59,
         "total": 17,
-        "covered": 13
+        "covered": 12
       },
       "branch_coverage": null,
       "tests_passed": false
@@ -69,6 +162,41 @@
       "tests_passed": true
     }
   ],
+  "csv_get_height": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 2,
+        "covered": 2
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 2,
+        "covered": 2
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 2,
+        "covered": 2
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
   "csv_insert_field": [
     {
       "run": "run_01_test",
@@ -102,6 +230,107 @@
       },
       "branch_coverage": null,
       "tests_passed": false
+    }
+  ],
+  "csv_remove_row": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 7,
+        "covered": 7
+      },
+      "branch_coverage": null,
+      "tests_passed": false
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 7,
+        "covered": 7
+      },
+      "branch_coverage": null,
+      "tests_passed": false
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 7,
+        "covered": 7
+      },
+      "branch_coverage": null,
+      "tests_passed": false
+    }
+  ],
+  "csv_set_field": [
+    {
+      "run": "run_01_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c: In function \u2018test_csv_set_field_delim_semicolon\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:46:53: error: macro \"TEST_ASSERT_EQUAL_INT\" passed 3 arguments, but takes just 2\n   46 |         \"Field delimiter should be set to semicolon\");\n      |                                                     ^\nIn file included from /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:2:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/unity/unity.h:146: note: macro \"TEST_ASSERT_EQUAL_INT\" defined here\n  146 | #define TEST_ASSERT_EQUAL_INT(expected, actual)                                                    UNITY_TEST_ASSERT_EQUAL_INT((expected), (actual), __LINE__, NULL)\n      | \n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:45:5: error: \u2018TEST_ASSERT_EQUAL_INT\u2019 undeclared (first use in this function)\n   45 |     TEST_ASSERT_EQUAL_INT(';', g_buffer->field_delim,\n      |     ^~~~~~~~~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:45:5: note: each undeclared identifier is reported only once for each function it appears in\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c: In function \u2018test_csv_set_field_delim_tab\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:54:57: error: macro \"TEST_ASSERT_EQUAL_INT\" passed 3 arguments, but takes just 2\n   54 |         \"Field delimiter should be set to tab character\");\n      |                                                         ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/unity/unity.h:146: note: macro \"TEST_ASSERT_EQUAL_INT\" defined here\n  146 | #define TEST_ASSERT_EQUAL_INT(expected, actual)                                                    UNITY_TEST_ASSERT_EQUAL_INT((expected), (actual), __LINE__, NULL)\n      | \n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:53:5: error: \u2018TEST_ASSERT_EQUAL_INT\u2019 undeclared (first use in this function)\n   53 |     TEST_ASSERT_EQUAL_INT('\\t', g_buffer->field_delim,\n      |     ^~~~~~~~~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c: In function \u2018test_csv_set_field_delim_pipe\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:62:58: error: macro \"TEST_ASSERT_EQUAL_INT\" passed 3 arguments, but takes just 2\n   62 |         \"Field delimiter should be set to pipe character\");\n      |                                                          ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/unity/unity.h:146: note: macro \"TEST_ASSERT_EQUAL_INT\" defined here\n  146 | #define TEST_ASSERT_EQUAL_INT(expected, actual)                                                    UNITY_TEST_ASSERT_EQUAL_INT((expected), (actual), __LINE__, NULL)\n      | \n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:61:5: error: \u2018TEST_ASSERT_EQUAL_INT\u2019 undeclared (first use in this function)\n   61 |     TEST_ASSERT_EQUAL_INT('|', g_buffer->field_delim,\n      |     ^~~~~~~~~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c: In function \u2018test_csv_set_field_delim_overwrite\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:70:62: error: macro \"TEST_ASSERT_EQUAL_INT\" passed 3 arguments, but takes just 2\n   70 |         \"Field delimiter should be semicolon after first set\");\n      |                                                              ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/unity/unity.h:146: note: macro \"TEST_ASSERT_EQUAL_INT\" defined here\n  146 | #define TEST_ASSERT_EQUAL_INT(expected, actual)                                                    UNITY_TEST_ASSERT_EQUAL_INT((expected), (actual), __LINE__, NULL)\n      | \n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:69:5: error: \u2018TEST_ASSERT_EQUAL_INT\u2019 undeclared (first use in this function)\n   69 |     TEST_ASSERT_EQUAL_INT(';', g_buffer->field_delim,\n      |     ^~~~~~~~~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:74:58: error: macro \"TEST_ASSERT_EQUAL_INT\" passed 3 arguments, but takes just 2\n   74 |         \"Field delimiter should be pipe after second set\");\n      |                                                          ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/unity/unity.h:146: note: macro \"TEST_ASSERT_EQUAL_INT\" defined here\n  146 | #define TEST_ASSERT_EQUAL_INT(expected, actual)                                                    UNITY_TEST_ASSERT_EQUAL_INT((expected), (actual), __LINE__, NULL)\n      | \n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/csv_set_field/run_01_test.c:78:56: error: macro \"TEST_ASSERT_EQUAL_INT\" passed 3 arguments, but takes just 2\n   78 |         \"Field delimiter should be tab after third set\");\n      |                                                        ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/unity/unity.h:146: note: macro \"TEST_ASSERT_EQUAL_INT\" defined here\n  146 | #define TEST_ASSERT_EQUAL_INT(expected, actual)                                                    UNITY_TEST_ASSERT_EQUAL_INT((expected), (actual), __LINE__, NULL)\n      |"
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 8,
+        "covered": 0
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 0.0,
+        "total": 8,
+        "covered": 0
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "parse_hex4": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 14,
+        "covered": 14
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 14,
+        "covered": 14
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 14,
+        "covered": 14
+      },
+      "branch_coverage": null,
+      "tests_passed": true
     }
   ],
   "parse_number": [
@@ -155,9 +384,9 @@
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 65.22,
+        "percent": 78.26,
         "total": 69,
-        "covered": 45
+        "covered": 54
       },
       "branch_coverage": null,
       "tests_passed": true
@@ -166,12 +395,12 @@
       "run": "run_03_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 65.22,
+        "percent": 69.57,
         "total": 69,
-        "covered": 45
+        "covered": 48
       },
       "branch_coverage": null,
-      "tests_passed": false
+      "tests_passed": true
     }
   ]
 }

@@ -1,0 +1,4 @@
+void csv_set_field_delim(CSV_BUFFER *buffer, char new_delim)
+{
+        buffer->field_delim = new_delim;
+}

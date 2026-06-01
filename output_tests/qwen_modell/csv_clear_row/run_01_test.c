@@ -35,8 +35,10 @@ static int run_with_segv_protection(void (*func)(void)) {
     int result = setjmp(jump_buffer);
     if (result == 0) {
         func();
+        return segv_occurred ? 1 : 0;
+    } else {
+        return 1; // segv caught
     }
-    return segv_occurred;
 }
 
 static void test_csv_clear_row_last_row_simple(void) {
@@ -47,20 +49,17 @@ static void test_csv_clear_row_last_row_simple(void) {
     csv_set_field(buffer, 1, 1, "row1col1");
     csv_set_field(buffer, 1, 2, "row1col2");
 
-    TEST_ASSERT_EQUAL_INT(2, csv_get_height(buffer));
-    TEST_ASSERT_EQUAL_INT(3, csv_get_width(buffer, 1));
-
-    // Act
-    int ret = csv_clear_row(buffer, 1);
-
-    // Assert
+    int ret = csv_clear_row(buffer, 1); // clear last row
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_INT(1, csv_get_height(buffer));  // row 1 removed
-    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_INT(2, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));
+    char dest[64] = {0};
+    csv_get_field(dest, sizeof(dest), buffer, 1, 0);
+    TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-static void test_csv_clear_row_middle_row_reduces_to_one_field(void) {
-    // Setup: 3 rows, middle row (row 1) has 4 fields
+static void test_csv_clear_row_middle_row_shrink(void) {
+    // Setup: 3 rows, row 1 has 4 fields
     csv_set_field(buffer, 0, 0, "row0col0");
     csv_set_field(buffer, 1, 0, "row1col0");
     csv_set_field(buffer, 1, 1, "row1col1");
@@ -68,84 +67,61 @@ static void test_csv_clear_row_middle_row_reduces_to_one_field(void) {
     csv_set_field(buffer, 1, 3, "row1col3");
     csv_set_field(buffer, 2, 0, "row2col0");
 
-    TEST_ASSERT_EQUAL_INT(3, csv_get_height(buffer));
-    TEST_ASSERT_EQUAL_INT(4, csv_get_width(buffer, 1));
-
-    // Act
-    int ret = csv_clear_row(buffer, 1);
-
-    // Assert
+    int ret = csv_clear_row(buffer, 1); // clear middle row
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_INT(3, csv_get_height(buffer));  // same height
-    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));  // reduced to 1 field
-    char dest[256];
+    TEST_ASSERT_EQUAL_INT(3, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));
+    char dest[64] = {0};
     csv_get_field(dest, sizeof(dest), buffer, 1, 0);
-    TEST_ASSERT_EQUAL_STRING("", dest);  // cleared
+    TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-static void test_csv_clear_row_first_row_with_many_fields(void) {
-    // Setup: 1 row with 5 fields
-    csv_set_field(buffer, 0, 0, "a");
-    csv_set_field(buffer, 0, 1, "b");
-    csv_set_field(buffer, 0, 2, "c");
-    csv_set_field(buffer, 0, 3, "d");
-    csv_set_field(buffer, 0, 4, "e");
+static void test_csv_clear_row_first_row_single_field(void) {
+    // Setup: 2 rows, row 0 has 1 field
+    csv_set_field(buffer, 0, 0, "row0col0");
+    csv_set_field(buffer, 1, 0, "row1col0");
 
-    TEST_ASSERT_EQUAL_INT(1, csv_get_height(buffer));
-    TEST_ASSERT_EQUAL_INT(5, csv_get_width(buffer, 0));
-
-    // Act
     int ret = csv_clear_row(buffer, 0);
-
-    // Assert
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_INT(1, csv_get_height(buffer));
+    TEST_ASSERT_EQUAL_INT(2, csv_get_height(buffer));
     TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));
-    char dest[256];
+    char dest[64] = {0};
     csv_get_field(dest, sizeof(dest), buffer, 0, 0);
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
 static void test_csv_clear_row_empty_row(void) {
-    // Setup: 2 rows, row 0 empty, row 1 has 1 field
+    // Setup: 2 rows, row 0 has 0 fields
+    csv_set_field(buffer, 0, 0, "row0col0");
     csv_set_field(buffer, 1, 0, "row1col0");
 
-    TEST_ASSERT_EQUAL_INT(2, csv_get_height(buffer));
-    TEST_ASSERT_EQUAL_INT(0, csv_get_width(buffer, 0));
-
-    // Act: clear empty row (row 0)
-    int ret = csv_clear_row(buffer, 0);
-
-    // Assert
+    // Clear row 0 (which has 1 field) first, then try row 1
+    int ret = csv_clear_row(buffer, 1);
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_INT(2, csv_get_height(buffer));
-    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));  // now has 1 empty field
-    char dest[256];
-    csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));
+    char dest[64] = {0};
+    csv_get_field(dest, sizeof(dest), buffer, 1, 0);
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-static void test_csv_clear_row_segfault_safety(void) {
-    // Test that segfault is caught gracefully when buffer is NULL
-    void (*func)(void) = NULL;
-    int result;
+static void test_csv_clear_row_invalid_row(void) {
+    // Setup: 1 row
+    csv_set_field(buffer, 0, 0, "row0col0");
 
-    // Case 1: NULL buffer
-    buffer = NULL;
-    func = NULL;
-    result = run_with_segv_protection(func);
-    TEST_ASSERT_TRUE(result);  // segv occurred
-
-    // Reinitialize for other tests
-    setUp();
+    int ret = csv_clear_row(buffer, 5); // invalid row
+    // Function should handle gracefully; spec says returns 0 or 1
+    // We just check it doesn't crash and returns non-negative
+    TEST_ASSERT_TRUE(ret == 0 || ret == 1);
 }
 
 int main(void) {
     UNITY_BEGIN();
+
     RUN_TEST(test_csv_clear_row_last_row_simple);
-    RUN_TEST(test_csv_clear_row_middle_row_reduces_to_one_field);
-    RUN_TEST(test_csv_clear_row_first_row_with_many_fields);
+    RUN_TEST(test_csv_clear_row_middle_row_shrink);
+    RUN_TEST(test_csv_clear_row_first_row_single_field);
     RUN_TEST(test_csv_clear_row_empty_row);
-    RUN_TEST(test_csv_clear_row_segfault_safety);
+    RUN_TEST(test_csv_clear_row_invalid_row);
+
     return UNITY_END();
 }

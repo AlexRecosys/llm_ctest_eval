@@ -1,4 +1,97 @@
 {
+  "cJSON_Compare": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 75.0,
+        "total": 52,
+        "covered": 39
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 75.0,
+        "total": 52,
+        "covered": 39
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 75.0,
+        "total": 52,
+        "covered": 39
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "cJSON_Minify": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 95.83,
+        "total": 24,
+        "covered": 23
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 95.83,
+        "total": 24,
+        "covered": 23
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 95.83,
+        "total": 24,
+        "covered": 23
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "compare_pointers": [
+    {
+      "run": "run_01_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_01_test.c: In function \u2018safe_compare_pointers\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_01_test.c:45:25: warning: implicit declaration of function \u2018compare_pointers\u2019; did you mean \u2018safe_compare_pointers\u2019? [-Wimplicit-function-declaration]\n   45 |     cJSON_bool result = compare_pointers(name, pointer, case_sensitive);\n      |                         ^~~~~~~~~~~~~~~~\n      |                         safe_compare_pointers\n/usr/bin/ld: /tmp/ccWQwv0I.o: in function `safe_compare_pointers':\nrun_01_test.c:(.text+0xb874): undefined reference to `compare_pointers'\ncollect2: error: ld returned 1 exit status"
+    },
+    {
+      "run": "run_02_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_02_test.c: In function \u2018safe_compare_pointers\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_02_test.c:45:25: warning: implicit declaration of function \u2018compare_pointers\u2019; did you mean \u2018safe_compare_pointers\u2019? [-Wimplicit-function-declaration]\n   45 |     cJSON_bool result = compare_pointers(name, pointer, case_sensitive);\n      |                         ^~~~~~~~~~~~~~~~\n      |                         safe_compare_pointers\n/usr/bin/ld: /tmp/ccg8hYkU.o: in function `safe_compare_pointers':\nrun_02_test.c:(.text+0xb874): undefined reference to `compare_pointers'\ncollect2: error: ld returned 1 exit status"
+    },
+    {
+      "run": "run_03_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_03_test.c: In function \u2018safe_compare_pointers\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_03_test.c:45:25: warning: implicit declaration of function \u2018compare_pointers\u2019; did you mean \u2018safe_compare_pointers\u2019? [-Wimplicit-function-declaration]\n   45 |     cJSON_bool result = compare_pointers(name, pointer, case_sensitive);\n      |                         ^~~~~~~~~~~~~~~~\n      |                         safe_compare_pointers\n/usr/bin/ld: /tmp/ccAYsh44.o: in function `safe_compare_pointers':\nrun_03_test.c:(.text+0xb874): undefined reference to `compare_pointers'\ncollect2: error: ld returned 1 exit status"
+    }
+  ],
   "csv_clear_row": [
     {
       "run": "run_01_test",
@@ -9,10 +102,10 @@
     },
     {
       "run": "run_02_test",
-      "compiled": false,
+      "compiled": true,
       "line_coverage": null,
       "branch_coverage": null,
-      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_clear_row/run_02_test.c: In function \u2018test_csv_clear_row_invalid_row\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_clear_row/run_02_test.c:128:40: error: expected expression before \u2018[\u2019 token\n  128 |     int ret = run_with_segv_protection([]() {\n      |                                        ^"
+      "tests_passed": false
     },
     {
       "run": "run_03_test",
@@ -27,9 +120,9 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 93.75,
+        "percent": 87.5,
         "total": 16,
-        "covered": 15
+        "covered": 14
       },
       "branch_coverage": null,
       "tests_passed": false
@@ -38,9 +131,9 @@
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 93.75,
+        "percent": 87.5,
         "total": 16,
-        "covered": 15
+        "covered": 14
       },
       "branch_coverage": null,
       "tests_passed": false
@@ -49,74 +142,186 @@
       "run": "run_03_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 93.75,
+        "percent": 87.5,
         "total": 16,
-        "covered": 15
+        "covered": 14
       },
       "branch_coverage": null,
       "tests_passed": false
     }
   ],
-  "csv_insert_field": [
+  "csv_get_height": [
     {
       "run": "run_01_test",
-      "compiled": false,
-      "line_coverage": null,
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 2,
+        "covered": 2
+      },
       "branch_coverage": null,
-      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c: In function \u2018test_csv_insert_field_insert_middle\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c:84:43: error: expected expression before \u2018[\u2019 token\n   84 |     int result = run_with_segv_protection([]() {\n      |                                           ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c: In function \u2018test_csv_insert_field_insert_beginning\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c:113:43: error: expected expression before \u2018[\u2019 token\n  113 |     int result = run_with_segv_protection([]() {\n      |                                           ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c: In function \u2018test_csv_insert_field_insert_end\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c:139:43: error: expected expression before \u2018[\u2019 token\n  139 |     int result = run_with_segv_protection([]() {\n      |                                           ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c: In function \u2018test_csv_insert_field_new_row\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c:165:43: error: expected expression before \u2018[\u2019 token\n  165 |     int result = run_with_segv_protection([]() {\n      |                                           ^\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c: In function \u2018test_csv_insert_field_new_entry\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_01_test.c:188:43: error: expected expression before \u2018[\u2019 token\n  188 |     int result = run_with_segv_protection([]() {\n      |                                           ^"
+      "tests_passed": true
     },
     {
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
         "percent": 100.0,
-        "total": 10,
-        "covered": 10
+        "total": 2,
+        "covered": 2
       },
       "branch_coverage": null,
       "tests_passed": true
     },
     {
       "run": "run_03_test",
-      "compiled": false,
-      "line_coverage": null,
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 2,
+        "covered": 2
+      },
       "branch_coverage": null,
-      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_03_test.c: In function \u2018test_csv_insert_field_invalid_row\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_03_test.c:226:18: error: too many arguments to function \u2018run_with_segfault_protection\u2019\n  226 |     int result = run_with_segfault_protection(\n      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_insert_field/run_03_test.c:48:12: note: declared here\n   48 | static int run_with_segfault_protection(void (*func)(void)) {\n      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      "tests_passed": true
     }
   ],
-  "parse_number": [
+  "csv_insert_field": [
     {
       "run": "run_01_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 93.18,
-        "total": 44,
-        "covered": 41
-      },
+      "line_coverage": null,
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_02_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 95.45,
-        "total": 44,
-        "covered": 42
-      },
+      "line_coverage": null,
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_03_test",
       "compiled": true,
-      "line_coverage": {
-        "percent": 97.73,
-        "total": 44,
-        "covered": 43
-      },
+      "line_coverage": null,
       "branch_coverage": null,
       "tests_passed": false
+    }
+  ],
+  "csv_remove_row": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "tests_passed": false
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "tests_passed": false
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "tests_passed": false
+    }
+  ],
+  "csv_set_field": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 75.0,
+        "total": 8,
+        "covered": 6
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 75.0,
+        "total": 8,
+        "covered": 6
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 75.0,
+        "total": 8,
+        "covered": 6
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "parse_hex4": [
+    {
+      "run": "run_01_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 14,
+        "covered": 14
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_02_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 14,
+        "covered": 14
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    },
+    {
+      "run": "run_03_test",
+      "compiled": true,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 14,
+        "covered": 14
+      },
+      "branch_coverage": null,
+      "tests_passed": true
+    }
+  ],
+  "parse_number": [
+    {
+      "run": "run_01_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_01_test.c: In function \u2018test_parse_number_simple_integer\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_01_test.c:79:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n   79 |     TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/ccuXhqCj.o: in function `test_parse_number_invalid_input':\nrun_01_test.c:(.text+0xc028): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
+    },
+    {
+      "run": "run_02_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_02_test.c: In function \u2018test_parse_number_simple_integer\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_02_test.c:79:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n   79 |     TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/ccjNOdy8.o: in function `test_parse_number_invalid_input':\nrun_02_test.c:(.text+0xc028): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
+    },
+    {
+      "run": "run_03_test",
+      "compiled": false,
+      "line_coverage": null,
+      "branch_coverage": null,
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_03_test.c: In function \u2018test_parse_number_simple_integer\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_03_test.c:79:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n   79 |     TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/cc7AP6ZE.o: in function `test_parse_number_invalid_input':\nrun_03_test.c:(.text+0xc028): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
     }
   ],
   "parse_string": [
@@ -125,21 +330,21 @@
       "compiled": false,
       "line_coverage": null,
       "branch_coverage": null,
-      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_01_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_01_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetAllocator\u2019; did you mean \u2018cJSON_GetErrorPtr\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetAllocator(&original_hooks.malloc_fn, &original_hooks.free_fn);\n      |     ^~~~~~~~~~~~~~~~~~\n      |     cJSON_GetErrorPtr\n/usr/bin/ld: /tmp/ccfB0CL0.o: in function `setUp':\nrun_01_test.c:(.text+0xb764): undefined reference to `cJSON_GetAllocator'\ncollect2: error: ld returned 1 exit status"
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_01_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_01_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/ccbbYyuq.o: in function `setUp':\nrun_01_test.c:(.text+0xb75c): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
     },
     {
       "run": "run_02_test",
       "compiled": false,
       "line_coverage": null,
       "branch_coverage": null,
-      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c:65:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   65 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c: In function \u2018test_parse_string_simple\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c:101:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n  101 |     TEST_ASSERT_EQUAL_SIZE(7, test_buffer.offset); /* includes closing quote */\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/cckYa4G4.o: in function `setUp':\nrun_02_test.c:(.text+0xb9c8): undefined reference to `cJSON_GetHooks'\n/usr/bin/ld: /tmp/cckYa4G4.o: in function `test_parse_string_simple':\nrun_02_test.c:(.text+0xbcac): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/cckYa4G4.o: in function `test_parse_string_escapes':\nrun_02_test.c:(.text+0xbe20): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/cckYa4G4.o: in function `test_parse_string_empty':\nrun_02_test.c:(.text+0xbf94): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/cclPIQzr.o: in function `setUp':\nrun_02_test.c:(.text+0xb75c): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
     },
     {
       "run": "run_03_test",
       "compiled": false,
       "line_coverage": null,
       "branch_coverage": null,
-      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_03_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_03_test.c:37:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   37 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/ccJESD36.o: in function `setUp':\nrun_03_test.c:(.text+0xb824): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
+      "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_03_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_03_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/cc1rOwQG.o: in function `setUp':\nrun_03_test.c:(.text+0xb75c): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
     }
   ]
 }

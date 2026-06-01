@@ -6,7 +6,7 @@
 #include <signal.h>
 
 /* File-scope buffer used across tests */
-static CSV_BUFFER *buffer;
+static CSV_BUFFER *g_buffer = NULL;
 
 /* Signal handler for segmentation faults */
 static void sigsegv_handler(int sig)
@@ -15,15 +15,16 @@ static void sigsegv_handler(int sig)
     TEST_FAIL_MESSAGE("Segmentation fault (SIGSEGV) caught during test execution");
 }
 
-/* Helper: populate a buffer with a given number of rows and fields per row */
-static void populate_buffer(CSV_BUFFER *buf, size_t num_rows, size_t fields_per_row)
+/* Helper: build a buffer with `rows` rows, each having `cols` fields,
+   filled with "RxCy" style strings. */
+static void build_buffer(CSV_BUFFER *buf, int rows, int cols)
 {
-    size_t r, f;
-    char text[64];
-    for (r = 0; r < num_rows; r++) {
-        for (f = 0; f < fields_per_row; f++) {
-            snprintf(text, sizeof(text), "row%zu_field%zu", r, f);
-            csv_set_field(buf, r, f, text);
+    int r, c;
+    char text[32];
+    for (r = 0; r < rows; r++) {
+        for (c = 0; c < cols; c++) {
+            snprintf(text, sizeof(text), "R%dC%d", r, c);
+            csv_set_field(buf, (size_t)r, (size_t)c, text);
         }
     }
 }
@@ -31,190 +32,168 @@ static void populate_buffer(CSV_BUFFER *buf, size_t num_rows, size_t fields_per_
 void setUp(void)
 {
     signal(SIGSEGV, sigsegv_handler);
-    buffer = csv_create_buffer();
-    TEST_ASSERT_NOT_NULL_MESSAGE(buffer, "csv_create_buffer() returned NULL in setUp");
+    g_buffer = csv_create_buffer();
+    TEST_ASSERT_NOT_NULL_MESSAGE(g_buffer, "csv_create_buffer() returned NULL in setUp");
 }
 
 void tearDown(void)
 {
-    if (buffer != NULL) {
-        csv_destroy_buffer(buffer);
-        buffer = NULL;
+    if (g_buffer != NULL) {
+        csv_destroy_buffer(g_buffer);
+        g_buffer = NULL;
     }
-    /* Restore default SIGSEGV handler */
     signal(SIGSEGV, SIG_DFL);
 }
 
 /* -----------------------------------------------------------------------
- * Test 1: Clear the last row in a single-row buffer.
- * Expected: the row is removed entirely (buffer height becomes 0).
+ * Test 1: Clear the last row of a single-row buffer.
+ * The function should call remove_last_row internally, leaving 0 rows.
  * ----------------------------------------------------------------------- */
 void test_csv_clear_row_last_row_is_removed(void)
 {
-    /* Create one row with two fields */
-    int rc = csv_set_field(buffer, 0, 0, "hello");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row0 field0 failed");
-    rc = csv_set_field(buffer, 0, 1, "world");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row0 field1 failed");
+    /* Build a buffer with 1 row, 3 fields */
+    build_buffer(g_buffer, 1, 3);
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_height(buffer), "Expected 1 row before clear");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_height(g_buffer),
+        "Buffer should have 1 row before clear");
 
-    /* Row 0 is the last row, so csv_clear_row should call remove_last_row */
-    rc = csv_clear_row(buffer, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_clear_row on last row should return 0");
+    int ret = csv_clear_row(g_buffer, 0);
 
-    /* Buffer should now have 0 rows */
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, csv_get_height(buffer), "Buffer height should be 0 after removing last row");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
+        "csv_clear_row should return 0 on success");
+
+    /* The last row is removed entirely, so height drops to 0 */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, csv_get_height(g_buffer),
+        "Buffer height should be 0 after clearing the only (last) row");
 }
 
 /* -----------------------------------------------------------------------
- * Test 2: Clear a non-last row that has multiple fields.
- * Expected: row width becomes 1, field content is cleared (empty string).
+ * Test 2: Clear a non-last row in a multi-row buffer.
+ * Row 0 of a 3-row buffer is cleared; it should become width=1 with
+ * an empty field. Rows 1 and 2 should be untouched.
  * ----------------------------------------------------------------------- */
-void test_csv_clear_row_non_last_row_width_becomes_one(void)
+void test_csv_clear_row_non_last_row_becomes_width_one(void)
 {
-    /* Create two rows so row 0 is NOT the last */
-    int rc;
-    rc = csv_set_field(buffer, 0, 0, "alpha");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row0 field0 failed");
-    rc = csv_set_field(buffer, 0, 1, "beta");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row0 field1 failed");
-    rc = csv_set_field(buffer, 0, 2, "gamma");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row0 field2 failed");
-    rc = csv_set_field(buffer, 1, 0, "anchor");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row1 field0 failed");
+    /* Build 3 rows, 4 fields each */
+    build_buffer(g_buffer, 3, 4);
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(buffer), "Expected 2 rows");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(3, csv_get_width(buffer, 0), "Expected width 3 for row 0");
+    int ret = csv_clear_row(g_buffer, 0);
 
-    rc = csv_clear_row(buffer, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_clear_row should return 0");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
+        "csv_clear_row should return 0 on success");
 
-    /* Width of row 0 should now be 1 */
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buffer, 0), "Row 0 width should be 1 after clear");
+    /* Height unchanged */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, csv_get_height(g_buffer),
+        "Buffer height should remain 3 after clearing row 0");
 
-    /* The remaining field should be empty */
+    /* Cleared row width should be 1 */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(g_buffer, 0),
+        "Cleared row should have width 1");
+
+    /* The single remaining field should be empty */
     char dest[64];
-    int get_rc = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    /* Return code 2 means empty cell */
-    TEST_ASSERT_EQUAL_INT_MESSAGE(2, get_rc, "Cleared field should be empty (csv_get_field returns 2)");
+    int gret = csv_get_field(dest, sizeof(dest), g_buffer, 0, 0);
+    /* Return value 2 means empty cell */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, gret,
+        "The cleared field should be reported as empty");
 }
 
 /* -----------------------------------------------------------------------
- * Test 3: Clear a non-last row that already has exactly one field.
- * Expected: returns 0, width stays 1, field is cleared.
+ * Test 3: Clear a middle row in a multi-row buffer.
+ * Rows before and after the cleared row should retain their data.
  * ----------------------------------------------------------------------- */
-void test_csv_clear_row_single_field_row(void)
+void test_csv_clear_row_middle_row_neighbors_intact(void)
 {
-    /* Two rows: row 0 has one field, row 1 anchors it as non-last */
-    int rc;
-    rc = csv_set_field(buffer, 0, 0, "only_field");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row0 field0 failed");
-    rc = csv_set_field(buffer, 1, 0, "anchor");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_set_field row1 field0 failed");
+    /* Build 3 rows, 3 fields each */
+    build_buffer(g_buffer, 3, 3);
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buffer, 0), "Row 0 should have width 1 before clear");
+    /* Clear the middle row (row 1) */
+    int ret = csv_clear_row(g_buffer, 1);
 
-    rc = csv_clear_row(buffer, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_clear_row on single-field non-last row should return 0");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
+        "csv_clear_row should return 0 on success");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buffer, 0), "Row 0 width should still be 1");
-
+    /* Row 0 field 0 should still be "R0C0" */
     char dest[64];
-    int get_rc = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(2, get_rc, "Field should be empty after clear");
+    csv_get_field(dest, sizeof(dest), g_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("R0C0", dest,
+        "Row 0 field 0 should be untouched after clearing row 1");
+
+    /* Row 2 field 2 should still be "R2C2" */
+    csv_get_field(dest, sizeof(dest), g_buffer, 2, 2);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("R2C2", dest,
+        "Row 2 field 2 should be untouched after clearing row 1");
+
+    /* Cleared row 1 should have width 1 */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(g_buffer, 1),
+        "Cleared middle row should have width 1");
 }
 
 /* -----------------------------------------------------------------------
- * Test 4: Clear a middle row in a multi-row buffer.
- * Expected: only the target row is affected; other rows remain intact.
+ * Test 4: Clear a row that already has exactly one field.
+ * The row is NOT the last row, so it should stay (width remains 1)
+ * and the field should be cleared.
  * ----------------------------------------------------------------------- */
-void test_csv_clear_row_middle_row_others_unaffected(void)
+void test_csv_clear_row_single_field_row_not_last(void)
 {
-    int rc;
-    /* Row 0 */
-    rc = csv_set_field(buffer, 0, 0, "r0f0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row0 field0");
-    rc = csv_set_field(buffer, 0, 1, "r0f1");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row0 field1");
+    /* Build 2 rows: row 0 has 1 field, row 1 has 2 fields */
+    csv_set_field(g_buffer, 0, 0, "OnlyField");
+    csv_set_field(g_buffer, 1, 0, "R1C0");
+    csv_set_field(g_buffer, 1, 1, "R1C1");
 
-    /* Row 1 — will be cleared */
-    rc = csv_set_field(buffer, 1, 0, "r1f0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row1 field0");
-    rc = csv_set_field(buffer, 1, 1, "r1f1");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row1 field1");
-    rc = csv_set_field(buffer, 1, 2, "r1f2");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row1 field2");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(g_buffer),
+        "Buffer should have 2 rows before clear");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(g_buffer, 0),
+        "Row 0 should have width 1 before clear");
 
-    /* Row 2 — anchor / last row */
-    rc = csv_set_field(buffer, 2, 0, "r2f0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row2 field0");
+    int ret = csv_clear_row(g_buffer, 0);
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(3, csv_get_height(buffer), "Expected 3 rows");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
+        "csv_clear_row should return 0 on success");
 
-    /* Clear middle row (row 1) */
-    rc = csv_clear_row(buffer, 1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_clear_row on middle row should return 0");
+    /* Height unchanged */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(g_buffer),
+        "Buffer height should remain 2");
 
-    /* Row 1 width should be 1 */
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buffer, 1), "Row 1 width should be 1 after clear");
+    /* Width of row 0 should still be 1 */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(g_buffer, 0),
+        "Row 0 width should remain 1 after clearing a single-field row");
 
-    /* Row 0 should be untouched */
+    /* The field should now be empty */
     char dest[64];
-    int get_rc = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, get_rc, "Row 0 field 0 should still exist");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("r0f0", dest, "Row 0 field 0 content should be unchanged");
-
-    get_rc = csv_get_field(dest, sizeof(dest), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, get_rc, "Row 0 field 1 should still exist");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("r0f1", dest, "Row 0 field 1 content should be unchanged");
-
-    /* Row 2 should be untouched */
-    get_rc = csv_get_field(dest, sizeof(dest), buffer, 2, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, get_rc, "Row 2 field 0 should still exist");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("r2f0", dest, "Row 2 field 0 content should be unchanged");
-
-    /* Buffer height should still be 3 */
-    TEST_ASSERT_EQUAL_INT_MESSAGE(3, csv_get_height(buffer), "Buffer height should remain 3");
+    int gret = csv_get_field(dest, sizeof(dest), g_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, gret,
+        "The single field in row 0 should be empty after csv_clear_row");
 }
 
 /* -----------------------------------------------------------------------
- * Test 5: Clear the last row in a multi-row buffer.
- * Expected: buffer height decreases by 1, other rows remain intact.
+ * Test 5: Clear the last row of a multi-row buffer (last row removal path).
+ * With 3 rows, clearing row 2 (the last) should reduce height to 2
+ * and leave rows 0 and 1 intact.
  * ----------------------------------------------------------------------- */
-void test_csv_clear_row_last_row_in_multi_row_buffer(void)
+void test_csv_clear_row_last_row_of_multi_row_buffer(void)
 {
-    int rc;
-    /* Row 0 */
-    rc = csv_set_field(buffer, 0, 0, "keep0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row0 field0");
-    rc = csv_set_field(buffer, 0, 1, "keep1");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row0 field1");
+    /* Build 3 rows, 2 fields each */
+    build_buffer(g_buffer, 3, 2);
 
-    /* Row 1 — will be cleared (it is the last row) */
-    rc = csv_set_field(buffer, 1, 0, "gone0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row1 field0");
-    rc = csv_set_field(buffer, 1, 1, "gone1");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "set row1 field1");
+    int ret = csv_clear_row(g_buffer, 2);
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(buffer), "Expected 2 rows before clear");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
+        "csv_clear_row should return 0 when removing the last row");
 
-    /* Clear last row (row 1) */
-    rc = csv_clear_row(buffer, 1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, rc, "csv_clear_row on last row should return 0");
+    /* Height should now be 2 */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_height(g_buffer),
+        "Buffer height should be 2 after removing the last row");
 
-    /* Buffer height should now be 1 */
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_height(buffer), "Buffer height should be 1 after removing last row");
-
-    /* Row 0 should be untouched */
+    /* Row 0 and row 1 should be intact */
     char dest[64];
-    int get_rc = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, get_rc, "Row 0 field 0 should still exist");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("keep0", dest, "Row 0 field 0 content should be unchanged");
+    csv_get_field(dest, sizeof(dest), g_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("R0C0", dest,
+        "Row 0 field 0 should be intact after removing last row");
 
-    get_rc = csv_get_field(dest, sizeof(dest), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, get_rc, "Row 0 field 1 should still exist");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("keep1", dest, "Row 0 field 1 content should be unchanged");
+    csv_get_field(dest, sizeof(dest), g_buffer, 1, 1);
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("R1C1", dest,
+        "Row 1 field 1 should be intact after removing last row");
 }
 
 /* -----------------------------------------------------------------------
@@ -224,9 +203,9 @@ int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_csv_clear_row_last_row_is_removed);
-    RUN_TEST(test_csv_clear_row_non_last_row_width_becomes_one);
-    RUN_TEST(test_csv_clear_row_single_field_row);
-    RUN_TEST(test_csv_clear_row_middle_row_others_unaffected);
-    RUN_TEST(test_csv_clear_row_last_row_in_multi_row_buffer);
+    RUN_TEST(test_csv_clear_row_non_last_row_becomes_width_one);
+    RUN_TEST(test_csv_clear_row_middle_row_neighbors_intact);
+    RUN_TEST(test_csv_clear_row_single_field_row_not_last);
+    RUN_TEST(test_csv_clear_row_last_row_of_multi_row_buffer);
     return UNITY_END();
 }

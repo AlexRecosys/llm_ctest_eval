@@ -1,6 +1,5 @@
 #include "csv.c"
 #include "unity.h"
-#include "csv.h"
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
@@ -8,16 +7,13 @@
 
 static CSV_BUFFER *buffer = NULL;
 static jmp_buf jump_buffer;
-static volatile sig_atomic_t segv_caught = 0;
 
 static void segv_handler(int sig) {
     (void)sig;
-    segv_caught = 1;
     longjmp(jump_buffer, 1);
 }
 
 void setUp(void) {
-    segv_caught = 0;
     signal(SIGSEGV, segv_handler);
     buffer = csv_create_buffer();
     TEST_ASSERT_NOT_NULL(buffer);
@@ -31,132 +27,114 @@ void tearDown(void) {
     signal(SIGSEGV, SIG_DFL);
 }
 
-static void setup_buffer_with_data(void) {
-    csv_set_field(buffer, 0, 0, "A1");
-    csv_set_field(buffer, 0, 1, "B1");
-    csv_set_field(buffer, 0, 2, "C1");
-    csv_set_field(buffer, 1, 0, "A2");
-    csv_set_field(buffer, 1, 1, "B2");
-}
-
-static void setup_buffer_with_one_field(void) {
-    csv_set_field(buffer, 0, 0, "OnlyOne");
-}
-
-static void setup_buffer_with_empty_row(void) {
-    csv_set_field(buffer, 0, 0, "A1");
-    csv_set_field(buffer, 1, 0, "B1");
-}
-
-static int run_with_segv_protection(void (*func)(void)) {
-    segv_caught = 0;
-    int result = setjmp(jump_buffer);
-    if (result == 0) {
-        func();
+static void setup_row_with_fields(CSV_BUFFER *buf, size_t row, size_t count) {
+    csv_clear_row(buf, row);
+    for (size_t i = 0; i < count; i++) {
+        csv_set_field(buf, row, i, "field");
     }
-    return segv_caught;
 }
 
-static void test_csv_insert_field_insert_at_end_of_row(void) {
-    setup_buffer_with_one_field();
-    
-    int ret = csv_insert_field(buffer, 0, 1, "NewField");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    
-    char dest[64];
-    csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("OnlyOne", dest);
-    
-    csv_get_field(dest, sizeof(dest), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_STRING("NewField", dest);
-    
-    TEST_ASSERT_EQUAL_INT(2, csv_get_width(buffer, 0));
-}
+static void test_csv_insert_field_inserts_at_end_when_row_or_entry_exceeds_bounds(void) {
+    // Setup: create a buffer with one row, width 2
+    csv_clear_row(buffer, 0);
+    csv_set_field(buffer, 0, 0, "a");
+    csv_set_field(buffer, 0, 1, "b");
 
-static void test_csv_insert_field_insert_in_middle_of_row(void) {
-    setup_buffer_with_data();
-    
-    int ret = csv_insert_field(buffer, 0, 1, "Inserted");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    
-    char dest[64];
-    csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("A1", dest);
-    
-    csv_get_field(dest, sizeof(dest), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_STRING("Inserted", dest);
-    
+    // Act: insert at row=0, entry=2 (beyond current width)
+    int result = csv_insert_field(buffer, 0, 2, "c");
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(3, csv_get_width(buffer, 0));
+    char dest[32] = {0};
     csv_get_field(dest, sizeof(dest), buffer, 0, 2);
-    TEST_ASSERT_EQUAL_STRING("B1", dest);
-    
-    csv_get_field(dest, sizeof(dest), buffer, 0, 3);
-    TEST_ASSERT_EQUAL_STRING("C1", dest);
-    
-    TEST_ASSERT_EQUAL_INT(4, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_STRING("c", dest);
 }
 
-static void test_csv_insert_field_insert_at_beginning_of_row(void) {
-    setup_buffer_with_data();
-    
-    int ret = csv_insert_field(buffer, 0, 0, "First");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    
-    char dest[64];
+static void test_csv_insert_field_shifts_right_when_inserting_in_middle(void) {
+    // Setup: row with 3 fields: ["a", "b", "c"]
+    csv_clear_row(buffer, 0);
+    csv_set_field(buffer, 0, 0, "a");
+    csv_set_field(buffer, 0, 1, "b");
+    csv_set_field(buffer, 0, 2, "c");
+
+    // Act: insert "x" at entry=1
+    int result = csv_insert_field(buffer, 0, 1, "x");
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(4, csv_get_width(buffer, 0));
+    char dest[32] = {0};
     csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("First", dest);
-    
+    TEST_ASSERT_EQUAL_STRING("a", dest);
     csv_get_field(dest, sizeof(dest), buffer, 0, 1);
-    TEST_ASSERT_EQUAL_STRING("A1", dest);
-    
+    TEST_ASSERT_EQUAL_STRING("x", dest);
     csv_get_field(dest, sizeof(dest), buffer, 0, 2);
-    TEST_ASSERT_EQUAL_STRING("B1", dest);
-    
+    TEST_ASSERT_EQUAL_STRING("b", dest);
     csv_get_field(dest, sizeof(dest), buffer, 0, 3);
-    TEST_ASSERT_EQUAL_STRING("C1", dest);
-    
-    TEST_ASSERT_EQUAL_INT(4, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_STRING("c", dest);
 }
 
-static void test_csv_insert_field_insert_beyond_end_creates_new_field(void) {
-    setup_buffer_with_one_field();
-    
-    int ret = csv_insert_field(buffer, 0, 5, "NewField");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    
-    char dest[64];
+static void test_csv_insert_field_shifts_right_when_inserting_at_beginning(void) {
+    // Setup: row with 2 fields: ["a", "b"]
+    csv_clear_row(buffer, 0);
+    csv_set_field(buffer, 0, 0, "a");
+    csv_set_field(buffer, 0, 1, "b");
+
+    // Act: insert "x" at entry=0
+    int result = csv_insert_field(buffer, 0, 0, "x");
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(3, csv_get_width(buffer, 0));
+    char dest[32] = {0};
     csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("OnlyOne", dest);
-    
-    csv_get_field(dest, sizeof(dest), buffer, 0, 5);
-    TEST_ASSERT_EQUAL_STRING("NewField", dest);
-    
-    TEST_ASSERT_EQUAL_INT(6, csv_get_width(buffer, 0));
+    TEST_ASSERT_EQUAL_STRING("x", dest);
+    csv_get_field(dest, sizeof(dest), buffer, 0, 1);
+    TEST_ASSERT_EQUAL_STRING("a", dest);
+    csv_get_field(dest, sizeof(dest), buffer, 0, 2);
+    TEST_ASSERT_EQUAL_STRING("b", dest);
 }
 
-static void test_csv_insert_field_insert_into_new_row(void) {
-    setup_buffer_with_one_field();
-    
-    int ret = csv_insert_field(buffer, 1, 0, "Row1Field0");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    
-    char dest[64];
-    csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-    TEST_ASSERT_EQUAL_STRING("OnlyOne", dest);
-    
-    csv_get_field(dest, sizeof(dest), buffer, 1, 0);
-    TEST_ASSERT_EQUAL_STRING("Row1Field0", dest);
-    
-    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 0));
-    TEST_ASSERT_EQUAL_INT(1, csv_get_width(buffer, 1));
+static void test_csv_insert_field_creates_new_row_if_row_does_not_exist(void) {
+    // Setup: buffer with 1 row (row 0)
+    csv_clear_row(buffer, 0);
+    csv_set_field(buffer, 0, 0, "existing");
+
+    // Act: insert into row=1 (nonexistent), entry=0
+    int result = csv_insert_field(buffer, 1, 0, "new");
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
     TEST_ASSERT_EQUAL_INT(2, csv_get_height(buffer));
+    char dest[32] = {0};
+    csv_get_field(dest, sizeof(dest), buffer, 1, 0);
+    TEST_ASSERT_EQUAL_STRING("new", dest);
+}
+
+static void test_csv_insert_field_handles_empty_string_field(void) {
+    // Setup: row with 2 fields: ["a", "b"]
+    csv_clear_row(buffer, 0);
+    csv_set_field(buffer, 0, 0, "a");
+    csv_set_field(buffer, 0, 1, "b");
+
+    // Act: insert empty string at entry=1
+    int result = csv_insert_field(buffer, 0, 1, "");
+
+    // Assert
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(3, csv_get_width(buffer, 0));
+    char dest[32] = {0};
+    csv_get_field(dest, sizeof(dest), buffer, 0, 1);
+    TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_csv_insert_field_insert_at_end_of_row);
-    RUN_TEST(test_csv_insert_field_insert_in_middle_of_row);
-    RUN_TEST(test_csv_insert_field_insert_at_beginning_of_row);
-    RUN_TEST(test_csv_insert_field_insert_beyond_end_creates_new_field);
-    RUN_TEST(test_csv_insert_field_insert_into_new_row);
+    RUN_TEST(test_csv_insert_field_inserts_at_end_when_row_or_entry_exceeds_bounds);
+    RUN_TEST(test_csv_insert_field_shifts_right_when_inserting_in_middle);
+    RUN_TEST(test_csv_insert_field_shifts_right_when_inserting_at_beginning);
+    RUN_TEST(test_csv_insert_field_creates_new_row_if_row_does_not_exist);
+    RUN_TEST(test_csv_insert_field_handles_empty_string_field);
     return UNITY_END();
 }

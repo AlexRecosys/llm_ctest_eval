@@ -20,13 +20,12 @@ static void sigsegv_handler(int sig)
 }
 
 /* Helper: initialize a parse_buffer with a given string */
-static void init_parse_buffer(parse_buffer *pb, const unsigned char *content, size_t length, size_t offset)
+static void init_parse_buffer(parse_buffer *pb, const unsigned char *content, size_t length)
 {
     memset(pb, 0, sizeof(parse_buffer));
     pb->content          = content;
     pb->length           = length;
-    pb->offset           = offset;
-    pb->depth            = 0;
+    pb->offset           = 0;
     pb->hooks.allocate   = malloc;
     pb->hooks.deallocate = free;
     pb->hooks.reallocate = realloc;
@@ -55,14 +54,14 @@ void tearDown(void)
 void test_parse_number_simple_integer(void)
 {
     const unsigned char *content = (const unsigned char *)"42";
-    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    init_parse_buffer(&buf, content, strlen("42"));
     init_cjson_item(&item);
 
     cJSON_bool result = parse_number(&item, &buf);
 
     TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '42'");
     TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
-    TEST_ASSERT_DOUBLE_WITHIN(1e-9, 42.0, item.valuedouble);
+    TEST_ASSERT_EQUAL_DOUBLE(42.0, item.valuedouble);
     TEST_ASSERT_EQUAL_INT(42, item.valueint);
     TEST_ASSERT_EQUAL_UINT((size_t)2, buf.offset);
 }
@@ -70,36 +69,52 @@ void test_parse_number_simple_integer(void)
 /* Test 2: Parse a floating-point number with decimal point */
 void test_parse_number_floating_point(void)
 {
-    const unsigned char *content = (const unsigned char *)"3.14159";
-    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    const unsigned char *content = (const unsigned char *)"3.14";
+    init_parse_buffer(&buf, content, strlen("3.14"));
     init_cjson_item(&item);
 
     cJSON_bool result = parse_number(&item, &buf);
 
-    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '3.14159'");
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '3.14'");
     TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
-    TEST_ASSERT_DOUBLE_WITHIN(1e-5, 3.14159, item.valuedouble);
+    TEST_ASSERT_DOUBLE_WITHIN(1e-9, 3.14, item.valuedouble);
     TEST_ASSERT_EQUAL_INT(3, item.valueint);
-    TEST_ASSERT_EQUAL_UINT((size_t)7, buf.offset);
+    TEST_ASSERT_EQUAL_UINT((size_t)4, buf.offset);
 }
 
 /* Test 3: Parse a negative number */
 void test_parse_number_negative(void)
 {
     const unsigned char *content = (const unsigned char *)"-100";
-    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    init_parse_buffer(&buf, content, strlen("-100"));
     init_cjson_item(&item);
 
     cJSON_bool result = parse_number(&item, &buf);
 
     TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '-100'");
     TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
-    TEST_ASSERT_DOUBLE_WITHIN(1e-9, -100.0, item.valuedouble);
+    TEST_ASSERT_EQUAL_DOUBLE(-100.0, item.valuedouble);
     TEST_ASSERT_EQUAL_INT(-100, item.valueint);
     TEST_ASSERT_EQUAL_UINT((size_t)4, buf.offset);
 }
 
-/* Test 4: NULL input_buffer returns false */
+/* Test 4: Parse a number in scientific notation */
+void test_parse_number_scientific_notation(void)
+{
+    const unsigned char *content = (const unsigned char *)"1.5e2";
+    init_parse_buffer(&buf, content, strlen("1.5e2"));
+    init_cjson_item(&item);
+
+    cJSON_bool result = parse_number(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '1.5e2'");
+    TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
+    TEST_ASSERT_DOUBLE_WITHIN(1e-9, 150.0, item.valuedouble);
+    TEST_ASSERT_EQUAL_INT(150, item.valueint);
+    TEST_ASSERT_EQUAL_UINT((size_t)5, buf.offset);
+}
+
+/* Test 5: NULL input_buffer returns false */
 void test_parse_number_null_input_buffer(void)
 {
     init_cjson_item(&item);
@@ -109,29 +124,13 @@ void test_parse_number_null_input_buffer(void)
     TEST_ASSERT_FALSE_MESSAGE(result, "parse_number should return false when input_buffer is NULL");
 }
 
-/* Test 5: Parse a number in scientific notation */
-void test_parse_number_scientific_notation(void)
-{
-    const unsigned char *content = (const unsigned char *)"1.5e3";
-    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
-    init_cjson_item(&item);
-
-    cJSON_bool result = parse_number(&item, &buf);
-
-    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '1.5e3'");
-    TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
-    TEST_ASSERT_DOUBLE_WITHIN(1e-6, 1500.0, item.valuedouble);
-    TEST_ASSERT_EQUAL_INT(1500, item.valueint);
-    TEST_ASSERT_EQUAL_UINT((size_t)5, buf.offset);
-}
-
 int main(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_parse_number_simple_integer);
     RUN_TEST(test_parse_number_floating_point);
     RUN_TEST(test_parse_number_negative);
-    RUN_TEST(test_parse_number_null_input_buffer);
     RUN_TEST(test_parse_number_scientific_notation);
+    RUN_TEST(test_parse_number_null_input_buffer);
     return UNITY_END();
 }
