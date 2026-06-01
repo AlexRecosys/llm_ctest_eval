@@ -96,3 +96,5 @@ reports/
 .vscode/
 .idea/
 *.swp
+
+token_github.txt
