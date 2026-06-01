@@ -1,157 +1,157 @@
+#include "cJSON.c"
 #include "unity.h"
 #include "cJSON.h"
-
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
-/* -------------------------------------------------------------------------
- * File-scope fixtures
- * ------------------------------------------------------------------------- */
+/* File-scope fixtures */
+static cJSON item;
+static parse_buffer buf;
 
-/* We test parse_string indirectly through cJSON_Parse / cJSON_ParseWithLength
- * because parse_string is a static function.  Every test parses a JSON value
- * that IS a string (or is expected to fail) and then inspects the resulting
- * cJSON object.
- */
-
-static cJSON *g_item = NULL;
-
-/* -------------------------------------------------------------------------
- * Helper macros / functions
- * ------------------------------------------------------------------------- */
-
-/*
- * parse_json_string – thin wrapper that calls cJSON_Parse and returns the
- * resulting cJSON node.  The caller is responsible for calling cJSON_Delete.
- */
-static cJSON *parse_json_string(const char *json_text)
+/* Signal handler for SIGSEGV */
+static void sigsegv_handler(int sig)
 {
-    return cJSON_Parse(json_text);
+    (void)sig;
+    TEST_FAIL_MESSAGE("Segmentation fault (SIGSEGV) caught during test execution");
 }
 
-/*
- * parse_json_string_with_length – same but with an explicit length so we can
- * test truncated / unterminated inputs.
- */
-static cJSON *parse_json_string_with_length(const char *json_text, size_t len)
+/* Helper: initialize a parse_buffer pointing at the given string */
+static void init_parse_buffer(parse_buffer *pb, const unsigned char *content, size_t length, size_t offset)
 {
-    return cJSON_ParseWithLength(json_text, len);
+    memset(pb, 0, sizeof(parse_buffer));
+    pb->content          = content;
+    pb->length           = length;
+    pb->offset           = offset;
+    pb->depth            = 0;
+    pb->hooks.allocate   = malloc;
+    pb->hooks.deallocate = free;
+    pb->hooks.reallocate = realloc;
 }
-
-/* -------------------------------------------------------------------------
- * setUp / tearDown
- * ------------------------------------------------------------------------- */
 
 void setUp(void)
 {
-    g_item = NULL;
+    signal(SIGSEGV, sigsegv_handler);
+    memset(&item, 0, sizeof(cJSON));
+    memset(&buf, 0, sizeof(parse_buffer));
 }
 
 void tearDown(void)
 {
-    if (g_item != NULL)
+    /* Free valuestring if it was set by parse_string */
+    if (item.valuestring != NULL)
     {
-        cJSON_Delete(g_item);
-        g_item = NULL;
+        free(item.valuestring);
+        item.valuestring = NULL;
     }
+    signal(SIGSEGV, SIG_DFL);
 }
 
-/* -------------------------------------------------------------------------
- * Test cases
- * ------------------------------------------------------------------------- */
-
-/* 1. Simple plain ASCII string – no escape sequences */
-void test_parse_string_simple_ascii(void)
+/* -----------------------------------------------------------------------
+ * Test 1: Simple ASCII string — "hello"
+ * ----------------------------------------------------------------------- */
+void test_parse_simple_ascii_string(void)
 {
-    const char *json = "\"hello world\"";
+    const unsigned char *content = (const unsigned char *)"\"hello\"";
+    size_t length = strlen((const char *)content);
 
-    g_item = parse_json_string(json);
+    init_parse_buffer(&buf, content, length, 0);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should return a non-NULL item for a valid string");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, g_item->type,
-                                  "Parsed item type should be cJSON_String");
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item->valuestring, "valuestring should not be NULL");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello world", g_item->valuestring,
-                                     "valuestring should match the input text");
+    cJSON_bool result = parse_string(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_string should return true for a valid simple string");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, item.type, "item type should be cJSON_String");
+    TEST_ASSERT_NOT_NULL_MESSAGE(item.valuestring, "valuestring should not be NULL");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello", item.valuestring, "valuestring should equal 'hello'");
+    /* offset should be just past the closing quote */
+    TEST_ASSERT_EQUAL_UINT_MESSAGE((size_t)(length), buf.offset,
+                                   "buffer offset should be past the closing quote");
 }
 
-/* 2. String containing common escape sequences (\n, \t, \r, \\, \", \/) */
-void test_parse_string_escape_sequences(void)
+/* -----------------------------------------------------------------------
+ * Test 2: Empty string — ""
+ * ----------------------------------------------------------------------- */
+void test_parse_empty_string(void)
 {
-    /* JSON:  "line1\nline2\ttabbed\/slash\\back\"quote" */
-    const char *json = "\"line1\\nline2\\ttabbed\\/slash\\\\back\\\"quote\"";
+    const unsigned char *content = (const unsigned char *)"\"\"";
+    size_t length = strlen((const char *)content);
 
-    g_item = parse_json_string(json);
+    init_parse_buffer(&buf, content, length, 0);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should succeed for a string with escape sequences");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, g_item->type,
-                                  "Parsed item type should be cJSON_String");
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item->valuestring, "valuestring should not be NULL");
+    cJSON_bool result = parse_string(&item, &buf);
 
-    /* Expected decoded value */
-    const char *expected = "line1\nline2\ttabbed/slash\\back\"quote";
-    TEST_ASSERT_EQUAL_STRING_MESSAGE(expected, g_item->valuestring,
-                                     "Escape sequences should be decoded correctly");
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_string should return true for an empty string");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, item.type, "item type should be cJSON_String");
+    TEST_ASSERT_NOT_NULL_MESSAGE(item.valuestring, "valuestring should not be NULL for empty string");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("", item.valuestring, "valuestring should be empty");
 }
 
-/* 3. Empty string – edge case with zero content between the quotes */
-void test_parse_string_empty(void)
+/* -----------------------------------------------------------------------
+ * Test 3: String with escape sequences (\n, \t, \r, \b, \f, \\, \/, \")
+ * ----------------------------------------------------------------------- */
+void test_parse_string_with_escape_sequences(void)
 {
-    const char *json = "\"\"";
+    /* JSON: "a\nb\tc" — represents: a<newline>b<tab>c */
+    const unsigned char *content = (const unsigned char *)"\"a\\nb\\tc\"";
+    size_t length = strlen((const char *)content);
 
-    g_item = parse_json_string(json);
+    init_parse_buffer(&buf, content, length, 0);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should succeed for an empty string");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, g_item->type,
-                                  "Parsed item type should be cJSON_String");
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item->valuestring, "valuestring should not be NULL even for empty string");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("", g_item->valuestring,
-                                     "valuestring should be an empty C string");
+    cJSON_bool result = parse_string(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_string should return true for string with escape sequences");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, item.type, "item type should be cJSON_String");
+    TEST_ASSERT_NOT_NULL_MESSAGE(item.valuestring, "valuestring should not be NULL");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("a\nb\tc", item.valuestring,
+                                     "valuestring should have escape sequences resolved");
 }
 
-/* 4. Unterminated string – the closing quote is missing; parse must fail */
-void test_parse_string_unterminated_fails(void)
+/* -----------------------------------------------------------------------
+ * Test 4: Fail — input does not start with a double-quote
+ * ----------------------------------------------------------------------- */
+void test_parse_string_fails_when_not_starting_with_quote(void)
 {
-    /* Provide the exact byte count so cJSON cannot read past the buffer */
-    const char *json = "\"unterminated";
-    size_t len = strlen(json); /* no closing quote */
+    const unsigned char *content = (const unsigned char *)"hello\"";
+    size_t length = strlen((const char *)content);
 
-    g_item = parse_json_string_with_length(json, len);
+    init_parse_buffer(&buf, content, length, 0);
 
-    TEST_ASSERT_NULL_MESSAGE(g_item,
-                             "cJSON_Parse should return NULL for an unterminated string");
+    cJSON_bool result = parse_string(&item, &buf);
+
+    TEST_ASSERT_FALSE_MESSAGE(result, "parse_string should return false when input does not start with '\"'");
+    /* item type should remain unchanged (0 / cJSON_Invalid) */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, item.type, "item type should remain 0 on failure");
+    /* valuestring should remain NULL */
+    TEST_ASSERT_NULL_MESSAGE(item.valuestring, "valuestring should be NULL on failure");
 }
 
-/* 5. String with a UTF-16 Unicode escape sequence (\uXXXX) */
-void test_parse_string_unicode_escape(void)
+/* -----------------------------------------------------------------------
+ * Test 5: Fail — unterminated string (no closing quote)
+ * ----------------------------------------------------------------------- */
+void test_parse_string_fails_on_unterminated_string(void)
 {
-    /* JSON: "\u0041\u0042\u0043"  =>  "ABC" */
-    const char *json = "\"\\u0041\\u0042\\u0043\"";
+    const unsigned char *content = (const unsigned char *)"\"unterminated";
+    size_t length = strlen((const char *)content);
 
-    g_item = parse_json_string(json);
+    init_parse_buffer(&buf, content, length, 0);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item,
-                                 "cJSON_Parse should succeed for a string with \\uXXXX escapes");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_String, g_item->type,
-                                  "Parsed item type should be cJSON_String");
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item->valuestring, "valuestring should not be NULL");
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("ABC", g_item->valuestring,
-                                     "\\u0041\\u0042\\u0043 should decode to \"ABC\"");
+    cJSON_bool result = parse_string(&item, &buf);
+
+    TEST_ASSERT_FALSE_MESSAGE(result, "parse_string should return false for an unterminated string");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, item.type, "item type should remain 0 on failure");
+    TEST_ASSERT_NULL_MESSAGE(item.valuestring, "valuestring should be NULL on failure");
 }
 
-/* -------------------------------------------------------------------------
+/* -----------------------------------------------------------------------
  * main
- * ------------------------------------------------------------------------- */
-
+ * ----------------------------------------------------------------------- */
 int main(void)
 {
     UNITY_BEGIN();
-
-    RUN_TEST(test_parse_string_simple_ascii);
-    RUN_TEST(test_parse_string_escape_sequences);
-    RUN_TEST(test_parse_string_empty);
-    RUN_TEST(test_parse_string_unterminated_fails);
-    RUN_TEST(test_parse_string_unicode_escape);
-
+    RUN_TEST(test_parse_simple_ascii_string);
+    RUN_TEST(test_parse_empty_string);
+    RUN_TEST(test_parse_string_with_escape_sequences);
+    RUN_TEST(test_parse_string_fails_when_not_starting_with_quote);
+    RUN_TEST(test_parse_string_fails_on_unterminated_string);
     return UNITY_END();
 }

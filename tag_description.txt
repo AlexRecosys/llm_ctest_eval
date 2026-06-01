@@ -1,3 +1,4 @@
-Abgesehen von einem Ausreiser in der csv_clear_row Funktion, konnten mit dem prompt_v6 die untersuchten Qwen Funktionen der CSV Codebase kompilieren.
+Mit dem Prompt V8 Laufen lassen, welcher wieder die Segmentation Faults abdeckt und eine eindeutigere Definition für die Unity Makros hat.
 
-Als nächstes werden Verbesserungen der Segmentation Faults für einzelne Tests geprüft um nachvollziehbare Messwerte zu erhalten.
+Die Line Coverage fällt bei dem Qwen Modell bedingt besser aus, weil es weniger Runs gibt die Kompilieren und einfach der beste Run genommen wird und dann in die LineCoverage verwertet, trotzdem performt es ziemlich solide auf den ersten Blick.
+

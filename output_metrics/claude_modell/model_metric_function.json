@@ -3,21 +3,33 @@
     {
       "run": "run_01_test",
       "compiled": true,
-      "line_coverage": null,
+      "line_coverage": {
+        "percent": 76.47,
+        "total": 17,
+        "covered": 13
+      },
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_02_test",
       "compiled": true,
-      "line_coverage": null,
+      "line_coverage": {
+        "percent": 70.59,
+        "total": 17,
+        "covered": 12
+      },
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_03_test",
       "compiled": true,
-      "line_coverage": null,
+      "line_coverage": {
+        "percent": 76.47,
+        "total": 17,
+        "covered": 13
+      },
       "branch_coverage": null,
       "tests_passed": false
     }
@@ -27,9 +39,9 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 100.0,
+        "percent": 93.75,
         "total": 16,
-        "covered": 16
+        "covered": 15
       },
       "branch_coverage": null,
       "tests_passed": true
@@ -61,21 +73,33 @@
     {
       "run": "run_01_test",
       "compiled": true,
-      "line_coverage": null,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 10,
+        "covered": 10
+      },
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_02_test",
       "compiled": true,
-      "line_coverage": null,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 10,
+        "covered": 10
+      },
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_03_test",
       "compiled": true,
-      "line_coverage": null,
+      "line_coverage": {
+        "percent": 100.0,
+        "total": 10,
+        "covered": 10
+      },
       "branch_coverage": null,
       "tests_passed": false
     }
@@ -85,9 +109,9 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 93.18,
+        "percent": 84.09,
         "total": 44,
-        "covered": 41
+        "covered": 37
       },
       "branch_coverage": null,
       "tests_passed": false
@@ -96,19 +120,23 @@
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 88.64,
+        "percent": 84.09,
         "total": 44,
-        "covered": 39
+        "covered": 37
       },
       "branch_coverage": null,
       "tests_passed": false
     },
     {
       "run": "run_03_test",
-      "compiled": false,
-      "line_coverage": null,
+      "compiled": true,
+      "line_coverage": {
+        "percent": 84.09,
+        "total": 44,
+        "covered": 37
+      },
       "branch_coverage": null,
-      "error": "Compilation failed: In file included from /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:40:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/src/cjson_codebase/cJSON.c:156:16: error: redefinition of \u2018struct internal_hooks\u2019\n  156 | typedef struct internal_hooks\n      |                ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:15:16: note: originally defined here\n   15 | typedef struct internal_hooks\n      |                ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/src/cjson_codebase/cJSON.c:161:3: error: conflicting types for \u2018internal_hooks\u2019; have \u2018struct internal_hooks\u2019\n  161 | } internal_hooks;\n      |   ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:20:3: note: previous declaration of \u2018internal_hooks\u2019 with type \u2018internal_hooks\u2019\n   20 | } internal_hooks;\n      |   ^~~~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/src/cjson_codebase/cJSON.c:296:3: error: conflicting types for \u2018parse_buffer\u2019; have \u2018struct <anonymous>\u2019\n  296 | } parse_buffer;\n      |   ^~~~~~~~~~~~\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/claude_modell/parse_number/run_03_test.c:29:3: note: previous declaration of \u2018parse_buffer\u2019 with type \u2018parse_buffer\u2019\n   29 | } parse_buffer;\n      |   ^~~~~~~~~~~~"
+      "tests_passed": false
     }
   ],
   "parse_string": [
@@ -116,9 +144,9 @@
       "run": "run_01_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 81.16,
+        "percent": 65.22,
         "total": 69,
-        "covered": 56
+        "covered": 45
       },
       "branch_coverage": null,
       "tests_passed": true
@@ -127,9 +155,9 @@
       "run": "run_02_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 73.91,
+        "percent": 65.22,
         "total": 69,
-        "covered": 51
+        "covered": 45
       },
       "branch_coverage": null,
       "tests_passed": true
@@ -138,12 +166,12 @@
       "run": "run_03_test",
       "compiled": true,
       "line_coverage": {
-        "percent": 73.91,
+        "percent": 65.22,
         "total": 69,
-        "covered": 51
+        "covered": 45
       },
       "branch_coverage": null,
-      "tests_passed": true
+      "tests_passed": false
     }
   ]
 }

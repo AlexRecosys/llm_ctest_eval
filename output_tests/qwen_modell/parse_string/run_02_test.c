@@ -1,246 +1,152 @@
-#include <stdio.h>
+#include "cJSON.c"
+#include "unity.h"
 #include <stdlib.h>
 #include <string.h>
-#include "unity.h"
-#include "cJSON.h"
+#include <signal.h>
+#include <setjmp.h>
+#include <locale.h>
 
-/* Internal types and functions from cJSON.c (declared extern for testing) */
-typedef struct parse_buffer
-{
-    const unsigned char *content;
-    size_t length;
-    size_t offset;
-    cJSON_Hooks hooks;
-} parse_buffer;
+/* Global variables for test fixtures */
+static cJSON_Hooks original_hooks = {0};
+static parse_buffer test_buffer = {0};
+static unsigned char *test_input = NULL;
+static cJSON test_item = {0};
 
-static const unsigned char* buffer_at_offset(const parse_buffer * const buffer)
-{
-    if (buffer == NULL || buffer->content == NULL)
-    {
-        return NULL;
-    }
-    return buffer->content + buffer->offset;
+/* Signal handling for segmentation faults */
+static sig_atomic_t segv_caught = 0;
+static jmp_buf segv_env;
+
+static void segv_handler(int sig) {
+    (void)sig;
+    segv_caught = 1;
+    longjmp(segv_env, 1);
 }
 
-/* External declaration of internal function under test */
-extern cJSON_bool parse_string(cJSON * const item, parse_buffer * const input_buffer);
-
-/* Helper: convert UTF-16 escape sequence to UTF-8 */
-static size_t utf16_literal_to_utf8(const unsigned char *input_pointer, const unsigned char *input_end, unsigned char **output_pointer)
-{
-    /* Minimal implementation for test coverage */
-    unsigned int codepoint = 0;
-    unsigned int high_surrogate = 0;
-    size_t i = 0;
-
-    if ((input_end - input_pointer) < 6) /* \uXXXX */
-    {
-        return 0;
+/* Helper function to set up parse buffer */
+static void setup_parse_buffer(const char *input) {
+    size_t len = strlen(input);
+    
+    /* Free previous test input if any */
+    if (test_input != NULL) {
+        free(test_input);
+        test_input = NULL;
     }
-
-    for (i = 2; i < 6; i++)
-    {
-        unsigned char c = input_pointer[i];
-        codepoint <<= 4;
-        if (c >= '0' && c <= '9')
-        {
-            codepoint |= c - '0';
-        }
-        else if (c >= 'a' && c <= 'f')
-        {
-            codepoint |= c - 'a' + 10;
-        }
-        else if (c >= 'A' && c <= 'F')
-        {
-            codepoint |= c - 'A' + 10;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    /* Handle surrogate pairs */
-    if (codepoint >= 0xD800 && codepoint <= 0xDBFF)
-    {
-        /* High surrogate: expect \uXXXX\uXXXX */
-        if ((input_end - input_pointer) < 12)
-        {
-            return 0;
-        }
-        if (input_pointer[6] != '\\' || input_pointer[7] != 'u')
-        {
-            return 0;
-        }
-        high_surrogate = codepoint;
-        codepoint = 0;
-
-        for (i = 8; i < 12; i++)
-        {
-            unsigned char c = input_pointer[i];
-            codepoint <<= 4;
-            if (c >= '0' && c <= '9')
-            {
-                codepoint |= c - '0';
-            }
-            else if (c >= 'a' && c <= 'f')
-            {
-                codepoint |= c - 'a' + 10;
-            }
-            else if (c >= 'A' && c <= 'F')
-            {
-                codepoint |= c - 'A' + 10;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        if (codepoint < 0xDC00 || codepoint > 0xDFFF)
-        {
-            return 0;
-        }
-
-        codepoint = 0x10000 + ((high_surrogate - 0xD800) << 10) + (codepoint - 0xDC00);
-    }
-
-    /* Encode UTF-8 */
-    if (codepoint < 0x80)
-    {
-        (*output_pointer)[0] = (unsigned char)codepoint;
-        *output_pointer += 1;
-        return 6;
-    }
-    else if (codepoint < 0x800)
-    {
-        (*output_pointer)[0] = 0xC0 | (codepoint >> 6);
-        (*output_pointer)[1] = 0x80 | (codepoint & 0x3F);
-        *output_pointer += 2;
-        return 6;
-    }
-    else if (codepoint < 0x10000)
-    {
-        (*output_pointer)[0] = 0xE0 | (codepoint >> 12);
-        (*output_pointer)[1] = 0x80 | ((codepoint >> 6) & 0x3F);
-        (*output_pointer)[2] = 0x80 | (codepoint & 0x3F);
-        *output_pointer += 3;
-        return 6;
-    }
-    else
-    {
-        (*output_pointer)[0] = 0xF0 | (codepoint >> 18);
-        (*output_pointer)[1] = 0x80 | ((codepoint >> 12) & 0x3F);
-        (*output_pointer)[2] = 0x80 | ((codepoint >> 6) & 0x3F);
-        (*output_pointer)[3] = 0x80 | (codepoint & 0x3F);
-        *output_pointer += 4;
-        return 12;
-    }
-}
-
-/* Global test fixtures */
-static cJSON_Hooks test_hooks = {
-    .malloc_fn = malloc,
-    .free_fn = free
-};
-
-static parse_buffer *test_buffer = NULL;
-static cJSON test_item;
-
-/* setUp / tearDown */
-void setUp(void)
-{
-    test_buffer = (parse_buffer*)malloc(sizeof(parse_buffer));
-    TEST_ASSERT_NOT_NULL(test_buffer);
-    test_buffer->content = NULL;
-    test_buffer->length = 0;
-    test_buffer->offset = 0;
-    test_buffer->hooks = test_hooks;
-
+    
+    /* Allocate and copy input */
+    test_input = (unsigned char *)malloc(len + 1);
+    TEST_ASSERT_NOT_NULL_MESSAGE(test_input, "Failed to allocate test input buffer");
+    memcpy(test_input, input, len + 1);
+    
+    /* Initialize buffer */
+    memset(&test_buffer, 0, sizeof(test_buffer));
+    test_buffer.content = test_input;
+    test_buffer.length = len;
+    test_buffer.offset = 0;
+    test_buffer.hooks.allocate = malloc;
+    test_buffer.hooks.deallocate = free;
+    test_buffer.hooks.reallocate = realloc;
+    
+    /* Initialize item */
     memset(&test_item, 0, sizeof(test_item));
 }
 
-void tearDown(void)
-{
-    if (test_buffer != NULL)
-    {
-        if (test_buffer->content != NULL)
-        {
-            free((void*)test_buffer->content);
-        }
-        free(test_buffer);
-        test_buffer = NULL;
+/* Helper function to safely call parse_string with segv protection */
+static cJSON_bool safe_parse_string(cJSON *item, parse_buffer *buf) {
+    if (setjmp(segv_env) == 0) {
+        segv_caught = 0;
+        return parse_string(item, buf);
+    } else {
+        return false;
     }
-    /* Clear test_item to avoid dangling pointers */
-    test_item.type = cJSON_Invalid;
-    test_item.valuestring = NULL;
 }
 
-/* Helper to prepare buffer with a string */
-static void prepare_buffer(const char *input)
-{
-    size_t len = strlen(input);
-    test_buffer->content = (const unsigned char*)malloc(len + 1);
-    TEST_ASSERT_NOT_NULL(test_buffer->content);
-    memcpy((void*)test_buffer->content, input, len + 1);
-    test_buffer->length = len;
-    test_buffer->offset = 0;
+void setUp(void) {
+    /* Save original hooks */
+    cJSON_GetHooks(&original_hooks);
+    
+    /* Set up signal handler for segv */
+    signal(SIGSEGV, segv_handler);
+    
+    /* Initialize locale for decimal point handling */
+    setlocale(LC_NUMERIC, "C");
 }
 
-/* Test Cases */
+void tearDown(void) {
+    /* Restore original hooks */
+    cJSON_InitHooks(&original_hooks);
+    
+    /* Clean up test input buffer */
+    if (test_input != NULL) {
+        free(test_input);
+        test_input = NULL;
+    }
+    
+    /* Clean up test item if it has allocated string */
+    if (test_item.valuestring != NULL) {
+        free(test_item.valuestring);
+        test_item.valuestring = NULL;
+    }
+    
+    /* Reset segv handler */
+    signal(SIGSEGV, SIG_DFL);
+}
 
-void test_parse_string_simple(void)
-{
-    prepare_buffer("\"hello\"");
-    TEST_ASSERT_TRUE(parse_string(&test_item, test_buffer));
+/* Test 1: Parse a simple valid string */
+void test_parse_string_simple(void) {
+    setup_parse_buffer("\"hello\"");
+    
+    TEST_ASSERT_TRUE(safe_parse_string(&test_item, &test_buffer));
     TEST_ASSERT_EQUAL_INT(cJSON_String, test_item.type);
     TEST_ASSERT_EQUAL_STRING("hello", test_item.valuestring);
-    TEST_ASSERT_EQUAL_UINT(7, test_buffer->offset);
+    TEST_ASSERT_EQUAL_SIZE(7, test_buffer.offset); /* includes closing quote */
 }
 
-void test_parse_string_with_escapes(void)
-{
-    prepare_buffer("\"line\\nbreak\\twith\\\"quotes\\\"\"");
-    TEST_ASSERT_TRUE(parse_string(&test_item, test_buffer));
+/* Test 2: Parse string with escape sequences */
+void test_parse_string_escapes(void) {
+    setup_parse_buffer("\"hello\\nworld\\t\\\"escaped\\\"\"");
+    
+    TEST_ASSERT_TRUE(safe_parse_string(&test_item, &test_buffer));
     TEST_ASSERT_EQUAL_INT(cJSON_String, test_item.type);
-    TEST_ASSERT_EQUAL_STRING("line\nbreak\twith\"quotes\"", test_item.valuestring);
-    TEST_ASSERT_EQUAL_UINT(30, test_buffer->offset);
+    TEST_ASSERT_EQUAL_STRING("hello\nworld\t\"escaped\"", test_item.valuestring);
+    TEST_ASSERT_EQUAL_SIZE(28, test_buffer.offset);
 }
 
-void test_parse_string_empty(void)
-{
-    prepare_buffer("\"\"");
-    TEST_ASSERT_TRUE(parse_string(&test_item, test_buffer));
+/* Test 3: Parse empty string */
+void test_parse_string_empty(void) {
+    setup_parse_buffer("\"\"");
+    
+    TEST_ASSERT_TRUE(safe_parse_string(&test_item, &test_buffer));
     TEST_ASSERT_EQUAL_INT(cJSON_String, test_item.type);
     TEST_ASSERT_EQUAL_STRING("", test_item.valuestring);
-    TEST_ASSERT_EQUAL_UINT(2, test_buffer->offset);
+    TEST_ASSERT_EQUAL_SIZE(2, test_buffer.offset);
 }
 
-void test_parse_string_unterminated(void)
-{
-    prepare_buffer("\"unterminated");
-    TEST_ASSERT_FALSE(parse_string(&test_item, test_buffer));
-    TEST_ASSERT_NULL(test_item.valuestring);
+/* Test 4: Parse string with invalid escape sequence */
+void test_parse_string_invalid_escape(void) {
+    setup_parse_buffer("\"hello\\x\"");
+    
+    TEST_ASSERT_FALSE(safe_parse_string(&test_item, &test_buffer));
     TEST_ASSERT_EQUAL_INT(cJSON_Invalid, test_item.type);
-}
-
-void test_parse_string_invalid_escape(void)
-{
-    prepare_buffer("\"invalid\\x\"");
-    TEST_ASSERT_FALSE(parse_string(&test_item, test_buffer));
     TEST_ASSERT_NULL(test_item.valuestring);
-    TEST_ASSERT_EQUAL_INT(cJSON_Invalid, test_item.type);
 }
 
-int main(void)
-{
+/* Test 5: Parse unterminated string */
+void test_parse_string_unterminated(void) {
+    setup_parse_buffer("\"hello");
+    
+    TEST_ASSERT_FALSE(safe_parse_string(&test_item, &test_buffer));
+    TEST_ASSERT_EQUAL_INT(cJSON_Invalid, test_item.type);
+    TEST_ASSERT_NULL(test_item.valuestring);
+}
+
+int main(void) {
     UNITY_BEGIN();
-
+    
     RUN_TEST(test_parse_string_simple);
-    RUN_TEST(test_parse_string_with_escapes);
+    RUN_TEST(test_parse_string_escapes);
     RUN_TEST(test_parse_string_empty);
-    RUN_TEST(test_parse_string_unterminated);
     RUN_TEST(test_parse_string_invalid_escape);
-
+    RUN_TEST(test_parse_string_unterminated);
+    
     return UNITY_END();
 }

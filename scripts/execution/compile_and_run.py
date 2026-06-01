@@ -47,26 +47,7 @@ def codebase_for_function(func_name, functions_dir):
     return None
 
 
-# def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags, cfg, func_name):
-#     build_dir.mkdir(parents=True, exist_ok=True)
-#     # output_binary = f'{build_dir}/test{func_name}'
-#     output_binary = (build_dir / f"test_{func_name}").resolve()
-#     unity_include = Path(cfg["paths"]["unity_dir"]).resolve()
-#     src_root = Path(cfg["paths"]["src_dir"]).resolve()
-#     unique_codebase_dirs = {f.parent.resolve() for f in src_files}
 
-#     compiler        = ["gcc"]
-#     flags           = gcc_flags
-#     includes        = [f"-I{unity_include}", f"-I{src_root}"] + [f"-I{d}" for d in unique_codebase_dirs]
-#     sources         = [str(test_file.resolve()), str(unity_c.resolve())] + [str(f.resolve()) for f in src_files]
-#     output          = ["-o", str(output_binary), "-lm"]
-
-#     cmd = compiler + flags + includes + sources + output
-#     print(f"Compiling with command: {cmd}")
-#     result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-#     log = result.stdout + result.stderr
-#     print(f"Compilation log:\n{log}")
-#     return result.returncode == 0, log, output_binary
 def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags, cfg, func_name):
     # Eigenes Unterverzeichnis pro Test
     test_build_dir = (build_dir / f"test_{func_name}").resolve()
@@ -80,7 +61,8 @@ def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags, cfg, func_
     compiler = ["gcc"]
     flags    = gcc_flags
     includes = [f"-I{unity_include}", f"-I{src_root}"] + [f"-I{d}" for d in unique_codebase_dirs]
-    sources  = [str(test_file.resolve()), str(unity_c.resolve())] + [str(f.resolve()) for f in src_files]
+    # sources  = [str(test_file.resolve()), str(unity_c.resolve())] + [str(f.resolve()) for f in src_files]
+    sources  = [str(test_file.resolve()), str(unity_c.resolve())]
     output   = ["-o", str(output_binary), "-lm"]
 
     cmd = compiler + flags + includes + sources + output

@@ -1,145 +1,132 @@
+#include "csv.c"
 #include "unity.h"
-#include "csv.h"
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <setjmp.h>
 
-static CSV_BUFFER *buffer = NULL;
+/* Global buffer for test fixtures */
+static CSV_BUFFER *test_buffer = NULL;
+static char *test_dest = NULL;
+static size_t test_dest_len = 0;
 
-void setUp(void)
-{
-    buffer = csv_create_buffer();
-    TEST_ASSERT_NOT_NULL(buffer);
+/* Signal handling for segfaults */
+static sig_atomic_t segfault_occurred = 0;
+static sigjmp_buf jump_buffer;
+
+static void segv_handler(int sig) {
+    (void)sig;
+    segfault_occurred = 1;
+    siglongjmp(jump_buffer, 1);
 }
 
-void tearDown(void)
-{
-    if (buffer != NULL) {
-        csv_destroy_buffer(buffer);
-        buffer = NULL;
+void setUp(void) {
+    /* Install segfault handler */
+    struct sigaction sa;
+    sa.sa_handler = segv_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGSEGV, &sa, NULL);
+
+    /* Allocate test buffer */
+    test_buffer = csv_create_buffer();
+    TEST_ASSERT_NOT_NULL(test_buffer);
+
+    /* Allocate destination buffer */
+    test_dest_len = 256;
+    test_dest = malloc(test_dest_len);
+    TEST_ASSERT_NOT_NULL(test_dest);
+}
+
+void tearDown(void) {
+    /* Free resources */
+    if (test_dest != NULL) {
+        free(test_dest);
+        test_dest = NULL;
     }
-}
-
-static void setup_test_row_with_field(const char *field_text)
-{
-    int ret;
-    ret = csv_set_field(buffer, 0, 0, field_text);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-}
-
-static void setup_test_row_with_multiple_fields(const char *f0, const char *f1, const char *f2)
-{
-    int ret;
-    ret = csv_set_field(buffer, 0, 0, f0);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_set_field(buffer, 0, 1, f1);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_set_field(buffer, 0, 2, f2);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-}
-
-static void setup_two_rows(void)
-{
-    int ret;
-    ret = csv_set_field(buffer, 0, 0, "row0col0");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    ret = csv_set_field(buffer, 1, 0, "row1col0");
-    TEST_ASSERT_EQUAL_INT(0, ret);
-}
-
-static void fill_dest_with_pattern(char *dest, size_t len)
-{
-    for (size_t i = 0; i < len; i++) {
-        dest[i] = 'X';
+    if (test_buffer != NULL) {
+        csv_destroy_buffer(test_buffer);
+        test_buffer = NULL;
     }
+
+    /* Reset segfault flag */
+    segfault_occurred = 0;
 }
 
-static int compare_dest_with_expected(const char *dest, size_t dest_len, const char *expected)
-{
-    size_t expected_len = strlen(expected);
-    size_t copy_len = (dest_len <= expected_len) ? dest_len : expected_len;
-    if (copy_len > 0) {
-        if (strncmp(dest, expected, copy_len) != 0) {
-            return 1;
-        }
-    }
-    if (dest_len > 0 && dest[dest_len - 1] != '\0') {
-        return 2;
-    }
-    return 0;
+/* Helper to populate buffer with test data */
+static void populate_test_data(void) {
+    /* Add 2 rows */
+    csv_set_field(test_buffer, 0, 0, "field1");
+    csv_set_field(test_buffer, 0, 1, "field2");
+    csv_set_field(test_buffer, 0, 2, "field3");
+    csv_set_field(test_buffer, 1, 0, "row2field1");
+    csv_set_field(test_buffer, 1, 1, "row2field2");
 }
 
-void test_csv_get_field_success_full_copy(void)
-{
-    char dest[100];
-    fill_dest_with_pattern(dest, sizeof(dest));
-    setup_test_row_with_field("hello");
+/* Test: dest_len == 0 returns 3 */
+void test_csv_get_field_dest_len_zero_returns_3(void) {
+    populate_test_data();
 
-    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
-
-    TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_STRING("hello", dest);
+    int result = csv_get_field(test_dest, 0, test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(3, result);
 }
 
-void test_csv_get_field_truncation_returns_1(void)
-{
-    char dest[6];
-    fill_dest_with_pattern(dest, sizeof(dest));
-    setup_test_row_with_field("hello world");
+/* Test: valid field copied completely returns 0 */
+void test_csv_get_field_valid_field_full_copy_returns_0(void) {
+    populate_test_data();
 
-    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+    size_t len = 256;
+    char dest[256];
+    int result = csv_get_field(dest, len, test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_STRING("field1", dest);
+}
 
-    TEST_ASSERT_EQUAL_INT(1, ret);
-    TEST_ASSERT_EQUAL_STRING_LEN("hello", dest, 5);
+/* Test: field truncated returns 1 */
+void test_csv_get_field_truncated_returns_1(void) {
+    populate_test_data();
+
+    char dest[6];  /* too small for "field1" (6 chars + null = 7) */
+    int result = csv_get_field(dest, 5, test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(1, result);
+    TEST_ASSERT_EQUAL_STRING_LEN("fiel", dest, 5);
     TEST_ASSERT_EQUAL_INT('\0', dest[5]);
 }
 
-void test_csv_get_field_empty_field_returns_2(void)
-{
-    char dest[100];
-    fill_dest_with_pattern(dest, sizeof(dest));
-    setup_test_row_with_field("");
+/* Test: non-existent row/entry returns 2 and clears dest */
+void test_csv_get_field_nonexistent_entry_returns_2(void) {
+    populate_test_data();
 
-    int ret = csv_get_field(dest, sizeof(dest), buffer, 0, 0);
+    char dest[256];
+    memset(dest, 'X', sizeof(dest));  /* pre-fill with non-zero to detect clearing */
 
-    TEST_ASSERT_EQUAL_INT(2, ret);
+    int result = csv_get_field(dest, sizeof(dest), test_buffer, 99, 0);
+    TEST_ASSERT_EQUAL_INT(2, result);
+
+    /* Verify dest is cleared (first char is '\0') */
+    TEST_ASSERT_EQUAL_INT('\0', dest[0]);
+}
+
+/* Test: empty field returns 2 */
+void test_csv_get_field_empty_field_returns_2(void) {
+    /* Create buffer with empty field */
+    csv_set_field(test_buffer, 0, 0, "");
+    csv_set_field(test_buffer, 0, 1, "nonempty");
+
+    char dest[256];
+    int result = csv_get_field(dest, sizeof(dest), test_buffer, 0, 0);
+    TEST_ASSERT_EQUAL_INT(2, result);
     TEST_ASSERT_EQUAL_STRING("", dest);
 }
 
-void test_csv_get_field_invalid_row_or_entry_returns_2(void)
-{
-    char dest[100];
-    fill_dest_with_pattern(dest, sizeof(dest));
-    setup_test_row_with_field("hello");
-
-    int ret;
-
-    ret = csv_get_field(dest, sizeof(dest), buffer, 99, 0);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING("", dest);
-
-    ret = csv_get_field(dest, sizeof(dest), buffer, 0, 99);
-    TEST_ASSERT_EQUAL_INT(2, ret);
-    TEST_ASSERT_EQUAL_STRING("", dest);
-}
-
-void test_csv_get_field_zero_dest_len_returns_3(void)
-{
-    char dest[100];
-    fill_dest_with_pattern(dest, sizeof(dest));
-    setup_test_row_with_field("hello");
-
-    int ret = csv_get_field(dest, 0, buffer, 0, 0);
-
-    TEST_ASSERT_EQUAL_INT(3, ret);
-    // dest should remain unchanged (no write attempted)
-    TEST_ASSERT_EQUAL_INT('X', dest[0]);
-}
-
-int main(void)
-{
+int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_csv_get_field_success_full_copy);
-    RUN_TEST(test_csv_get_field_truncation_returns_1);
+
+    RUN_TEST(test_csv_get_field_dest_len_zero_returns_3);
+    RUN_TEST(test_csv_get_field_valid_field_full_copy_returns_0);
+    RUN_TEST(test_csv_get_field_truncated_returns_1);
+    RUN_TEST(test_csv_get_field_nonexistent_entry_returns_2);
     RUN_TEST(test_csv_get_field_empty_field_returns_2);
-    RUN_TEST(test_csv_get_field_invalid_row_or_entry_returns_2);
-    RUN_TEST(test_csv_get_field_zero_dest_len_returns_3);
+
     return UNITY_END();
 }

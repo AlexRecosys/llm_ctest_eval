@@ -1,197 +1,199 @@
+#include "csv.c"
 #include "unity.h"
 #include "csv.h"
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
 
-static CSV_BUFFER *buffer;
+/* File-scope buffer used across tests */
+static CSV_BUFFER *buf = NULL;
+
+/* Signal handler for segmentation faults */
+static void sigsegv_handler(int sig)
+{
+    (void)sig;
+    TEST_FAIL_MESSAGE("Segmentation fault (SIGSEGV) caught during test execution");
+}
 
 void setUp(void)
 {
-    buffer = csv_create_buffer();
+    signal(SIGSEGV, sigsegv_handler);
+    buf = csv_create_buffer();
+    TEST_ASSERT_NOT_NULL_MESSAGE(buf, "csv_create_buffer() returned NULL in setUp");
 }
 
 void tearDown(void)
 {
-    if (buffer != NULL) {
-        csv_destroy_buffer(buffer);
-        buffer = NULL;
+    if (buf != NULL) {
+        csv_destroy_buffer(buf);
+        buf = NULL;
     }
+    signal(SIGSEGV, SIG_DFL);
 }
 
-/* Helper: populate a buffer with known data */
-static void populate_buffer_3x3(CSV_BUFFER *buf)
+/* Helper: retrieve field text into a stack buffer and return via strdup-like copy */
+static void get_field_str(CSV_BUFFER *b, size_t row, size_t entry,
+                           char *out, size_t out_len)
 {
-    csv_set_field(buf, 0, 0, "A0");
-    csv_set_field(buf, 0, 1, "B0");
-    csv_set_field(buf, 0, 2, "C0");
-    csv_set_field(buf, 1, 0, "A1");
-    csv_set_field(buf, 1, 1, "B1");
-    csv_set_field(buf, 1, 2, "C1");
-    csv_set_field(buf, 2, 0, "A2");
-    csv_set_field(buf, 2, 1, "B2");
-    csv_set_field(buf, 2, 2, "C2");
+    csv_get_field(out, out_len, b, row, entry);
 }
 
-/* Helper: retrieve field text into a local buffer */
-static void get_field_text(CSV_BUFFER *buf, size_t row, size_t entry,
-                            char *dest, size_t dest_len)
-{
-    csv_get_field(dest, dest_len, buf, row, entry);
-}
-
-/* Test 1: Insert into a non-existent row (beyond current rows).
- * The function should fall through to csv_set_field, creating the row/entry. */
-void test_insert_field_beyond_existing_rows(void)
+/* -------------------------------------------------------------------------
+ * Test 1: Insert into a non-existent row/entry — should behave like set_field
+ * ------------------------------------------------------------------------- */
+void test_insert_into_nonexistent_row_acts_as_set(void)
 {
     char result[64];
 
-    /* Buffer starts empty (rows == 0), so row 5 does not exist */
-    int ret = csv_insert_field(buffer, 5, 0, "NewField");
+    /* Buffer is empty; row 0 does not exist */
+    int ret = csv_insert_field(buf, 0, 0, "hello");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "csv_insert_field should return 0");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
-        "csv_insert_field should return 0 when inserting beyond existing rows");
-
-    /* The field should now be accessible */
-    get_field_text(buffer, 5, 0, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("NewField", result,
-        "Field value should be 'NewField' after insert beyond existing rows");
+    /* The field should now be set */
+    get_field_str(buf, 0, 0, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("hello", result,
+        "Field at (0,0) should be 'hello' after insert into empty buffer");
 }
 
-/* Test 2: Insert into a non-existent entry (beyond current width of an existing row).
- * The function should fall through to csv_set_field. */
-void test_insert_field_beyond_existing_width(void)
+/* -------------------------------------------------------------------------
+ * Test 2: Insert at the beginning of an existing row shifts all fields right
+ * ------------------------------------------------------------------------- */
+void test_insert_at_beginning_shifts_fields_right(void)
 {
     char result[64];
 
-    /* Create row 0 with one field */
-    csv_set_field(buffer, 0, 0, "Existing");
+    /* Set up row 0 with three fields: A, B, C */
+    csv_set_field(buf, 0, 0, "A");
+    csv_set_field(buf, 0, 1, "B");
+    csv_set_field(buf, 0, 2, "C");
 
-    /* Insert at entry 10, which is beyond current width */
-    int ret = csv_insert_field(buffer, 0, 10, "FarField");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, csv_get_width(buf, 0),
+        "Row 0 should have width 3 before insert");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
-        "csv_insert_field should return 0 when inserting beyond existing width");
+    /* Insert "X" at position 0 */
+    int ret = csv_insert_field(buf, 0, 0, "X");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "csv_insert_field should return 0");
 
-    get_field_text(buffer, 0, 10, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("FarField", result,
-        "Field value should be 'FarField' after insert beyond existing width");
+    /* Width should now be 4 */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(4, csv_get_width(buf, 0),
+        "Row 0 should have width 4 after insert");
+
+    /* Check all positions */
+    get_field_str(buf, 0, 0, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("X", result, "Field at (0,0) should be 'X'");
+
+    get_field_str(buf, 0, 1, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("A", result, "Field at (0,1) should be 'A'");
+
+    get_field_str(buf, 0, 2, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("B", result, "Field at (0,2) should be 'B'");
+
+    get_field_str(buf, 0, 3, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("C", result, "Field at (0,3) should be 'C'");
 }
 
-/* Test 3: Insert at the beginning of an existing row (entry 0).
- * All existing fields should shift right by one. */
-void test_insert_field_at_beginning_of_row(void)
+/* -------------------------------------------------------------------------
+ * Test 3: Insert in the middle of an existing row shifts only right-side fields
+ * ------------------------------------------------------------------------- */
+void test_insert_in_middle_shifts_right_side_only(void)
 {
     char result[64];
 
-    populate_buffer_3x3(buffer);
+    /* Set up row 0: "first", "second", "third" */
+    csv_set_field(buf, 0, 0, "first");
+    csv_set_field(buf, 0, 1, "second");
+    csv_set_field(buf, 0, 2, "third");
 
-    /* Row 0 currently: A0, B0, C0 */
-    int ret = csv_insert_field(buffer, 0, 0, "INSERTED");
+    /* Insert "middle" at position 1 */
+    int ret = csv_insert_field(buf, 0, 1, "middle");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "csv_insert_field should return 0");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
-        "csv_insert_field should return 0 on successful insert at beginning");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(4, csv_get_width(buf, 0),
+        "Row 0 should have width 4 after middle insert");
 
-    /* Width of row 0 should now be 4 */
-    int width = csv_get_width(buffer, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(4, width,
-        "Row 0 width should be 4 after inserting one field at the beginning");
+    get_field_str(buf, 0, 0, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("first", result, "Field (0,0) should be 'first'");
 
-    /* New layout: INSERTED, A0, B0, C0 */
-    get_field_text(buffer, 0, 0, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("INSERTED", result,
-        "Entry 0 should be 'INSERTED' after insert at beginning");
+    get_field_str(buf, 0, 1, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("middle", result, "Field (0,1) should be 'middle'");
 
-    get_field_text(buffer, 0, 1, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("A0", result,
-        "Entry 1 should be 'A0' after insert at beginning");
+    get_field_str(buf, 0, 2, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("second", result, "Field (0,2) should be 'second'");
 
-    get_field_text(buffer, 0, 2, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("B0", result,
-        "Entry 2 should be 'B0' after insert at beginning");
-
-    get_field_text(buffer, 0, 3, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("C0", result,
-        "Entry 3 should be 'C0' after insert at beginning");
+    get_field_str(buf, 0, 3, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("third", result, "Field (0,3) should be 'third'");
 }
 
-/* Test 4: Insert in the middle of an existing row.
- * Fields at and after the insertion point should shift right. */
-void test_insert_field_in_middle_of_row(void)
+/* -------------------------------------------------------------------------
+ * Test 4: Insert at the last valid position shifts only the last field
+ * ------------------------------------------------------------------------- */
+void test_insert_at_last_valid_position(void)
 {
     char result[64];
 
-    populate_buffer_3x3(buffer);
+    /* Set up row 0: "alpha", "beta" */
+    csv_set_field(buf, 0, 0, "alpha");
+    csv_set_field(buf, 0, 1, "beta");
 
-    /* Row 1 currently: A1, B1, C1 — insert at entry 1 */
-    int ret = csv_insert_field(buffer, 1, 1, "MID");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, csv_get_width(buf, 0),
+        "Row 0 should have width 2 before insert");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
-        "csv_insert_field should return 0 on successful insert in middle");
+    /* Insert "gamma" at position 1 (last valid index) */
+    int ret = csv_insert_field(buf, 0, 1, "gamma");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "csv_insert_field should return 0");
 
-    int width = csv_get_width(buffer, 1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(4, width,
-        "Row 1 width should be 4 after inserting one field in the middle");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, csv_get_width(buf, 0),
+        "Row 0 should have width 3 after insert at last position");
 
-    /* New layout: A1, MID, B1, C1 */
-    get_field_text(buffer, 1, 0, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("A1", result,
-        "Entry 0 should remain 'A1' after middle insert");
+    get_field_str(buf, 0, 0, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("alpha", result, "Field (0,0) should be 'alpha'");
 
-    get_field_text(buffer, 1, 1, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("MID", result,
-        "Entry 1 should be 'MID' after middle insert");
+    get_field_str(buf, 0, 1, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("gamma", result, "Field (0,1) should be 'gamma'");
 
-    get_field_text(buffer, 1, 2, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("B1", result,
-        "Entry 2 should be 'B1' after middle insert");
-
-    get_field_text(buffer, 1, 3, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("C1", result,
-        "Entry 3 should be 'C1' after middle insert");
+    get_field_str(buf, 0, 2, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("beta", result, "Field (0,2) should be 'beta'");
 }
 
-/* Test 5: Insert at the last valid entry of an existing row.
- * The last existing field should shift right, and the new field occupies
- * the position of the old last field. */
-void test_insert_field_at_last_entry_of_row(void)
+/* -------------------------------------------------------------------------
+ * Test 5: Insert into a non-existent entry index beyond current width
+ *         acts as set_field (no shift needed)
+ * ------------------------------------------------------------------------- */
+void test_insert_beyond_width_acts_as_set(void)
 {
     char result[64];
 
-    populate_buffer_3x3(buffer);
+    /* Set up row 0 with one field */
+    csv_set_field(buf, 0, 0, "only");
 
-    /* Row 2 currently: A2, B2, C2 — insert at entry 2 (last valid index) */
-    int ret = csv_insert_field(buffer, 2, 2, "LAST_INSERT");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, csv_get_width(buf, 0),
+        "Row 0 should have width 1 before insert");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret,
-        "csv_insert_field should return 0 on successful insert at last entry");
+    /* Insert at entry 5 — beyond current width of 1 */
+    int ret = csv_insert_field(buf, 0, 5, "far");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "csv_insert_field should return 0");
 
-    int width = csv_get_width(buffer, 2);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(4, width,
-        "Row 2 width should be 4 after inserting at last entry");
+    /* The field at (0,5) should be "far" */
+    get_field_str(buf, 0, 5, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("far", result,
+        "Field at (0,5) should be 'far' after insert beyond width");
 
-    /* New layout: A2, B2, LAST_INSERT, C2 */
-    get_field_text(buffer, 2, 0, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("A2", result,
-        "Entry 0 should remain 'A2' after insert at last entry");
-
-    get_field_text(buffer, 2, 1, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("B2", result,
-        "Entry 1 should remain 'B2' after insert at last entry");
-
-    get_field_text(buffer, 2, 2, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("LAST_INSERT", result,
-        "Entry 2 should be 'LAST_INSERT' after insert at last entry");
-
-    get_field_text(buffer, 2, 3, result, sizeof(result));
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("C2", result,
-        "Entry 3 should be 'C2' (shifted) after insert at last entry");
+    /* The original field at (0,0) should still be "only" */
+    get_field_str(buf, 0, 0, result, sizeof(result));
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("only", result,
+        "Field at (0,0) should still be 'only'");
 }
 
+/* -------------------------------------------------------------------------
+ * main
+ * ------------------------------------------------------------------------- */
 int main(void)
 {
     UNITY_BEGIN();
-    RUN_TEST(test_insert_field_beyond_existing_rows);
-    RUN_TEST(test_insert_field_beyond_existing_width);
-    RUN_TEST(test_insert_field_at_beginning_of_row);
-    RUN_TEST(test_insert_field_in_middle_of_row);
-    RUN_TEST(test_insert_field_at_last_entry_of_row);
+    RUN_TEST(test_insert_into_nonexistent_row_acts_as_set);
+    RUN_TEST(test_insert_at_beginning_shifts_fields_right);
+    RUN_TEST(test_insert_in_middle_shifts_right_side_only);
+    RUN_TEST(test_insert_at_last_valid_position);
+    RUN_TEST(test_insert_beyond_width_acts_as_set);
     return UNITY_END();
 }

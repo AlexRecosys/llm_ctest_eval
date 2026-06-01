@@ -1,164 +1,137 @@
+#include "cJSON.c"
 #include "unity.h"
 #include "cJSON.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <math.h>
+#include <float.h>
+#include <signal.h>
 
-/* -------------------------------------------------------------------------
- * Internal types mirrored from cJSON.c so we can construct parse_buffer
- * instances directly without touching private source.
- * These must match the definitions in cJSON.c exactly.
- * ------------------------------------------------------------------------- */
+/* File-scope fixtures */
+static cJSON item;
+static parse_buffer buf;
 
-typedef struct internal_hooks
+/* Signal handler for SIGSEGV */
+static void sigsegv_handler(int sig)
 {
-    void *(CJSON_CDECL *allocate)(size_t size);
-    void  (CJSON_CDECL *deallocate)(void *pointer);
-    void *(CJSON_CDECL *reallocate)(void *pointer, size_t size);
-} internal_hooks;
-
-typedef struct parse_buffer
-{
-    const unsigned char *content;
-    size_t               length;
-    size_t               offset;
-    size_t               depth;
-    internal_hooks       hooks;
-} parse_buffer;
-
-/* -------------------------------------------------------------------------
- * Forward-declare the static function under test.
- * We pull it in via a direct #include of the .c file so the compiler sees
- * the static definition.  Adjust the path if your build places cJSON.c
- * elsewhere.
- * ------------------------------------------------------------------------- */
-/* We cannot call a static function from outside its translation unit, so we
- * test parse_number indirectly through cJSON_Parse / cJSON_ParseWithLength,
- * which exercise exactly the same code path.  All five test cases use the
- * public API and verify the observable effects that parse_number produces.
- */
-
-/* -------------------------------------------------------------------------
- * File-scope fixtures
- * ------------------------------------------------------------------------- */
-static cJSON *g_item = NULL;
-
-/* -------------------------------------------------------------------------
- * Helper: parse a JSON number string and return the resulting cJSON item.
- * Caller must cJSON_Delete() the returned pointer.
- * ------------------------------------------------------------------------- */
-static cJSON *parse_number_string(const char *json_number)
-{
-    return cJSON_Parse(json_number);
+    (void)sig;
+    TEST_FAIL_MESSAGE("Segmentation fault (SIGSEGV) caught during test execution");
 }
 
-/* -------------------------------------------------------------------------
- * setUp / tearDown
- * ------------------------------------------------------------------------- */
+/* Helper: initialize a parse_buffer with a given string */
+static void init_parse_buffer(parse_buffer *pb, const unsigned char *content, size_t length, size_t offset)
+{
+    memset(pb, 0, sizeof(parse_buffer));
+    pb->content          = content;
+    pb->length           = length;
+    pb->offset           = offset;
+    pb->depth            = 0;
+    pb->hooks.allocate   = malloc;
+    pb->hooks.deallocate = free;
+    pb->hooks.reallocate = realloc;
+}
+
+/* Helper: initialize a cJSON item */
+static void init_cjson_item(cJSON *it)
+{
+    memset(it, 0, sizeof(cJSON));
+}
+
 void setUp(void)
 {
-    g_item = NULL;
+    signal(SIGSEGV, sigsegv_handler);
+    init_cjson_item(&item);
+    memset(&buf, 0, sizeof(parse_buffer));
 }
 
 void tearDown(void)
 {
-    if (g_item != NULL)
-    {
-        cJSON_Delete(g_item);
-        g_item = NULL;
-    }
+    /* Reset signal handler */
+    signal(SIGSEGV, SIG_DFL);
 }
 
-/* =========================================================================
- * Test cases
- * ========================================================================= */
-
-/* 1. Parse a simple positive integer */
-void test_parse_number_positive_integer(void)
+/* Test 1: Parse a simple positive integer */
+void test_parse_number_simple_integer(void)
 {
-    g_item = parse_number_string("42");
+    const unsigned char *content = (const unsigned char *)"42";
+    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    init_cjson_item(&item);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should not return NULL for '42'");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_Number, g_item->type,
-                                  "type should be cJSON_Number");
-    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(42.0, g_item->valuedouble,
-                                     "valuedouble should be 42.0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(42, g_item->valueint,
-                                  "valueint should be 42");
+    cJSON_bool result = parse_number(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '42'");
+    TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
+    TEST_ASSERT_EQUAL_DOUBLE(42.0, item.valuedouble);
+    TEST_ASSERT_EQUAL_INT(42, item.valueint);
+    TEST_ASSERT_EQUAL_UINT((size_t)2, buf.offset);
 }
 
-/* 2. Parse a negative integer */
-void test_parse_number_negative_integer(void)
-{
-    g_item = parse_number_string("-7");
-
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should not return NULL for '-7'");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_Number, g_item->type,
-                                  "type should be cJSON_Number");
-    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(-7.0, g_item->valuedouble,
-                                     "valuedouble should be -7.0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(-7, g_item->valueint,
-                                  "valueint should be -7");
-}
-
-/* 3. Parse a floating-point number with a decimal point */
+/* Test 2: Parse a floating-point number with decimal point */
 void test_parse_number_floating_point(void)
 {
-    g_item = parse_number_string("3.14159");
+    const unsigned char *content = (const unsigned char *)"3.14";
+    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    init_cjson_item(&item);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should not return NULL for '3.14159'");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_Number, g_item->type,
-                                  "type should be cJSON_Number");
-    /* Allow a small tolerance for floating-point representation */
-    TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(1e-5, 3.14159, g_item->valuedouble,
-                                      "valuedouble should be approximately 3.14159");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(3, g_item->valueint,
-                                  "valueint should be 3 (truncated)");
+    cJSON_bool result = parse_number(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '3.14'");
+    TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
+    TEST_ASSERT_DOUBLE_WITHIN(1e-9, 3.14, item.valuedouble);
+    TEST_ASSERT_EQUAL_INT(3, item.valueint);
+    TEST_ASSERT_EQUAL_UINT((size_t)4, buf.offset);
 }
 
-/* 4. Parse a number in scientific notation */
+/* Test 3: Parse a negative number */
+void test_parse_number_negative(void)
+{
+    const unsigned char *content = (const unsigned char *)"-100";
+    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    init_cjson_item(&item);
+
+    cJSON_bool result = parse_number(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '-100'");
+    TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
+    TEST_ASSERT_EQUAL_DOUBLE(-100.0, item.valuedouble);
+    TEST_ASSERT_EQUAL_INT(-100, item.valueint);
+    TEST_ASSERT_EQUAL_UINT((size_t)4, buf.offset);
+}
+
+/* Test 4: NULL input_buffer returns false */
+void test_parse_number_null_input_buffer(void)
+{
+    init_cjson_item(&item);
+
+    cJSON_bool result = parse_number(&item, NULL);
+
+    TEST_ASSERT_FALSE_MESSAGE(result, "parse_number should return false for NULL input_buffer");
+}
+
+/* Test 5: Parse a number in scientific notation */
 void test_parse_number_scientific_notation(void)
 {
-    g_item = parse_number_string("1.5e2");
+    const unsigned char *content = (const unsigned char *)"1.5e3";
+    init_parse_buffer(&buf, content, strlen((const char *)content), 0);
+    init_cjson_item(&item);
 
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should not return NULL for '1.5e2'");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_Number, g_item->type,
-                                  "type should be cJSON_Number");
-    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(150.0, g_item->valuedouble,
-                                     "valuedouble should be 150.0");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(150, g_item->valueint,
-                                  "valueint should be 150");
+    cJSON_bool result = parse_number(&item, &buf);
+
+    TEST_ASSERT_TRUE_MESSAGE(result, "parse_number should return true for '1.5e3'");
+    TEST_ASSERT_EQUAL_INT(cJSON_Number, item.type);
+    TEST_ASSERT_DOUBLE_WITHIN(1e-6, 1500.0, item.valuedouble);
+    TEST_ASSERT_EQUAL_INT(1500, item.valueint);
+    TEST_ASSERT_EQUAL_UINT((size_t)5, buf.offset);
 }
 
-/* 5. Parse a very large number that overflows int — valueint should be INT_MAX */
-void test_parse_number_overflow_saturates_to_int_max(void)
-{
-    /* 1e40 is far beyond INT_MAX on any platform */
-    g_item = parse_number_string("1e40");
-
-    TEST_ASSERT_NOT_NULL_MESSAGE(g_item, "cJSON_Parse should not return NULL for '1e40'");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(cJSON_Number, g_item->type,
-                                  "type should be cJSON_Number");
-    TEST_ASSERT_GREATER_THAN_MESSAGE(0, g_item->valuedouble,
-                                     "valuedouble should be a large positive number");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(INT_MAX, g_item->valueint,
-                                  "valueint should be saturated to INT_MAX");
-}
-
-/* =========================================================================
- * main
- * ========================================================================= */
 int main(void)
 {
     UNITY_BEGIN();
-
-    RUN_TEST(test_parse_number_positive_integer);
-    RUN_TEST(test_parse_number_negative_integer);
+    RUN_TEST(test_parse_number_simple_integer);
     RUN_TEST(test_parse_number_floating_point);
+    RUN_TEST(test_parse_number_negative);
+    RUN_TEST(test_parse_number_null_input_buffer);
     RUN_TEST(test_parse_number_scientific_notation);
-    RUN_TEST(test_parse_number_overflow_saturates_to_int_max);
-
     return UNITY_END();
 }

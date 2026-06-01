@@ -131,6 +131,7 @@ def call_qwen(prompt, cfg):
         "model": model_cfg["model_name"],
         "temperature": model_cfg["temperature"],
         "messages": [{"role": "user", "content": prompt}],
+        "think":True
     }
     resp = requests.post(model_cfg["api_url"], headers=headers, json=body, timeout=300)
     resp.raise_for_status()

@@ -2,13 +2,13 @@
   "claude": {
     "overall": {
       "n_runs": 15,
-      "n_compiled": 14,
-      "compile_rate": 93.33333333333333,
+      "n_compiled": 15,
+      "compile_rate": 100.0,
       "line_coverage": {
-        "percent": 82.79883381924198,
-        "covered": 284,
-        "total": 343,
-        "n_valid_runs": 8
+        "percent": 76.70940170940172,
+        "covered": 359,
+        "total": 468,
+        "n_valid_runs": 15
       },
       "branch_coverage": {
         "percent": 0.0,
@@ -23,10 +23,10 @@
         "n_compiled": 3,
         "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 0.0,
-          "covered": 0,
-          "total": 0,
-          "n_valid_runs": 0
+          "percent": 74.50980392156863,
+          "covered": 38,
+          "total": 51,
+          "n_valid_runs": 3
         },
         "branch_coverage": {
           "percent": 0.0,
@@ -40,8 +40,8 @@
         "n_compiled": 3,
         "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 95.83333333333334,
-          "covered": 46,
+          "percent": 93.75,
+          "covered": 45,
           "total": 48,
           "n_valid_runs": 3
         },
@@ -57,10 +57,10 @@
         "n_compiled": 3,
         "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 0.0,
-          "covered": 0,
-          "total": 0,
-          "n_valid_runs": 0
+          "percent": 100.0,
+          "covered": 30,
+          "total": 30,
+          "n_valid_runs": 3
         },
         "branch_coverage": {
           "percent": 0.0,
@@ -71,13 +71,13 @@
       },
       "parse_number": {
         "n_runs": 3,
-        "n_compiled": 2,
-        "compile_rate": 66.66666666666666,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 90.9090909090909,
-          "covered": 80,
-          "total": 88,
-          "n_valid_runs": 2
+          "percent": 84.0909090909091,
+          "covered": 111,
+          "total": 132,
+          "n_valid_runs": 3
         },
         "branch_coverage": {
           "percent": 0.0,
@@ -91,8 +91,8 @@
         "n_compiled": 3,
         "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 76.32850241545893,
-          "covered": 158,
+          "percent": 65.21739130434783,
+          "covered": 135,
           "total": 207,
           "n_valid_runs": 3
         },
@@ -108,13 +108,13 @@
   "qwen": {
     "overall": {
       "n_runs": 15,
-      "n_compiled": 0,
-      "compile_rate": 0.0,
+      "n_compiled": 9,
+      "compile_rate": 60.0,
       "line_coverage": {
-        "percent": 0.0,
-        "covered": 0,
-        "total": 0,
-        "n_valid_runs": 0
+        "percent": 95.26315789473684,
+        "covered": 181,
+        "total": 190,
+        "n_valid_runs": 7
       },
       "branch_coverage": {
         "percent": 0.0,
@@ -126,8 +126,8 @@
     "per_function": {
       "csv_clear_row": {
         "n_runs": 3,
-        "n_compiled": 0,
-        "compile_rate": 0.0,
+        "n_compiled": 2,
+        "compile_rate": 66.66666666666666,
         "line_coverage": {
           "percent": 0.0,
           "covered": 0,
@@ -143,13 +143,13 @@
       },
       "csv_get_field": {
         "n_runs": 3,
-        "n_compiled": 0,
-        "compile_rate": 0.0,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 0.0,
-          "covered": 0,
-          "total": 0,
-          "n_valid_runs": 0
+          "percent": 93.75,
+          "covered": 45,
+          "total": 48,
+          "n_valid_runs": 3
         },
         "branch_coverage": {
           "percent": 0.0,
@@ -160,13 +160,13 @@
       },
       "csv_insert_field": {
         "n_runs": 3,
-        "n_compiled": 0,
-        "compile_rate": 0.0,
+        "n_compiled": 1,
+        "compile_rate": 33.33333333333333,
         "line_coverage": {
-          "percent": 0.0,
-          "covered": 0,
-          "total": 0,
-          "n_valid_runs": 0
+          "percent": 100.0,
+          "covered": 10,
+          "total": 10,
+          "n_valid_runs": 1
         },
         "branch_coverage": {
           "percent": 0.0,
@@ -177,13 +177,13 @@
       },
       "parse_number": {
         "n_runs": 3,
-        "n_compiled": 0,
-        "compile_rate": 0.0,
+        "n_compiled": 3,
+        "compile_rate": 100.0,
         "line_coverage": {
-          "percent": 0.0,
-          "covered": 0,
-          "total": 0,
-          "n_valid_runs": 0
+          "percent": 95.45454545454545,
+          "covered": 126,
+          "total": 132,
+          "n_valid_runs": 3
         },
         "branch_coverage": {
           "percent": 0.0,

@@ -135,7 +135,6 @@ fail:
 **Setup & Teardown**
 
 
-
 - Do NOT use mocks, stubs, or fakes of any kind
 
 - Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
@@ -143,10 +142,35 @@ fail:
 - Initialize all real dependencies the function under test requires
 
 - Clean up all allocated resources in tearDown() to prevent leaks between tests
+
+- When a buffer field is `const`-qualified, point it at a string literal or a stack buffer and do NOT free it, otherwise you trigger a `-Wdiscarded-qualifiers` warning.
+
+- Handle segmentation faults gracefully via signal handling (SIGSEGV) and report them as test failures.
+
+
+**Linkage strategy (CRITICAL — read before writing any code)**
+
+- The function under test may be declared `static`. A `static` function has internal linkage and therefore CANNOT be linked from another translation unit. Calling it from the test file while it lives in a separate object file produces an `undefined reference` linker error.
+
+- Therefore, the test file MUST `#include` the `.c` SOURCE FILE that defines the function under test as the FIRST include directive (the source filename is given in the project context below), e.g. `#include "cJSON.c"`. The build compiles this test file together with unity.c; the included `.c` source is NOT passed to the compiler separately, so there are no duplicate-symbol errors.
+
+- Do NOT re-declare the function under test.
+
+- Do NOT copy/paste the body of the function under test into the file.
+
+- Do NOT re-define any private type, macro, or helper function that the function under test depends on (for example internal structs, internal hook structs, or buffer-access macros). They are already provided by the included source file. Re-defining them causes "redefinition" or "incompatible types" errors.
+
+- Public types come from the project header(s); include those AFTER the source file.
+
+
+**Required standard headers**
+
+- Include exactly the standard headers your assertions and the function need, and no others. Common ones: <stdlib.h>, <string.h>, <limits.h>, <math.h>, <float.h> (for DBL_EPSILON), <signal.h> (for SIGSEGV handling), <locale.h> (only if you call setlocale or use LC_NUMERIC).
+
  
 **File Structure (in this exact order)**
 
-1. All `#include` directives (Unity + project headers)
+1. All `#include` directives. ORDER: first `#include` the `.c` source file that defines the function under test (see Linkage strategy), then Unity, then the project headers, then the standard headers.
 
 2. File-scope static variables / fixtures
 
@@ -171,23 +195,38 @@ A file without main(void) does NOT compile. It is invalid output.
  
 **Assertions**
 
-- Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`. Pick from:
+- Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`.
 
-  - `TEST_ASSERT_EQUAL_INT`, `TEST_ASSERT_EQUAL_UINT`, `TEST_ASSERT_EQUAL_HEX`, `TEST_ASSERT_EQUAL_FLOAT`, `TEST_ASSERT_EQUAL_DOUBLE` for scalars of the matching type
+- Only the macros listed below exist. Do NOT invent macros. In particular there is NO `TEST_ASSERT_WITHIN` and NO `TEST_ASSERT_EQUAL_SIZE` / `TEST_ASSERT_EQUAL_SIZE_MESSAGE`. Argument order matters. Every macro also has a `_MESSAGE` variant that takes one extra final string argument.
 
-  - `TEST_ASSERT_EQUAL_UINT` for size_t scalars
+  Equality (2 args: expected, actual):
+  - `TEST_ASSERT_EQUAL_INT(expected, actual)`
+  - `TEST_ASSERT_EQUAL_UINT(expected, actual)`  — use this for size_t scalars, casting if needed
+  - `TEST_ASSERT_EQUAL_HEX(expected, actual)`   (also _HEX8/16/32)
+  - `TEST_ASSERT_EQUAL_FLOAT(expected, actual)`  (tolerant compare, 2 args)
+  - `TEST_ASSERT_EQUAL_DOUBLE(expected, actual)` (tolerant compare, exactly 2 args — NOT 3)
+  - `TEST_ASSERT_EQUAL_PTR(expected, actual)`
+  - `TEST_ASSERT_NOT_EQUAL(threshold, actual)`
 
-  - `TEST_ASSERT_EQUAL_STRING`, `TEST_ASSERT_EQUAL_STRING_LEN` for C strings
+  Strings / memory / arrays:
+  - `TEST_ASSERT_EQUAL_STRING(expected, actual)`
+  - `TEST_ASSERT_EQUAL_STRING_LEN(expected, actual, len)`
+  - `TEST_ASSERT_EQUAL_MEMORY(expected, actual, len)`
+  - `TEST_ASSERT_EQUAL_*_ARRAY(expected, actual, num_elements)`  (e.g. _INT_ARRAY)
 
-  - `TEST_ASSERT_EQUAL_MEMORY` for byte buffers / structs
+  Tolerance / ranges (delta is the FIRST argument):
+  - `TEST_ASSERT_INT_WITHIN(delta, expected, actual)`
+  - `TEST_ASSERT_UINT_WITHIN(delta, expected, actual)`
+  - `TEST_ASSERT_FLOAT_WITHIN(delta, expected, actual)`
+  - `TEST_ASSERT_DOUBLE_WITHIN(delta, expected, actual)`  — use this for a double comparison with tolerance, NOT a 3-argument EQUAL_DOUBLE
+  - `TEST_ASSERT_GREATER_THAN(threshold, actual)`
+  - `TEST_ASSERT_LESS_THAN(threshold, actual)`
 
-  - `TEST_ASSERT_EQUAL_*_ARRAY` for arrays
-
-  - `TEST_ASSERT_NULL`, `TEST_ASSERT_NOT_NULL` for pointers
-
-  - `TEST_ASSERT_TRUE`, `TEST_ASSERT_FALSE` for booleans
-
-  - `TEST_ASSERT_GREATER_THAN`, `TEST_ASSERT_LESS_THAN`, `TEST_ASSERT_WITHIN` for ranges
+  Booleans / pointers (1 arg):
+  - `TEST_ASSERT_TRUE(condition)`
+  - `TEST_ASSERT_FALSE(condition)`
+  - `TEST_ASSERT_NULL(pointer)`
+  - `TEST_ASSERT_NOT_NULL(pointer)`
 
 - Always pass a descriptive message via the `_MESSAGE` variants when a failure would otherwise be ambiguous
  
@@ -526,6 +565,39 @@ CJSON_PUBLIC(void) cJSON_free(void *object);
 
 
 This is the context of the function:
+The function under test is defined in cJSON.c.
 
+Private definitions it depends on (already provided by #include "cJSON.c";
+shown here only so you know how to construct the input struct — do NOT redefine them):
+
+typedef struct internal_hooks {
+    void *(CJSON_CDECL *allocate)(size_t size);
+    void  (CJSON_CDECL *deallocate)(void *pointer);
+    void *(CJSON_CDECL *reallocate)(void *pointer, size_t size);
+} internal_hooks;
+
+typedef struct parse_buffer {
+    const unsigned char *content;
+    size_t length;
+    size_t offset;
+    size_t depth;
+    internal_hooks hooks;
+} parse_buffer;
+
+static unsigned char get_decimal_point(void);
+#define buffer_at_offset(buffer) ((buffer)->content + (buffer)->offset)
+#define can_access_at_index(buffer, index) ((buffer)->offset + index < (buffer)->length)
+
+How to construct a valid input buffer (fill the hooks with the real allocator,
+point content at a string literal):
+
+    parse_buffer buf;
+    memset(&buf, 0, sizeof(buf));
+    buf.content        = (const unsigned char *)"42";
+    buf.length         = strlen("42");
+    buf.offset         = 0;
+    buf.hooks.allocate   = malloc;
+    buf.hooks.deallocate = free;
+    buf.hooks.reallocate = realloc;
 
 Now you can Generate the testcases.
