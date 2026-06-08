@@ -1,0 +1,746 @@
+{
+  "model": "qwen",
+  "all_metrics": {
+    "cJSON_Compare": [
+      {
+        "run": "run_01_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_01_test.c:183:test_cJSON_Compare_identical_simple_objects:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_01_test.c:184:test_cJSON_Compare_different_numbers:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_01_test.c:185:test_cJSON_Compare_identical_arrays:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_01_test.c:186:test_cJSON_Compare_identical_objects_case_sensitive:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_01_test.c:187:test_cJSON_Compare_null_and_invalid_inputs:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 75.0,
+          "total": 52,
+          "covered": 39
+        },
+        "branch_coverage": {
+          "percent": 68.75,
+          "total": 48,
+          "covered": 33
+        }
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_02_test.c:183:test_cJSON_Compare_identical_simple_objects:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_02_test.c:184:test_cJSON_Compare_different_numbers:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_02_test.c:185:test_cJSON_Compare_identical_arrays:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_02_test.c:186:test_cJSON_Compare_identical_objects_case_sensitive:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_02_test.c:187:test_cJSON_Compare_null_and_invalid_inputs:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 75.0,
+          "total": 52,
+          "covered": 39
+        },
+        "branch_coverage": {
+          "percent": 68.75,
+          "total": 48,
+          "covered": 33
+        }
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_03_test.c:183:test_cJSON_Compare_identical_simple_objects:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_03_test.c:184:test_cJSON_Compare_different_numbers:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_03_test.c:185:test_cJSON_Compare_identical_arrays:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_03_test.c:186:test_cJSON_Compare_identical_objects_case_sensitive:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Compare/run_03_test.c:187:test_cJSON_Compare_null_and_invalid_inputs:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 75.0,
+          "total": 52,
+          "covered": 39
+        },
+        "branch_coverage": {
+          "percent": 68.75,
+          "total": 48,
+          "covered": 33
+        }
+      }
+    ],
+    "cJSON_Minify": [
+      {
+        "run": "run_01_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_01_test.c:93:test_cJSON_Minify_should_remove_all_whitespace:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_01_test.c:94:test_cJSON_Minify_should_remove_comments:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_01_test.c:95:test_cJSON_Minify_should_preserve_whitespace_in_strings:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_01_test.c:96:test_cJSON_Minify_should_handle_empty_string:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_01_test.c:97:test_cJSON_Minify_should_handle_NULL_input:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 95.83,
+          "total": 24,
+          "covered": 23
+        },
+        "branch_coverage": {
+          "percent": 91.67,
+          "total": 12,
+          "covered": 11
+        }
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_02_test.c:93:test_cJSON_Minify_should_remove_all_whitespace:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_02_test.c:94:test_cJSON_Minify_should_remove_comments:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_02_test.c:95:test_cJSON_Minify_should_preserve_whitespace_in_strings:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_02_test.c:96:test_cJSON_Minify_should_handle_empty_string:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_02_test.c:97:test_cJSON_Minify_should_handle_NULL_input:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 95.83,
+          "total": 24,
+          "covered": 23
+        },
+        "branch_coverage": {
+          "percent": 91.67,
+          "total": 12,
+          "covered": 11
+        }
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_03_test.c:93:test_cJSON_Minify_should_remove_all_whitespace:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_03_test.c:94:test_cJSON_Minify_should_remove_comments:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_03_test.c:95:test_cJSON_Minify_should_preserve_whitespace_in_strings:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_03_test.c:96:test_cJSON_Minify_should_handle_empty_string:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/cJSON_Minify/run_03_test.c:97:test_cJSON_Minify_should_handle_NULL_input:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 95.83,
+          "total": 24,
+          "covered": 23
+        },
+        "branch_coverage": {
+          "percent": 91.67,
+          "total": 12,
+          "covered": 11
+        }
+      }
+    ],
+    "compare_pointers": [
+      {
+        "run": "run_01_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_01_test.c: In function \u2018safe_compare_pointers\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_01_test.c:45:25: warning: implicit declaration of function \u2018compare_pointers\u2019; did you mean \u2018safe_compare_pointers\u2019? [-Wimplicit-function-declaration]\n   45 |     cJSON_bool result = compare_pointers(name, pointer, case_sensitive);\n      |                         ^~~~~~~~~~~~~~~~\n      |                         safe_compare_pointers\n/usr/bin/ld: /tmp/ccqaZy7o.o: in function `safe_compare_pointers':\nrun_01_test.c:(.text+0xb874): undefined reference to `compare_pointers'\ncollect2: error: ld returned 1 exit status"
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_02_test.c: In function \u2018safe_compare_pointers\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_02_test.c:45:25: warning: implicit declaration of function \u2018compare_pointers\u2019; did you mean \u2018safe_compare_pointers\u2019? [-Wimplicit-function-declaration]\n   45 |     cJSON_bool result = compare_pointers(name, pointer, case_sensitive);\n      |                         ^~~~~~~~~~~~~~~~\n      |                         safe_compare_pointers\n/usr/bin/ld: /tmp/ccuZ2imm.o: in function `safe_compare_pointers':\nrun_02_test.c:(.text+0xb874): undefined reference to `compare_pointers'\ncollect2: error: ld returned 1 exit status"
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_03_test.c: In function \u2018safe_compare_pointers\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/compare_pointers/run_03_test.c:45:25: warning: implicit declaration of function \u2018compare_pointers\u2019; did you mean \u2018safe_compare_pointers\u2019? [-Wimplicit-function-declaration]\n   45 |     cJSON_bool result = compare_pointers(name, pointer, case_sensitive);\n      |                         ^~~~~~~~~~~~~~~~\n      |                         safe_compare_pointers\n/usr/bin/ld: /tmp/cc6SKql8.o: in function `safe_compare_pointers':\nrun_03_test.c:(.text+0xb874): undefined reference to `compare_pointers'\ncollect2: error: ld returned 1 exit status"
+      }
+    ],
+    "csv_clear_row": [
+      {
+        "run": "run_01_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -7,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -11,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -7,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      }
+    ],
+    "csv_get_field": [
+      {
+        "run": "run_01_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 4,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 2,
+        "segfaults_counter": 2,
+        "tests_passed_counter": 3,
+        "amount_of_tests": 7,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:174:test_csv_get_field_normal_success:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:89:test_csv_get_field_truncated:FAIL: Expected 1 Was 0\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:104:test_csv_get_field_empty_field:FAIL: Expected 2 Was 0\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:177:test_csv_get_field_nonexistent:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:178:test_csv_get_field_zero_dest_len:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:139:test_csv_get_field_null_buffer:FAIL:Segmentation fault detected\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_01_test.c:162:test_csv_get_field_null_dest:FAIL:Segmentation fault detected\n\n-----------------------\n7 Tests 4 Failures 0 Ignored \nFAIL\n",
+        "line_coverage": {
+          "percent": 87.5,
+          "total": 16,
+          "covered": 14
+        },
+        "branch_coverage": {
+          "percent": 83.33,
+          "total": 12,
+          "covered": 10
+        }
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 4,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 2,
+        "segfaults_counter": 2,
+        "tests_passed_counter": 3,
+        "amount_of_tests": 7,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:174:test_csv_get_field_normal_success:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:89:test_csv_get_field_truncated:FAIL: Expected 1 Was 0\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:104:test_csv_get_field_empty_field:FAIL: Expected 2 Was 0\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:177:test_csv_get_field_nonexistent:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:178:test_csv_get_field_zero_dest_len:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:139:test_csv_get_field_null_buffer:FAIL:Segmentation fault detected\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_02_test.c:162:test_csv_get_field_null_dest:FAIL:Segmentation fault detected\n\n-----------------------\n7 Tests 4 Failures 0 Ignored \nFAIL\n",
+        "line_coverage": {
+          "percent": 87.5,
+          "total": 16,
+          "covered": 14
+        },
+        "branch_coverage": {
+          "percent": 83.33,
+          "total": 12,
+          "covered": 10
+        }
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 4,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 2,
+        "segfaults_counter": 2,
+        "tests_passed_counter": 3,
+        "amount_of_tests": 7,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:174:test_csv_get_field_normal_success:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:89:test_csv_get_field_truncated:FAIL: Expected 1 Was 0\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:104:test_csv_get_field_empty_field:FAIL: Expected 2 Was 0\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:177:test_csv_get_field_nonexistent:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:178:test_csv_get_field_zero_dest_len:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:139:test_csv_get_field_null_buffer:FAIL:Segmentation fault detected\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_field/run_03_test.c:162:test_csv_get_field_null_dest:FAIL:Segmentation fault detected\n\n-----------------------\n7 Tests 4 Failures 0 Ignored \nFAIL\n",
+        "line_coverage": {
+          "percent": 87.5,
+          "total": 16,
+          "covered": 14
+        },
+        "branch_coverage": {
+          "percent": 83.33,
+          "total": 12,
+          "covered": 10
+        }
+      }
+    ],
+    "csv_get_height": [
+      {
+        "run": "run_01_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_01_test.c:102:test_csv_get_height_returns_zero_for_new_buffer:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_01_test.c:103:test_csv_get_height_increments_after_append_row:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_01_test.c:104:test_csv_get_height_increments_after_multiple_rows:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_01_test.c:105:test_csv_get_height_unchanged_after_clear_row:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_01_test.c:106:test_csv_get_height_returns_zero_after_destroy_and_recreate:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 100.0,
+          "total": 2,
+          "covered": 2
+        },
+        "branch_coverage": null
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_02_test.c:102:test_csv_get_height_returns_zero_for_new_buffer:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_02_test.c:103:test_csv_get_height_increments_after_append_row:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_02_test.c:104:test_csv_get_height_increments_after_multiple_rows:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_02_test.c:105:test_csv_get_height_unchanged_after_clear_row:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_02_test.c:106:test_csv_get_height_returns_zero_after_destroy_and_recreate:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 100.0,
+          "total": 2,
+          "covered": 2
+        },
+        "branch_coverage": null
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_03_test.c:102:test_csv_get_height_returns_zero_for_new_buffer:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_03_test.c:103:test_csv_get_height_increments_after_append_row:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_03_test.c:104:test_csv_get_height_increments_after_multiple_rows:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_03_test.c:105:test_csv_get_height_unchanged_after_clear_row:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_get_height/run_03_test.c:106:test_csv_get_height_returns_zero_after_destroy_and_recreate:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 100.0,
+          "total": 2,
+          "covered": 2
+        },
+        "branch_coverage": null
+      }
+    ],
+    "csv_insert_field": [
+      {
+        "run": "run_01_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -7,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -7,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -11,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      }
+    ],
+    "csv_remove_row": [
+      {
+        "run": "run_01_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -11,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -11,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": -11,
+        "all_passed": false,
+        "test_status": "runtime_error",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": "",
+        "line_coverage": null,
+        "branch_coverage": null
+      }
+    ],
+    "csv_set_field": [
+      {
+        "run": "run_01_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_01_test.c:78:test_csv_set_field_delim_sets_delimiter:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_01_test.c:79:test_csv_set_field_delim_preserves_text_delim:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_01_test.c:80:test_csv_set_field_delim_with_existing_data:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_01_test.c:81:test_csv_set_field_delim_multiple_calls:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_01_test.c:82:test_csv_set_field_delim_null_buffer_segfault:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 75.0,
+          "total": 8,
+          "covered": 6
+        },
+        "branch_coverage": {
+          "percent": 66.67,
+          "total": 6,
+          "covered": 4
+        }
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_02_test.c:78:test_csv_set_field_delim_sets_delimiter:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_02_test.c:79:test_csv_set_field_delim_preserves_text_delim:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_02_test.c:80:test_csv_set_field_delim_with_existing_data:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_02_test.c:81:test_csv_set_field_delim_multiple_calls:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_02_test.c:82:test_csv_set_field_delim_null_buffer_segfault:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 75.0,
+          "total": 8,
+          "covered": 6
+        },
+        "branch_coverage": {
+          "percent": 66.67,
+          "total": 6,
+          "covered": 4
+        }
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "csv_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_03_test.c:78:test_csv_set_field_delim_sets_delimiter:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_03_test.c:79:test_csv_set_field_delim_preserves_text_delim:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_03_test.c:80:test_csv_set_field_delim_with_existing_data:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_03_test.c:81:test_csv_set_field_delim_multiple_calls:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/csv_set_field/run_03_test.c:82:test_csv_set_field_delim_null_buffer_segfault:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 75.0,
+          "total": 8,
+          "covered": 6
+        },
+        "branch_coverage": {
+          "percent": 66.67,
+          "total": 6,
+          "covered": 4
+        }
+      }
+    ],
+    "parse_hex4": [
+      {
+        "run": "run_01_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_01_test.c:75:test_parse_hex4_valid_zero:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_01_test.c:76:test_parse_hex4_valid_max:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_01_test.c:77:test_parse_hex4_mixed_case:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_01_test.c:78:test_parse_hex4_invalid_char:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_01_test.c:79:test_parse_hex4_null_input:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 100.0,
+          "total": 14,
+          "covered": 14
+        },
+        "branch_coverage": {
+          "percent": 81.25,
+          "total": 16,
+          "covered": 13
+        }
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_02_test.c:75:test_parse_hex4_valid_zero:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_02_test.c:76:test_parse_hex4_valid_max:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_02_test.c:77:test_parse_hex4_mixed_case:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_02_test.c:78:test_parse_hex4_invalid_char:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_02_test.c:79:test_parse_hex4_null_input:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 100.0,
+          "total": 14,
+          "covered": 14
+        },
+        "branch_coverage": {
+          "percent": 81.25,
+          "total": 16,
+          "covered": 13
+        }
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "cjson_codebase",
+        "compiled": true,
+        "returncode": 0,
+        "all_passed": true,
+        "test_status": "passed",
+        "compile_error_type": null,
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 5,
+        "amount_of_tests": 5,
+        "test_output": "/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_03_test.c:75:test_parse_hex4_valid_zero:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_03_test.c:76:test_parse_hex4_valid_max:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_03_test.c:77:test_parse_hex4_mixed_case:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_03_test.c:78:test_parse_hex4_invalid_char:PASS\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_hex4/run_03_test.c:79:test_parse_hex4_null_input:PASS\n\n-----------------------\n5 Tests 0 Failures 0 Ignored \nOK\n",
+        "line_coverage": {
+          "percent": 100.0,
+          "total": 14,
+          "covered": 14
+        },
+        "branch_coverage": {
+          "percent": 81.25,
+          "total": 16,
+          "covered": 13
+        }
+      }
+    ],
+    "parse_number": [
+      {
+        "run": "run_01_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_01_test.c: In function \u2018test_parse_number_simple_integer\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_01_test.c:79:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n   79 |     TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/cc4rz7mS.o: in function `test_parse_number_simple_integer':\nrun_01_test.c:(.text+0xbc08): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/cc4rz7mS.o: in function `test_parse_number_negative_decimal':\nrun_01_test.c:(.text+0xbe08): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/cc4rz7mS.o: in function `test_parse_number_scientific':\nrun_01_test.c:(.text+0xc010): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/cc4rz7mS.o: in function `test_parse_number_overflow_to_int_max':\nrun_01_test.c:(.text+0xc214): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/cc4rz7mS.o: in function `test_parse_number_invalid_input':\nrun_01_test.c:(.text+0xc404): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_02_test.c: In function \u2018test_parse_number_simple_integer\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_02_test.c:79:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n   79 |     TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/ccpro84c.o: in function `test_parse_number_simple_integer':\nrun_02_test.c:(.text+0xbc08): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccpro84c.o: in function `test_parse_number_negative_decimal':\nrun_02_test.c:(.text+0xbe08): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccpro84c.o: in function `test_parse_number_scientific':\nrun_02_test.c:(.text+0xc010): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccpro84c.o: in function `test_parse_number_overflow_to_int_max':\nrun_02_test.c:(.text+0xc214): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccpro84c.o: in function `test_parse_number_invalid_input':\nrun_02_test.c:(.text+0xc404): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_03_test.c: In function \u2018test_parse_number_simple_integer\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_number/run_03_test.c:79:5: warning: implicit declaration of function \u2018TEST_ASSERT_EQUAL_SIZE\u2019; did you mean \u2018TEST_ASSERT_EQUAL_INT\u2019? [-Wimplicit-function-declaration]\n   79 |     TEST_ASSERT_EQUAL_SIZE(strlen(input), test_buffer.offset);\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n      |     TEST_ASSERT_EQUAL_INT\n/usr/bin/ld: /tmp/ccGbokvu.o: in function `test_parse_number_simple_integer':\nrun_03_test.c:(.text+0xbc08): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccGbokvu.o: in function `test_parse_number_negative_decimal':\nrun_03_test.c:(.text+0xbe08): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccGbokvu.o: in function `test_parse_number_scientific':\nrun_03_test.c:(.text+0xc010): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccGbokvu.o: in function `test_parse_number_overflow_to_int_max':\nrun_03_test.c:(.text+0xc214): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\n/usr/bin/ld: /tmp/ccGbokvu.o: in function `test_parse_number_invalid_input':\nrun_03_test.c:(.text+0xc404): undefined reference to `TEST_ASSERT_EQUAL_SIZE'\ncollect2: error: ld returned 1 exit status"
+      }
+    ],
+    "parse_string": [
+      {
+        "run": "run_01_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_01_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_01_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/cccadoof.o: in function `setUp':\nrun_01_test.c:(.text+0xb75c): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
+      },
+      {
+        "run": "run_02_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_02_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/ccfNCszE.o: in function `setUp':\nrun_02_test.c:(.text+0xb75c): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
+      },
+      {
+        "run": "run_03_test",
+        "codebase": "cjson_codebase",
+        "compiled": false,
+        "returncode": null,
+        "all_passed": false,
+        "test_status": "compile_error",
+        "compile_error_type": "linker_error",
+        "assertion_errors_counter": 0,
+        "segfaults_counter": 0,
+        "tests_passed_counter": 0,
+        "amount_of_tests": 0,
+        "test_output": null,
+        "line_coverage": null,
+        "branch_coverage": null,
+        "error": "Compilation failed: /home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_03_test.c: In function \u2018setUp\u2019:\n/home/alexb/projects/llm_for_unit_tests/llm_ctest_eval/output_tests/qwen_modell/parse_string/run_03_test.c:26:5: warning: implicit declaration of function \u2018cJSON_GetHooks\u2019; did you mean \u2018cJSON_InitHooks\u2019? [-Wimplicit-function-declaration]\n   26 |     cJSON_GetHooks(&original_hooks);\n      |     ^~~~~~~~~~~~~~\n      |     cJSON_InitHooks\n/usr/bin/ld: /tmp/cciHqBs3.o: in function `setUp':\nrun_03_test.c:(.text+0xb75c): undefined reference to `cJSON_GetHooks'\ncollect2: error: ld returned 1 exit status"
+      }
+    ]
+  }
+}

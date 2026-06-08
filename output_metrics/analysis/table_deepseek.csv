@@ -1,0 +1,15 @@
+,Lines Executed,Lines,Branches Executed,Branches,Compile Errors,Linker Errors,Runtime Errors,Assertion Errors,Passes
+cJSON_Compare,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cJSON_Minify,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+compare_pointers,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+csv_clear_row,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+csv_get_field,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+csv_get_height,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+csv_insert_field,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+csv_remove_row,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+csv_set_field,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+parse_hex4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+parse_number,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+parse_string,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+== unknown (Summe) ==,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+== Alle Funktionen (Summe) ==,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

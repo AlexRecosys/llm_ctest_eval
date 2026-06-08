@@ -23,7 +23,8 @@ models:
 experiment:
   runs_per_function: 3
   prompt_version: "prompt_v8.txt"
-  gcc_flags: ["-fprofile-arcs", "-ftest-coverage", "-Wall"]
+  gcc_flags: ["-fprofile-arcs", "-ftest-coverage", "-Wall", "-DUNITY_INCLUDE_DOUBLE"]
+
 
 # === Pfade ===
 paths:

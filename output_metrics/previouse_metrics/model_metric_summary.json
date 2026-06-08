@@ -1,0 +1,1470 @@
+{
+  "model": "claude",
+  "functions": {
+    "cJSON_Compare": {
+      "codebase": "cjson_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 84.62,
+            "total": 52,
+            "covered": 44
+          },
+          "branch_coverage": {
+            "percent": 81.25,
+            "total": 48,
+            "covered": 39
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 84.62,
+            "total": 52,
+            "covered": 44
+          },
+          "branch_coverage": {
+            "percent": 79.17,
+            "total": 48,
+            "covered": 38
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 84.62,
+            "total": 52,
+            "covered": 44
+          },
+          "branch_coverage": {
+            "percent": 81.25,
+            "total": 48,
+            "covered": 39
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 84.62,
+          "covered": 44.0,
+          "total": 52.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 80.56,
+          "covered": 38.67,
+          "total": 48.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "cJSON_Minify": {
+      "codebase": "cjson_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 95.83,
+            "total": 24,
+            "covered": 23
+          },
+          "branch_coverage": {
+            "percent": 91.67,
+            "total": 12,
+            "covered": 11
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 95.83,
+            "total": 24,
+            "covered": 23
+          },
+          "branch_coverage": {
+            "percent": 91.67,
+            "total": 12,
+            "covered": 11
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 87.5,
+            "total": 24,
+            "covered": 21
+          },
+          "branch_coverage": {
+            "percent": 75.0,
+            "total": 12,
+            "covered": 9
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 93.06,
+          "covered": 22.33,
+          "total": 24.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 86.11,
+          "covered": 10.33,
+          "total": 12.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "compare_pointers": {
+      "codebase": "cjson_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": false,
+          "compile_error_type": "basic_compile_error",
+          "test_status": "compile_error",
+          "line_coverage": null,
+          "branch_coverage": null,
+          "tests": 0,
+          "passed": 0,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": false,
+          "compile_error_type": "basic_compile_error",
+          "test_status": "compile_error",
+          "line_coverage": null,
+          "branch_coverage": null,
+          "tests": 0,
+          "passed": 0,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": false,
+          "compile_error_type": "linker_error",
+          "test_status": "compile_error",
+          "line_coverage": null,
+          "branch_coverage": null,
+          "tests": 0,
+          "passed": 0,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": null,
+        "branch_coverage": null,
+        "fut_runs": 3,
+        "compiled_ok": 0,
+        "compiled_to_object": 1,
+        "compile_errors": 3,
+        "basic_compile_errors": 2,
+        "linker_errors": 1,
+        "tests_in_compiled": 0,
+        "passed": 0,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 100.0,
+        "linker_error_rate": 100.0,
+        "runtime_error_rate": null,
+        "assert_error_rate": null,
+        "pass_rate": null
+      }
+    },
+    "csv_clear_row": {
+      "codebase": "csv_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "assertion_error",
+          "line_coverage": {
+            "percent": 76.47,
+            "total": 17,
+            "covered": 13
+          },
+          "branch_coverage": {
+            "percent": 70.0,
+            "total": 10,
+            "covered": 7
+          },
+          "tests": 5,
+          "passed": 2,
+          "assertion_errors": 3,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "assertion_error",
+          "line_coverage": {
+            "percent": 76.47,
+            "total": 17,
+            "covered": 13
+          },
+          "branch_coverage": {
+            "percent": 70.0,
+            "total": 10,
+            "covered": 7
+          },
+          "tests": 5,
+          "passed": 1,
+          "assertion_errors": 4,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "assertion_error",
+          "line_coverage": {
+            "percent": 70.59,
+            "total": 17,
+            "covered": 12
+          },
+          "branch_coverage": {
+            "percent": 60.0,
+            "total": 10,
+            "covered": 6
+          },
+          "tests": 5,
+          "passed": 1,
+          "assertion_errors": 4,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 74.51,
+          "covered": 12.67,
+          "total": 17.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 66.67,
+          "covered": 6.67,
+          "total": 10.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 4,
+        "assertion_errors": 11,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 73.33,
+        "pass_rate": 26.67
+      }
+    },
+    "csv_get_field": {
+      "codebase": "csv_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 93.75,
+            "total": 16,
+            "covered": 15
+          },
+          "branch_coverage": {
+            "percent": 91.67,
+            "total": 12,
+            "covered": 11
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 93.75,
+            "total": 16,
+            "covered": 15
+          },
+          "branch_coverage": {
+            "percent": 91.67,
+            "total": 12,
+            "covered": 11
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 93.75,
+            "total": 16,
+            "covered": 15
+          },
+          "branch_coverage": {
+            "percent": 91.67,
+            "total": 12,
+            "covered": 11
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 93.75,
+          "covered": 15.0,
+          "total": 16.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 91.67,
+          "covered": 11.0,
+          "total": 12.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "csv_get_height": {
+      "codebase": "csv_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 2,
+            "covered": 2
+          },
+          "branch_coverage": null,
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 2,
+            "covered": 2
+          },
+          "branch_coverage": null,
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 2,
+            "covered": 2
+          },
+          "branch_coverage": null,
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 100.0,
+          "covered": 2.0,
+          "total": 2.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": null,
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "csv_insert_field": {
+      "codebase": "csv_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "runtime_error",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 10,
+            "covered": 10
+          },
+          "branch_coverage": {
+            "percent": 83.33,
+            "total": 6,
+            "covered": 5
+          },
+          "tests": 5,
+          "passed": 4,
+          "assertion_errors": 0,
+          "runtime_errors": 1
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "runtime_error",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 10,
+            "covered": 10
+          },
+          "branch_coverage": {
+            "percent": 83.33,
+            "total": 6,
+            "covered": 5
+          },
+          "tests": 5,
+          "passed": 4,
+          "assertion_errors": 0,
+          "runtime_errors": 1
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "runtime_error",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 10,
+            "covered": 10
+          },
+          "branch_coverage": {
+            "percent": 83.33,
+            "total": 6,
+            "covered": 5
+          },
+          "tests": 5,
+          "passed": 4,
+          "assertion_errors": 0,
+          "runtime_errors": 1
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 100.0,
+          "covered": 10.0,
+          "total": 10.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 83.33,
+          "covered": 5.0,
+          "total": 6.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 12,
+        "assertion_errors": 0,
+        "runtime_errors": 3,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 20.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 80.0
+      }
+    },
+    "csv_remove_row": {
+      "codebase": "csv_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "assertion_error",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 7,
+            "covered": 7
+          },
+          "branch_coverage": {
+            "percent": 100.0,
+            "total": 4,
+            "covered": 4
+          },
+          "tests": 5,
+          "passed": 4,
+          "assertion_errors": 1,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "assertion_error",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 7,
+            "covered": 7
+          },
+          "branch_coverage": {
+            "percent": 100.0,
+            "total": 4,
+            "covered": 4
+          },
+          "tests": 5,
+          "passed": 4,
+          "assertion_errors": 1,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "assertion_error",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 7,
+            "covered": 7
+          },
+          "branch_coverage": {
+            "percent": 100.0,
+            "total": 4,
+            "covered": 4
+          },
+          "tests": 5,
+          "passed": 4,
+          "assertion_errors": 1,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 100.0,
+          "covered": 7.0,
+          "total": 7.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 100.0,
+          "covered": 4.0,
+          "total": 4.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 12,
+        "assertion_errors": 3,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 20.0,
+        "pass_rate": 80.0
+      }
+    },
+    "csv_set_field": {
+      "codebase": "csv_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": false,
+          "compile_error_type": "basic_compile_error",
+          "test_status": "compile_error",
+          "line_coverage": null,
+          "branch_coverage": null,
+          "tests": 0,
+          "passed": 0,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 0.0,
+            "total": 8,
+            "covered": 0
+          },
+          "branch_coverage": {
+            "percent": 0.0,
+            "total": 6,
+            "covered": 0
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 0.0,
+            "total": 8,
+            "covered": 0
+          },
+          "branch_coverage": {
+            "percent": 0.0,
+            "total": 6,
+            "covered": 0
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 0.0,
+          "covered": 0.0,
+          "total": 8.0,
+          "runs_with_data": 2
+        },
+        "branch_coverage": {
+          "percent": 0.0,
+          "covered": 0.0,
+          "total": 6.0,
+          "runs_with_data": 2
+        },
+        "fut_runs": 3,
+        "compiled_ok": 2,
+        "compiled_to_object": 2,
+        "compile_errors": 1,
+        "basic_compile_errors": 1,
+        "linker_errors": 0,
+        "tests_in_compiled": 10,
+        "passed": 10,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 33.33,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "parse_hex4": {
+      "codebase": "cjson_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 14,
+            "covered": 14
+          },
+          "branch_coverage": {
+            "percent": 81.25,
+            "total": 16,
+            "covered": 13
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 14,
+            "covered": 14
+          },
+          "branch_coverage": {
+            "percent": 81.25,
+            "total": 16,
+            "covered": 13
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 100.0,
+            "total": 14,
+            "covered": 14
+          },
+          "branch_coverage": {
+            "percent": 93.75,
+            "total": 16,
+            "covered": 15
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 100.0,
+          "covered": 14.0,
+          "total": 14.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 85.42,
+          "covered": 13.67,
+          "total": 16.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "parse_number": {
+      "codebase": "cjson_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 84.09,
+            "total": 44,
+            "covered": 37
+          },
+          "branch_coverage": {
+            "percent": 72.0,
+            "total": 25,
+            "covered": 18
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 84.09,
+            "total": 44,
+            "covered": 37
+          },
+          "branch_coverage": {
+            "percent": 72.0,
+            "total": 25,
+            "covered": 18
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 84.09,
+            "total": 44,
+            "covered": 37
+          },
+          "branch_coverage": {
+            "percent": 72.0,
+            "total": 25,
+            "covered": 18
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 84.09,
+          "covered": 37.0,
+          "total": 44.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 72.0,
+          "covered": 18.0,
+          "total": 25.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    },
+    "parse_string": {
+      "codebase": "cjson_codebase",
+      "runs": [
+        {
+          "run": "run_01_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 65.22,
+            "total": 69,
+            "covered": 45
+          },
+          "branch_coverage": {
+            "percent": 61.11,
+            "total": 36,
+            "covered": 22
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_02_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 78.26,
+            "total": 69,
+            "covered": 54
+          },
+          "branch_coverage": {
+            "percent": 69.44,
+            "total": 36,
+            "covered": 25
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        },
+        {
+          "run": "run_03_test",
+          "compiled": true,
+          "compile_error_type": null,
+          "test_status": "passed",
+          "line_coverage": {
+            "percent": 69.57,
+            "total": 69,
+            "covered": 48
+          },
+          "branch_coverage": {
+            "percent": 63.89,
+            "total": 36,
+            "covered": 23
+          },
+          "tests": 5,
+          "passed": 5,
+          "assertion_errors": 0,
+          "runtime_errors": 0
+        }
+      ],
+      "mean": {
+        "line_coverage": {
+          "percent": 71.01,
+          "covered": 49.0,
+          "total": 69.0,
+          "runs_with_data": 3
+        },
+        "branch_coverage": {
+          "percent": 64.81,
+          "covered": 23.33,
+          "total": 36.0,
+          "runs_with_data": 3
+        },
+        "fut_runs": 3,
+        "compiled_ok": 3,
+        "compiled_to_object": 3,
+        "compile_errors": 0,
+        "basic_compile_errors": 0,
+        "linker_errors": 0,
+        "tests_in_compiled": 15,
+        "passed": 15,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      }
+    }
+  },
+  "codebase_summary": {
+    "cjson_codebase": {
+      "line_coverage": {
+        "percent": 81.94,
+        "covered": 166.33,
+        "total": 203.0,
+        "n": 5
+      },
+      "branch_coverage": {
+        "percent": 75.91,
+        "covered": 104.0,
+        "total": 137.0,
+        "n": 5
+      },
+      "futs_without_coverage": [
+        "compare_pointers"
+      ],
+      "aggregate_over_all_fut_runs": {
+        "fut_runs": 18,
+        "compiled_ok": 15,
+        "compiled_to_object": 16,
+        "compile_errors": 3,
+        "basic_compile_errors": 2,
+        "linker_errors": 1,
+        "tests_in_compiled": 75,
+        "passed": 75,
+        "assertion_errors": 0,
+        "runtime_errors": 0,
+        "compile_error_rate": 16.67,
+        "linker_error_rate": 6.25,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0
+      },
+      "per_run": {
+        "run_01_test": {
+          "fut_runs": 6,
+          "compiled_ok": 5,
+          "compiled_to_object": 5,
+          "compile_errors": 1,
+          "basic_compile_errors": 1,
+          "linker_errors": 0,
+          "tests_in_compiled": 25,
+          "passed": 25,
+          "assertion_errors": 0,
+          "runtime_errors": 0,
+          "compile_error_rate": 16.67,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 0.0,
+          "assert_error_rate": 0.0,
+          "pass_rate": 100.0,
+          "line_coverage": {
+            "percent": 80.3,
+            "covered": 163,
+            "total": 203,
+            "n": 5
+          },
+          "branch_coverage": {
+            "percent": 75.18,
+            "covered": 103,
+            "total": 137,
+            "n": 5
+          }
+        },
+        "run_02_test": {
+          "fut_runs": 6,
+          "compiled_ok": 5,
+          "compiled_to_object": 5,
+          "compile_errors": 1,
+          "basic_compile_errors": 1,
+          "linker_errors": 0,
+          "tests_in_compiled": 25,
+          "passed": 25,
+          "assertion_errors": 0,
+          "runtime_errors": 0,
+          "compile_error_rate": 16.67,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 0.0,
+          "assert_error_rate": 0.0,
+          "pass_rate": 100.0,
+          "line_coverage": {
+            "percent": 84.73,
+            "covered": 172,
+            "total": 203,
+            "n": 5
+          },
+          "branch_coverage": {
+            "percent": 76.64,
+            "covered": 105,
+            "total": 137,
+            "n": 5
+          }
+        },
+        "run_03_test": {
+          "fut_runs": 6,
+          "compiled_ok": 5,
+          "compiled_to_object": 6,
+          "compile_errors": 1,
+          "basic_compile_errors": 0,
+          "linker_errors": 1,
+          "tests_in_compiled": 25,
+          "passed": 25,
+          "assertion_errors": 0,
+          "runtime_errors": 0,
+          "compile_error_rate": 16.67,
+          "linker_error_rate": 16.67,
+          "runtime_error_rate": 0.0,
+          "assert_error_rate": 0.0,
+          "pass_rate": 100.0,
+          "line_coverage": {
+            "percent": 80.79,
+            "covered": 164,
+            "total": 203,
+            "n": 5
+          },
+          "branch_coverage": {
+            "percent": 75.91,
+            "covered": 104,
+            "total": 137,
+            "n": 5
+          }
+        }
+      },
+      "mean_over_runs": {
+        "compile_error_rate": 16.67,
+        "linker_error_rate": 5.56,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 100.0,
+        "line_coverage_percent": 81.94,
+        "branch_coverage_percent": 75.91
+      }
+    },
+    "csv_codebase": {
+      "line_coverage": {
+        "percent": 77.78,
+        "covered": 46.67,
+        "total": 60.0,
+        "n": 6
+      },
+      "branch_coverage": {
+        "percent": 70.18,
+        "covered": 26.67,
+        "total": 38.0,
+        "n": 5
+      },
+      "futs_without_coverage": [],
+      "aggregate_over_all_fut_runs": {
+        "fut_runs": 18,
+        "compiled_ok": 17,
+        "compiled_to_object": 17,
+        "compile_errors": 1,
+        "basic_compile_errors": 1,
+        "linker_errors": 0,
+        "tests_in_compiled": 85,
+        "passed": 68,
+        "assertion_errors": 14,
+        "runtime_errors": 3,
+        "compile_error_rate": 5.56,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 3.53,
+        "assert_error_rate": 16.47,
+        "pass_rate": 80.0
+      },
+      "per_run": {
+        "run_01_test": {
+          "fut_runs": 6,
+          "compiled_ok": 5,
+          "compiled_to_object": 5,
+          "compile_errors": 1,
+          "basic_compile_errors": 1,
+          "linker_errors": 0,
+          "tests_in_compiled": 25,
+          "passed": 20,
+          "assertion_errors": 4,
+          "runtime_errors": 1,
+          "compile_error_rate": 16.67,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 4.0,
+          "assert_error_rate": 16.0,
+          "pass_rate": 80.0,
+          "line_coverage": {
+            "percent": 90.38,
+            "covered": 47,
+            "total": 52,
+            "n": 5
+          },
+          "branch_coverage": {
+            "percent": 84.38,
+            "covered": 27,
+            "total": 32,
+            "n": 4
+          }
+        },
+        "run_02_test": {
+          "fut_runs": 6,
+          "compiled_ok": 6,
+          "compiled_to_object": 6,
+          "compile_errors": 0,
+          "basic_compile_errors": 0,
+          "linker_errors": 0,
+          "tests_in_compiled": 30,
+          "passed": 24,
+          "assertion_errors": 5,
+          "runtime_errors": 1,
+          "compile_error_rate": 0.0,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 3.33,
+          "assert_error_rate": 16.67,
+          "pass_rate": 80.0,
+          "line_coverage": {
+            "percent": 78.33,
+            "covered": 47,
+            "total": 60,
+            "n": 6
+          },
+          "branch_coverage": {
+            "percent": 71.05,
+            "covered": 27,
+            "total": 38,
+            "n": 5
+          }
+        },
+        "run_03_test": {
+          "fut_runs": 6,
+          "compiled_ok": 6,
+          "compiled_to_object": 6,
+          "compile_errors": 0,
+          "basic_compile_errors": 0,
+          "linker_errors": 0,
+          "tests_in_compiled": 30,
+          "passed": 24,
+          "assertion_errors": 5,
+          "runtime_errors": 1,
+          "compile_error_rate": 0.0,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 3.33,
+          "assert_error_rate": 16.67,
+          "pass_rate": 80.0,
+          "line_coverage": {
+            "percent": 76.67,
+            "covered": 46,
+            "total": 60,
+            "n": 6
+          },
+          "branch_coverage": {
+            "percent": 68.42,
+            "covered": 26,
+            "total": 38,
+            "n": 5
+          }
+        }
+      },
+      "mean_over_runs": {
+        "compile_error_rate": 5.56,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 3.55,
+        "assert_error_rate": 16.45,
+        "pass_rate": 80.0,
+        "line_coverage_percent": 81.79,
+        "branch_coverage_percent": 74.62
+      }
+    }
+  },
+  "model_summary": {
+    "line_coverage": {
+      "percent": 80.99,
+      "covered": 213.0,
+      "total": 263.0,
+      "n": 11
+    },
+    "branch_coverage": {
+      "percent": 74.67,
+      "covered": 130.67,
+      "total": 175.0,
+      "n": 10
+    },
+    "futs_without_coverage": [
+      "compare_pointers"
+    ],
+    "aggregate_over_all_fut_runs": {
+      "fut_runs": 36,
+      "compiled_ok": 32,
+      "compiled_to_object": 33,
+      "compile_errors": 4,
+      "basic_compile_errors": 3,
+      "linker_errors": 1,
+      "tests_in_compiled": 160,
+      "passed": 143,
+      "assertion_errors": 14,
+      "runtime_errors": 3,
+      "compile_error_rate": 11.11,
+      "linker_error_rate": 3.03,
+      "runtime_error_rate": 1.88,
+      "assert_error_rate": 8.75,
+      "pass_rate": 89.38
+    },
+    "per_run": {
+      "run_01_test": {
+        "fut_runs": 12,
+        "compiled_ok": 10,
+        "compiled_to_object": 10,
+        "compile_errors": 2,
+        "basic_compile_errors": 2,
+        "linker_errors": 0,
+        "tests_in_compiled": 50,
+        "passed": 45,
+        "assertion_errors": 4,
+        "runtime_errors": 1,
+        "compile_error_rate": 16.67,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 2.0,
+        "assert_error_rate": 8.0,
+        "pass_rate": 90.0,
+        "line_coverage": {
+          "percent": 82.35,
+          "covered": 210,
+          "total": 255,
+          "n": 10
+        },
+        "branch_coverage": {
+          "percent": 76.92,
+          "covered": 130,
+          "total": 169,
+          "n": 9
+        }
+      },
+      "run_02_test": {
+        "fut_runs": 12,
+        "compiled_ok": 11,
+        "compiled_to_object": 11,
+        "compile_errors": 1,
+        "basic_compile_errors": 1,
+        "linker_errors": 0,
+        "tests_in_compiled": 55,
+        "passed": 49,
+        "assertion_errors": 5,
+        "runtime_errors": 1,
+        "compile_error_rate": 8.33,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 1.82,
+        "assert_error_rate": 9.09,
+        "pass_rate": 89.09,
+        "line_coverage": {
+          "percent": 83.27,
+          "covered": 219,
+          "total": 263,
+          "n": 11
+        },
+        "branch_coverage": {
+          "percent": 75.43,
+          "covered": 132,
+          "total": 175,
+          "n": 10
+        }
+      },
+      "run_03_test": {
+        "fut_runs": 12,
+        "compiled_ok": 11,
+        "compiled_to_object": 12,
+        "compile_errors": 1,
+        "basic_compile_errors": 0,
+        "linker_errors": 1,
+        "tests_in_compiled": 55,
+        "passed": 49,
+        "assertion_errors": 5,
+        "runtime_errors": 1,
+        "compile_error_rate": 8.33,
+        "linker_error_rate": 8.33,
+        "runtime_error_rate": 1.82,
+        "assert_error_rate": 9.09,
+        "pass_rate": 89.09,
+        "line_coverage": {
+          "percent": 79.85,
+          "covered": 210,
+          "total": 263,
+          "n": 11
+        },
+        "branch_coverage": {
+          "percent": 74.29,
+          "covered": 130,
+          "total": 175,
+          "n": 10
+        }
+      }
+    },
+    "mean_over_runs": {
+      "compile_error_rate": 11.11,
+      "linker_error_rate": 2.78,
+      "runtime_error_rate": 1.88,
+      "assert_error_rate": 8.73,
+      "pass_rate": 89.39,
+      "line_coverage_percent": 81.82,
+      "branch_coverage_percent": 75.55
+    }
+  }
+}

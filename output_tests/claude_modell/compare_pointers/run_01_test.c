@@ -1,3 +1,4 @@
+#include "cJSON.c"
 #include "cJSON_Utils.c"
 #include "unity.h"
 #include "cJSON.h"

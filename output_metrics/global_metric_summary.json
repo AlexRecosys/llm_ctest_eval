@@ -1,0 +1,155 @@
+{
+  "models": [
+    "claude",
+    "qwen"
+  ],
+  "per_model": {
+    "claude": {
+      "model_summary": {
+        "mean_over_runs": {
+          "compile_error_rate": 11.11,
+          "linker_error_rate": 2.78,
+          "runtime_error_rate": 1.88,
+          "assert_error_rate": 8.73,
+          "pass_rate": 89.39,
+          "line_coverage_percent": 81.82,
+          "branch_coverage_percent": 75.55
+        },
+        "futs_without_coverage": [
+          "compare_pointers"
+        ]
+      },
+      "codebase_summary": {
+        "cjson_codebase": {
+          "compile_errors": 1.0,
+          "linker_errors": 0.33,
+          "runtime_errors": 0.0,
+          "assertion_errors": 0.0,
+          "passed": 25.0,
+          "tests": 25.0,
+          "compile_error_rate": 16.67,
+          "linker_error_rate": 5.56,
+          "runtime_error_rate": 0.0,
+          "assert_error_rate": 0.0,
+          "pass_rate": 100.0,
+          "line_coverage": {
+            "percent": 81.94,
+            "covered": 166.33,
+            "total": 203.0
+          },
+          "branch_coverage": {
+            "percent": 75.91,
+            "covered": 104.0,
+            "total": 137.0
+          },
+          "futs_without_coverage": [
+            "compare_pointers"
+          ]
+        },
+        "csv_codebase": {
+          "compile_errors": 0.33,
+          "linker_errors": 0.0,
+          "runtime_errors": 1.0,
+          "assertion_errors": 4.67,
+          "passed": 22.67,
+          "tests": 28.33,
+          "compile_error_rate": 5.56,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 3.55,
+          "assert_error_rate": 16.45,
+          "pass_rate": 80.0,
+          "line_coverage": {
+            "percent": 81.79,
+            "covered": 46.67,
+            "total": 57.33
+          },
+          "branch_coverage": {
+            "percent": 74.62,
+            "covered": 26.67,
+            "total": 36.0
+          },
+          "futs_without_coverage": []
+        }
+      }
+    },
+    "qwen": {
+      "model_summary": {
+        "mean_over_runs": {
+          "compile_error_rate": 25.0,
+          "linker_error_rate": 25.0,
+          "runtime_error_rate": 14.29,
+          "assert_error_rate": 5.71,
+          "pass_rate": 80.0,
+          "line_coverage_percent": 84.48,
+          "branch_coverage_percent": 75.53
+        },
+        "futs_without_coverage": [
+          "compare_pointers",
+          "csv_clear_row",
+          "csv_insert_field",
+          "csv_remove_row",
+          "parse_number",
+          "parse_string"
+        ]
+      },
+      "codebase_summary": {
+        "cjson_codebase": {
+          "compile_errors": 3.0,
+          "linker_errors": 3.0,
+          "runtime_errors": 0.0,
+          "assertion_errors": 0.0,
+          "passed": 15.0,
+          "tests": 15.0,
+          "compile_error_rate": 50.0,
+          "linker_error_rate": 50.0,
+          "runtime_error_rate": 0.0,
+          "assert_error_rate": 0.0,
+          "pass_rate": 100.0,
+          "line_coverage": {
+            "percent": 84.44,
+            "covered": 76.0,
+            "total": 90.0
+          },
+          "branch_coverage": {
+            "percent": 75.0,
+            "covered": 57.0,
+            "total": 76.0
+          },
+          "futs_without_coverage": [
+            "compare_pointers",
+            "parse_number",
+            "parse_string"
+          ]
+        },
+        "csv_codebase": {
+          "compile_errors": 0.0,
+          "linker_errors": 0.0,
+          "runtime_errors": 5.0,
+          "assertion_errors": 2.0,
+          "passed": 13.0,
+          "tests": 20.0,
+          "compile_error_rate": 0.0,
+          "linker_error_rate": 0.0,
+          "runtime_error_rate": 25.0,
+          "assert_error_rate": 10.0,
+          "pass_rate": 65.0,
+          "line_coverage": {
+            "percent": 84.62,
+            "covered": 22.0,
+            "total": 26.0
+          },
+          "branch_coverage": {
+            "percent": 77.78,
+            "covered": 14.0,
+            "total": 18.0
+          },
+          "futs_without_coverage": [
+            "csv_clear_row",
+            "csv_insert_field",
+            "csv_remove_row"
+          ]
+        }
+      }
+    }
+  }
+}
