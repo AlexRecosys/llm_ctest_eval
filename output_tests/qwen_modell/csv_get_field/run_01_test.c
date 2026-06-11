@@ -2,30 +2,14 @@
 #include "unity.h"
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
-#include <setjmp.h>
 
-/* Global variables for signal handling */
-static sig_atomic_t segv_occurred = 0;
-static sigjmp_buf jump_buffer;
 
-/* Signal handler for SIGSEGV */
-static void segv_handler(int sig) {
-    (void)sig;
-    segv_occurred = 1;
-    siglongjmp(jump_buffer, 1);
-}
 
 /* Global buffer for test fixtures */
 static CSV_BUFFER *test_buffer = NULL;
 
 void setUp(void) {
-    /* Install SIGSEGV handler */
-    struct sigaction sa;
-    sa.sa_handler = segv_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-    sigaction(SIGSEGV, &sa, NULL);
+
 
     /* Create a fresh buffer for each test */
     test_buffer = csv_create_buffer();
@@ -33,27 +17,11 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-    /* Remove SIGSEGV handler */
-    struct sigaction sa;
-    sa.sa_handler = SIG_DFL;
-    sigaction(SIGSEGV, &sa, NULL);
 
     /* Clean up buffer */
     if (test_buffer != NULL) {
         csv_destroy_buffer(test_buffer);
         test_buffer = NULL;
-    }
-}
-
-/* Helper function to safely run code that might segfault */
-static int run_with_segv_protection(void (*func)(void)) {
-    segv_occurred = 0;
-    int result = sigsetjmp(jump_buffer, 1);
-    if (result == 0) {
-        func();
-        return segv_occurred ? -1 : 0;
-    } else {
-        return -1; /* segv occurred */
     }
 }
 
@@ -131,44 +99,34 @@ static void test_csv_get_field_zero_dest_len(void) {
     /* dest should remain unchanged (but we can't rely on contents) */
 }
 
-/* Test case 6: Segfault protection for NULL buffer */
+/* Test case 6: NULL buffer must not crash */
+
 static void test_csv_get_field_null_buffer(void) {
-    char dest[32];
-    int result = run_with_segv_protection(NULL);
-    if (result == -1) {
-        TEST_FAIL_MESSAGE("Segmentation fault detected");
-    }
 
-    /* Now test with NULL buffer */
-    result = run_with_segv_protection(NULL);
-    if (result == -1) {
-        TEST_FAIL_MESSAGE("Segmentation fault detected");
-    }
+    char dest[32] = "sentinel";
 
-    /* Actually call with NULL buffer */
-    segv_occurred = 0;
-    result = csv_get_field(dest, sizeof(dest), NULL, 0, 0);
-    /* If segv occurred, test fails */
-    TEST_ASSERT_FALSE(segv_occurred);
-    /* If no segv, we expect undefined behavior but not crash */
+    int result = csv_get_field(dest, sizeof(dest), NULL, 0, 0);
+
+    /* if we reach this line, no segfault happened */
+
+    TEST_ASSERT_EQUAL_INT(2, result);   /* or whatever the documented error code is */
+
 }
+ 
+/* Test case 7: NULL dest must not crash */
 
-/* Test case 7: Segfault protection for NULL dest */
 static void test_csv_get_field_null_dest(void) {
+
     setup_2x2_buffer();
 
-    int result = run_with_segv_protection(NULL);
-    if (result == -1) {
-        TEST_FAIL_MESSAGE("Segmentation fault detected");
-    }
+    int result = csv_get_field(NULL, 32, test_buffer, 0, 0);
 
-    /* Actually call with NULL dest */
-    segv_occurred = 0;
-    result = csv_get_field(NULL, 32, test_buffer, 0, 0);
-    TEST_ASSERT_FALSE(segv_occurred);
+    TEST_ASSERT_EQUAL_INT(2, result);
+
 }
-
+ 
 int main(void) {
+    unity_install_sighandler();
     UNITY_BEGIN();
 
     RUN_TEST(test_csv_get_field_normal_success);

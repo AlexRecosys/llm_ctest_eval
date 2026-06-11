@@ -1,0 +1,50 @@
+{
+  "cjson_codebase": {
+    "codebase_summary": {
+      "functions_under_test": {
+        "total_futs": 6,
+        "futs_all_tests_passed": 5
+      },
+      "coverage_variables": {
+        "lines_total": 216,
+        "lines_covered": 176,
+        "branches_total": 171,
+        "branches_covered": 110
+      },
+      "execution_totals": {
+        "tests_total": 75,
+        "tests_passed": 75,
+        "compile_errors": 2,
+        "linker_errors": 1,
+        "runtime_errors": 0,
+        "assertion_errors": 0
+      },
+      "futs_without_values": [
+        "compare_pointers"
+      ]
+    }
+  },
+  "csv_codebase": {
+    "codebase_summary": {
+      "functions_under_test": {
+        "total_futs": 6,
+        "futs_all_tests_passed": 2
+      },
+      "coverage_variables": {
+        "lines_total": 60,
+        "lines_covered": 47,
+        "branches_total": 38,
+        "branches_covered": 27
+      },
+      "execution_totals": {
+        "tests_total": 85,
+        "tests_passed": 68,
+        "compile_errors": 1,
+        "linker_errors": 0,
+        "runtime_errors": 3,
+        "assertion_errors": 14
+      },
+      "futs_without_values": []
+    }
+  }
+}

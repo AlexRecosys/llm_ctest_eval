@@ -1,0 +1,56 @@
+{
+  "cjson_codebase": {
+    "codebase_summary": {
+      "functions_under_test": {
+        "total_futs": 6,
+        "futs_all_tests_passed": 3
+      },
+      "coverage_variables": {
+        "lines_total": 216,
+        "lines_covered": 76,
+        "branches_total": 171,
+        "branches_covered": 57
+      },
+      "execution_totals": {
+        "tests_total": 45,
+        "tests_passed": 45,
+        "compile_errors": 0,
+        "linker_errors": 9,
+        "runtime_errors": 0,
+        "assertion_errors": 0
+      },
+      "futs_without_values": [
+        "compare_pointers",
+        "parse_number",
+        "parse_string"
+      ]
+    }
+  },
+  "csv_codebase": {
+    "codebase_summary": {
+      "functions_under_test": {
+        "total_futs": 6,
+        "futs_all_tests_passed": 2
+      },
+      "coverage_variables": {
+        "lines_total": 60,
+        "lines_covered": 22,
+        "branches_total": 38,
+        "branches_covered": 14
+      },
+      "execution_totals": {
+        "tests_total": 51,
+        "tests_passed": 39,
+        "compile_errors": 0,
+        "linker_errors": 0,
+        "runtime_errors": 15,
+        "assertion_errors": 6
+      },
+      "futs_without_values": [
+        "csv_clear_row",
+        "csv_insert_field",
+        "csv_remove_row"
+      ]
+    }
+  }
+}

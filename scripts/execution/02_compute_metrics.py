@@ -1,6 +1,28 @@
+#!/usr/bin/env python3
+"""02_compute_metrics.py
+
+Liest raw_metrics.json (aus 01_measure_coverage.py) und erzeugt pro Modell
+die drei Ziel-JSONs gemaess Schema:
+
+1. function_level.json  - pro FUT eine Liste der Lauf-Datensaetze
+2. codebase_level.json  - absolute Aggregation pro Codebase-Cluster:
+     * Strukturelle Code-Eigenschaften: "Keep Bounded" (statische Totals,
+       genau einmal pro FUT, NICHT mit der Lauf-Anzahl multipliziert)
+     * Unique Code Coverage: "Take the Union" (eindeutige Zeilen/Branches,
+       die ueber alle Laeufe hinweg getroffen wurden)
+     * Ausfuehrungsereignisse: "Sum over all runs" (kumulative Summen)
+3. model_level.json     - oberste Evaluationsebene ohne rohe Zeilen/Branches:
+     * Coverage gemaess LC-Modell_Run_r = Sum(LC_f,r) / Sum(LT_f) * 100,
+       anschliessend Mittelwert ueber die R Laeufe
+     * Raten als hierarchische Makro-Mittel: Run -> FUT -> Codebase -> Modell
+"""
+
 import json
 from pathlib import Path
+
 import yaml
+
+RATE_KEYS = ("cer", "ler", "rer", "aer", "pr")
 
 
 def load_config():
@@ -18,249 +40,342 @@ def load_config():
     return cfg
 
 
-RUN_ORDER = ["run_01_test", "run_02_test", "run_03_test"]
-
-COUNT_KEYS = ["compile_errors", "linker_errors", "runtime_errors",
-              "assertion_errors", "passed", "tests"]
-
-RATE_KEYS = ["compile_error_rate", "linker_error_rate", "runtime_error_rate",
-             "assert_error_rate", "pass_rate"]
-
+# ---------------------------------------------------------------------------
+# Helfer
+# ---------------------------------------------------------------------------
 
 def _pct(num, den):
-    """Prozent oder None, wenn der Nenner 0 ist."""
-    return round(100 * num / den, 2) if den else None
+    """Prozent (ungerundet) oder None, wenn der Nenner 0 ist."""
+    return 100.0 * num / den if den else None
 
 
-def _parse_run(run_results):
+def _mean(vals):
+    """Ungerundeter Mittelwert; None-Werte (undefinierte Raten) werden
+    uebersprungen, damit sie den Nenner nicht verfaelschen."""
+    vals = [v for v in vals if v is not None]
+    return sum(vals) / len(vals) if vals else None
+
+
+def _round(v):
+    return round(v, 2) if v is not None else None
+
+
+def _norm_run(r):
+    """Normalisiert einen Roh-Lauf fuer die Raten-/Summenbildung.
+
+    Harter Crash/Timeout ohne verwertbaren Unity-Output (kompiliert, aber
+    0 Tests und nicht 'passed') zaehlt als genau 1 Test mit 1 Runtime-Fehler,
+    damit der Lauf im Nenner bleibt statt zu verschwinden. Damit bleibt die
+    Identitaet RE + AE + P = T erhalten.
     """
-    übersetzt die Daten aus der gcov Ausgabe in Kennzahlen.
-    Ein Roh Run wird geparst und in ein sauberes Format gebracht.
-
-    """
-    compiled = bool(run_results.get("compiled"))
-    compile_error_type = run_results.get("compile_error_type")
-    segfaults = run_results.get("segfaults_counter", 0) or 0
-    tests = run_results.get("amount_of_tests", 0) or 0
-    passed = run_results.get("tests_passed_counter", 0) or 0
-    assertion = run_results.get("assertion_errors_counter", 0) or 0
-    runtime = segfaults  # von Unity gefangene Segfaults = Runtime-Fehler
-
-    if compiled and tests == 0 and run_results.get("test_status") != "passed":
-        tests, passed, assertion, runtime = 1, 0, 0, 1
-
-    return {
-        "compiled": compiled,
-        "compile_error": (not compiled),
-        "linker_error": (not compiled) and compile_error_type == "linker_error",
-        "tests": tests if compiled else 0,
-        "passed": passed if compiled else 0,
-        "assertion_errors": assertion if compiled else 0,
-        "runtime_errors": runtime if compiled else 0,
-        "line_coverage": run_results.get("line_coverage") if compiled else None,
-        "branch_coverage": run_results.get("branch_coverage") if compiled else None,
-    }
-
-
-def _sum_coverage(covs):
-    """Coverage INNERHALB eines Laufs ueber mehrere Funktionen aufsummieren."""
-    valid_coverages = [c for c in covs if c]
-    if not valid_coverages:
-        return None
-    covered = sum(c["covered"] for c in valid_coverages)
-    total = sum(c["total"] for c in valid_coverages)
-    return {"percent": round(100 * covered / total, 2) if total else 0.0,
-            "covered": covered, "total": total}
-
-
-def _mean_coverage(covs):
-    """Coverage-Dicts UEBER die Laeufe mitteln (keine Lauf-Summen).
-
-    percent = Mittelwert der Lauf-Prozentwerte (run-gemittelt);
-    covered/total = Mittelwert der Lauf-Summen als Kontext.
-    """
-    vals = [c for c in covs if c]
-    if not vals:
-        return None
-    n = len(vals)
-    return {
-        "percent": round(sum(c["percent"] for c in vals) / n, 2),
-        "covered": round(sum(c["covered"] for c in vals) / n, 2),
-        "total": round(sum(c["total"] for c in vals) / n, 2),
-    }
-
-
-def _run_summary(normalized_run_results):
-    
-    len_normalized_run_results = len(normalized_run_results)
-
-    compile_err = sum(1 for x in normalized_run_results if x["compile_error"])
-    linker = sum(1 for x in normalized_run_results if x["linker_error"])
-    compiled_ok = sum(1 for x in normalized_run_results if x["compiled"])
-    compiled_to_obj = compiled_ok + linker  # bis zum Linker gekommen
-
-    tests = sum(x["tests"] for x in normalized_run_results)
-    passed = sum(x["passed"] for x in normalized_run_results)
-    assertion = sum(x["assertion_errors"] for x in normalized_run_results)
-    runtime = sum(x["runtime_errors"] for x in normalized_run_results)
-
-    return {
-        "compile_errors": compile_err,
-        "linker_errors": linker,
-        "runtime_errors": runtime,
-        "assertion_errors": assertion,
-        "passed": passed,
-        "tests": tests,
-        "line_coverage": _sum_coverage(x["line_coverage"] for x in normalized_run_results),
-        "branch_coverage": _sum_coverage(x["branch_coverage"] for x in normalized_run_results),
-        "compile_error_rate": _pct(compile_err, len_normalized_run_results),
-        "linker_error_rate": _pct(linker, compiled_to_obj),
-        "runtime_error_rate": _pct(runtime, tests),
-        "assert_error_rate": _pct(assertion, tests),
-        "pass_rate": _pct(passed, tests),
-    }
-
-
-def _mean_bundles(bundles):
-    """Mittelwert ueber Lauf-Bundles: Counts, Raten und Coverage."""
-    bundles = [b for b in bundles if b]
-
-    def mean(key):
-        vals = [b[key] for b in bundles if b.get(key) is not None]
-        return round(sum(vals) / len(vals), 2) if vals else None
-
-    out = {k: mean(k) for k in COUNT_KEYS}
-    out.update({k: mean(k) for k in RATE_KEYS})
-    out["line_coverage"] = _mean_coverage([b.get("line_coverage") for b in bundles])
-    out["branch_coverage"] = _mean_coverage([b.get("branch_coverage") for b in bundles])
-    return out
-
-
-def _slim_run(r):
-    """Schlanke Lauf-Ansicht fuer JSON1 inkl. returncode, segfaults, output/error."""
     compiled = bool(r.get("compiled"))
-    norm = _parse_run(r)
+    tests = int(r.get("tests_total") or 0)
+    passed = int(r.get("tests_passed") or 0)
+    assertion = int(r.get("assertion_errors") or 0)
+    runtime = int(r.get("runtime_errors") or 0)
 
-    out = {
-        "run": r.get("run"),
+    if compiled and tests == 0 and not r.get("all_tests_passed"):
+        runtime = max(runtime, 1)  # Runtime-Fehler fuer absolute Summen erhalten
+    if not compiled:
+        tests = passed = assertion = runtime = 0
+
+    return {
         "compiled": compiled,
-        "compile_error_type": r.get("compile_error_type"),
-        "returncode": r.get("returncode"),
-        "test_status": r.get("test_status"),
-        "segfault_errors": r.get("segfaults_counter", 0) or 0,
-        "assertion_errors": norm["assertion_errors"],
-        "runtime_errors": norm["runtime_errors"],
-        "tests": norm["tests"],
-        "passed": norm["passed"],
+        "ce": int(r.get("compile_error_status") or 0),
+        "le": int(r.get("linker_error_status") or 0),
+        "tests": tests,
+        "passed": passed,
+        "assertion": assertion,
+        "runtime": runtime,
     }
-    if compiled:
-        out["test_output"] = r.get("test_output")
-    if r.get("error"):
-        out["error"] = r.get("error")
-    out["line_coverage"] = r.get("line_coverage")
-    out["branch_coverage"] = r.get("branch_coverage")
-    return out
+
+def _all_passed(r):
+    if "all_tests_passed" in r:
+        return bool(r["all_tests_passed"])
+    n = _norm_run(r)
+    return (n["compiled"] and n["tests"] > 0 and n["passed"] == n["tests"]
+            and n["runtime"] == 0 and n["assertion"] == 0)
 
 
-def _per_run_bundles(futs, all_metrics):
-    """Pro Lauf-Index ein Bundle ueber die uebergebenen FUTs."""
-    bundles = []
-    for rid in RUN_ORDER:
-        norms = []
+
+def _fut_bounded_totals(fut, fut_totals, runs):
+    # Erst aus fut_totals (statische Referenz) holen
+    info = (fut_totals or {}).get(fut) or {}
+    lt = info.get("lines_total")
+    bt = info.get("branches_total")
+
+    if lt is None:
+        vals = [r.get("lines_total") for r in runs
+                if r.get("lines_total") is not None]
+        lt = max(vals) if vals else None
+
+    if bt is None:
+        vals = [r.get("branches_total") for r in runs
+                if r.get("branches_total") is not None]
+        bt = max(vals) if vals else None
+
+
+    return lt, bt
+
+
+def _union_covered(runs, list_key, count_key):
+    """Unique-Union der getroffenen Zeilen/Branches UEBER die Laeufe
+    ("Take the Union" - keine Addition der Lauf-Zaehler).
+
+    Fallback (alte Rohdaten ohne ID-Listen): Maximum der Lauf-Zaehler als
+    konservative untere Schranke der Union."""
+    if all(r.get(list_key) is None for r in runs):
+        return max((int(r.get(count_key) or 0) for r in runs), default=0)
+    union = set()
+    for r in runs:
+        union |= set(r.get(list_key) or [])
+    return len(union)
+
+
+def _fut_rate_means(runs):
+    """Raten einer FUT: pro Lauf berechnen, dann ueber die Laeufe mitteln.
+
+    CER/LER: binaere Flags, Mittel ueber ALLE R Laeufe (LaTeX: /R).
+    RER/AER/PR: count / T_{f,r} * 100; Laeufe ohne Tests (nicht kompiliert)
+    liefern None und fallen aus dem Mittel."""
+    norms = [_norm_run(r) for r in runs]
+    return {
+        "cer": _mean([100.0 * n["ce"] for n in norms]),
+        "ler": _mean([100.0 * n["le"] for n in norms]),
+        "rer": _mean([_pct(n["runtime"], n["tests"]) for n in norms]),
+        "aer": _mean([_pct(n["assertion"], n["tests"]) for n in norms]),
+        "pr": _mean([_pct(n["passed"], n["tests"]) for n in norms]),
+    }
+
+
+# ---------------------------------------------------------------------------
+# File 1: function_level.json
+# ---------------------------------------------------------------------------
+
+def _function_record(r):
+    """Ein Lauf-Datensatz strikt im Ziel-Schema (keine Legacy-Felder)."""
+    n = _norm_run(r)
+    return {
+        "run": r.get("run"),
+        "codebase": r.get("codebase"),
+        "compile_error_status": n["ce"],
+        "linker_error_status": n["le"],
+        "return_code": r.get("return_code"),
+        "tests_total": n["tests"],
+        "tests_passed": n["passed"],
+        "runtime_errors": n["runtime"],
+        "assertion_errors": n["assertion"],
+        "lines_total": r.get("lines_total"),
+        "lines_covered": r.get("lines_covered"),
+        "branches_total": r.get("branches_total"),
+        "branches_covered": r.get("branches_covered"),
+        "test_output": r.get("test_output") or "",
+        "error_message": r.get("error_message") or "",
+    }
+
+
+def build_function_level(all_metrics):
+    return {fut: [_function_record(r) for r in runs]
+            for fut, runs in all_metrics.items()}
+
+
+# ---------------------------------------------------------------------------
+# File 2: codebase_level.json
+# ---------------------------------------------------------------------------
+
+def build_codebase_summary(futs, all_metrics, fut_totals):
+    """Absolute Aggregation eines Codebase-Clusters inkl. der Gewichte fuer
+    die modellweiten Prozentwerte."""
+    lines_total = branches_total = 0
+    lines_covered = branches_covered = 0
+    futs_without_coverage = []
+    futs_without_values = []
+    futs_all_passed = 0
+    execution = {"tests_total": 0, "tests_passed": 0, "compile_errors": 0,
+                 "linker_errors": 0, "runtime_errors": 0, "assertion_errors": 0}
+
+    for fut in futs:
+        runs = all_metrics[fut]
+        lt, bt = _fut_bounded_totals(fut, fut_totals, runs)
+
+        if max((int(r.get("tests_total") or 0) for r in runs), default=0) == 0:
+            futs_without_values.append(fut)
+
+        # Keep Bounded: statische Totals genau einmal pro FUT.
+        # Take the Union: eindeutige getroffene Zeilen/Branches ueber Laeufe.
+        if lt is None:
+            futs_without_coverage.append(fut)
+        else:
+            lines_total += lt
+            lines_covered += min(_union_covered(runs, "covered_lines",
+                                                "lines_covered"), lt)
+        if bt is not None:
+            branches_total += bt
+            branches_covered += min(_union_covered(runs, "covered_branches",
+                                                   "branches_covered"), bt)
+
+        if runs and all(_all_passed(r) for r in runs):
+            futs_all_passed += 1
+
+        # Sum over all runs: jedes Ereignis kumulativ aufsummieren.
+        for r in runs:
+            n = _norm_run(r)
+            execution["tests_total"] += n["tests"]
+            execution["tests_passed"] += n["passed"]
+            execution["compile_errors"] += n["ce"]
+            execution["linker_errors"] += n["le"]
+            execution["runtime_errors"] += n["runtime"]
+            execution["assertion_errors"] += n["assertion"]
+
+    return {
+        "codebase_summary": {
+            "functions_under_test": {
+                "total_futs": len(futs),
+                "futs_all_tests_passed": futs_all_passed,
+                "futs_without_values": sorted(futs_without_values),
+            },
+            "coverage_variables": {
+                "lines_total": lines_total,
+                "lines_covered": lines_covered,
+                "branches_total": branches_total,
+                "branches_covered": branches_covered,
+            },
+            "execution_totals": execution,
+            
+        }
+    }
+
+
+def build_codebase_level(all_metrics, fut_totals):
+    by_cb = {}
+    for fut, runs in all_metrics.items():
+        cb = runs[0].get("codebase") if runs else "unknown"
+        by_cb.setdefault(cb, []).append(fut)
+    return {cb: build_codebase_summary(futs, all_metrics, fut_totals)
+            for cb, futs in sorted(by_cb.items())}
+
+
+# ---------------------------------------------------------------------------
+# File 3: model_level.json
+# ---------------------------------------------------------------------------
+
+def build_model_level(all_metrics, fut_totals):
+    futs = list(all_metrics)
+    run_ids = sorted({r.get("run") for runs in all_metrics.values()
+                      for r in runs if r.get("run")})
+
+    totals = {fut: _fut_bounded_totals(fut, fut_totals, all_metrics[fut])
+              for fut in futs}
+   
+    
+    futs_without_values = sorted(
+        f for f in futs
+        if max((int(r.get("tests_total") or 0) for r in all_metrics[f]), default=0) == 0
+    )
+
+    # Coverage gemaess LaTeX-Modell:
+    #   LC-Modell_Run_r = Sum_f LC_{f,r} / Sum_f LT_f * 100  (0%-Strafe:
+    #   nicht kompilierende Laeufe tragen covered = 0 bei vollem Nenner),
+    #   LC_Modell = Mittel ueber die R Laeufe.
+    line_den = sum(lt for lt, _ in totals.values() if lt is not None)
+    branch_den = sum(bt for _, bt in totals.values() if bt is not None)
+    lc_runs, bc_runs = [], []
+    for rid in run_ids:
+        line_num = branch_num = 0
         for fut in futs:
             r = next((x for x in all_metrics[fut] if x.get("run") == rid), None)
-            if r is not None:
-                norms.append(_parse_run(r))
-        if norms:
-            bundles.append(_run_summary(norms))
-    return bundles
+            if r is None:
+                continue  # fehlender Lauf -> covered 0 (0%-Strafe)
+            lt, bt = totals[fut]
+            if lt is not None:
+                line_num += min(int(r.get("lines_covered") or 0), lt)
+            if bt is not None:
+                branch_num += min(int(r.get("branches_covered") or 0), bt)
+        if line_den:
+            lc_runs.append(100.0 * line_num / line_den)
+        if branch_den:
+            bc_runs.append(100.0 * branch_num / branch_den)
 
-
-def _futs_without_coverage(futs, all_metrics):
-    """FUTs, die in KEINEM Lauf Coverage liefern, explizit sichtbar machen."""
-    return [fut for fut in futs
-            if not any(_parse_run(r)["line_coverage"] for r in all_metrics[fut])]
-
-
-def build_functions_report(model_name, all_metrics):
-    """JSON1: pro Funktion jeder Lauf einzeln + Mittelwert ueber die Laeufe."""
-    functions = {}
-    for fut, runs in all_metrics.items():
-        codebase = runs[0].get("codebase") if runs else "unknown"
-        # Mittelwert: jeder Lauf einzeln zu einem 1er-Bundle, dann mitteln.
-        per_run = [_run_summary([_parse_run(r)]) for r in runs]
-        functions[fut] = {
-            "codebase": codebase,
-            "runs": [_slim_run(r) for r in runs],
-            "mean": _mean_bundles(per_run),
-        }
-    return {"model": model_name, "functions": functions}
-
-
-def build_summary_report(model_name, all_metrics):
-    """JSON2: pro Codebase + Modell-Gesamtuebersicht (Mittelwert ueber die Laeufe)."""
-    fut_codebase = {fut: (runs[0].get("codebase") if runs else "unknown")
-                    for fut, runs in all_metrics.items()}
+    # Raten hierarchisch: Run -> FUT -> Codebase -> Modell (Makro-Mittel).
     by_cb = {}
-    for fut, cb in fut_codebase.items():
+    for fut, runs in all_metrics.items():
+        cb = runs[0].get("codebase") if runs else "unknown"
         by_cb.setdefault(cb, []).append(fut)
 
-    def summarize(futs):
-        summary = _mean_bundles(_per_run_bundles(futs, all_metrics))
-        summary["futs_without_coverage"] = _futs_without_coverage(futs, all_metrics)
-        return summary
+    cb_rates = {}
+    for cb, cb_futs in by_cb.items():
+        per_fut = [_fut_rate_means(all_metrics[f]) for f in cb_futs]
+        cb_rates[cb] = {k: _mean([m[k] for m in per_fut]) for k in RATE_KEYS}
+    model_rates = {k: _mean([cb_rates[cb][k] for cb in cb_rates])
+                   for k in RATE_KEYS}
 
-    codebase_summary = {cb: summarize(futs) for cb, futs in by_cb.items()}
-
-    model_mean = summarize(list(all_metrics.keys()))
-    line_cov = model_mean.get("line_coverage") or {}
-    branch_cov = model_mean.get("branch_coverage") or {}
-    model_summary = {
-        "mean_over_runs": {
-            "compile_error_rate": model_mean["compile_error_rate"],
-            "linker_error_rate": model_mean["linker_error_rate"],
-            "runtime_error_rate": model_mean["runtime_error_rate"],
-            "assert_error_rate": model_mean["assert_error_rate"],
-            "pass_rate": model_mean["pass_rate"],
-            "line_coverage_percent": line_cov.get("percent"),
-            "branch_coverage_percent": branch_cov.get("percent"),
-        },
-        "futs_without_coverage": model_mean["futs_without_coverage"],
-    }
+    total_runs = sum(len(runs) for runs in all_metrics.values())
+    runs_all_passed = sum(1 for runs in all_metrics.values()
+                          for r in runs if _all_passed(r))
+    futs_all_passed = sum(1 for runs in all_metrics.values()
+                          if runs and all(_all_passed(r) for r in runs))
 
     return {
-        "model": model_name,
-        "codebase_summary": codebase_summary,
-        "model_summary": model_summary,
+        "model_summary": {
+            "variables": {
+                "total_futs": len(futs),
+                "futs_without_values": sorted(futs_without_values),
+                
+            },
+            "run_statistics": {
+                "total_runs": total_runs,
+                "runs_all_tests_passed": runs_all_passed,
+                "futs_all_tests_passed": futs_all_passed,
+            },
+            "coverage": {
+                "line_coverage": _round(_mean(lc_runs)),
+                "branch_coverage": _round(_mean(bc_runs)),
+            },
+            "rates": {
+                "compile_error_rate": _round(model_rates["cer"]),
+                "linker_error_rate": _round(model_rates["ler"]),
+                "runtime_error_rate": _round(model_rates["rer"]),
+                "assert_error_rate": _round(model_rates["aer"]),
+                "pass_rate": _round(model_rates["pr"]),
+            },
+        }
     }
 
 
+# ---------------------------------------------------------------------------
+# Ablauf pro Modell
+# ---------------------------------------------------------------------------
+
 def report_model(model_name, cfg):
-    """Liest die Rohmetriken eines Modells ein und schreibt JSON1 + JSON2."""
+    """Liest die Rohmetriken eines Modells und schreibt die drei Ziel-JSONs."""
     metrics_dir = Path(cfg["paths"]["output_metrics"]) / f"{model_name}_modell"
     raw_file = metrics_dir / "raw_metrics.json"
 
     if not raw_file.exists():
         print(f"  Keine Rohmetriken gefunden fuer {model_name} ({raw_file})")
-        print("  -> Bitte zuerst 01_compile_run.py ausfuehren.")
+        print("  -> Bitte zuerst 01_measure_coverage.py ausfuehren.")
         return None
 
     raw = json.loads(raw_file.read_text())
     all_metrics = raw["all_metrics"]
+    fut_totals = raw.get("fut_totals", {})
 
-    # JSON1: pro Funktion (Laeufe einzeln + Mittelwert)
-    functions_report = build_functions_report(model_name, all_metrics)
-    functions_file = metrics_dir / "metric_functions.json"
-    functions_file.write_text(json.dumps(functions_report, indent=2))
-    print(f"  -> JSON1 (Funktionen): {functions_file}")
+    function_level = build_function_level(all_metrics)
+    f1 = metrics_dir / "function_level.json"
+    f1.write_text(json.dumps(function_level, indent=2))
+    print(f"  -> File 1 (Funktionen):  {f1}")
 
-    # JSON2: pro Codebase + Modell-Gesamtuebersicht
-    summary_report = build_summary_report(model_name, all_metrics)
-    summary_file = metrics_dir / "metric_summary.json"
-    summary_file.write_text(json.dumps(summary_report, indent=2))
-    print(f"  -> JSON2 (Zusammenfassung): {summary_file}")
+    codebase_level = build_codebase_level(all_metrics, fut_totals)
+    f2 = metrics_dir / "codebase_level.json"
+    f2.write_text(json.dumps(codebase_level, indent=2))
+    print(f"  -> File 2 (Codebases):   {f2}")
 
-    return summary_report
+    model_level = build_model_level(all_metrics, fut_totals)
+    f3 = metrics_dir / "model_level.json"
+    f3.write_text(json.dumps(model_level, indent=2))
+    print(f"  -> File 3 (Modell):      {f3}")
+
+    return model_level
 
 
 def main():
@@ -272,21 +387,18 @@ def main():
     for model in models:
         print(f"\n=== Berechne Metriken: {model} ===")
         report = report_model(model, cfg)
-        if not report:
-            continue
-        # Modellvergleich: nur nebeneinanderstellen, NICHT modelluebergreifend
-        # zusammenzaehlen.
-        per_model[model] = {
-            "model_summary": report["model_summary"],
-            "codebase_summary": report["codebase_summary"],
-        }
+        if report:
+            # Modellvergleich: nur nebeneinanderstellen, NICHT
+            # modelluebergreifend zusammenzaehlen.
+            per_model[model] = report["model_summary"]
 
-    global_summary = {"models": list(per_model.keys()), "per_model": per_model}
-    out_dir = Path(cfg["paths"]["output_metrics"])
-    out_dir.mkdir(parents=True, exist_ok=True)
-    global_file = out_dir / "global_metric_summary.json"
-    global_file.write_text(json.dumps(global_summary, indent=2))
-    print(f"\n-> Gesamt-Zusammenfassung ueber alle Modelle: {global_file}")
+    if per_model:
+        out_dir = Path(cfg["paths"]["output_metrics"])
+        out_dir.mkdir(parents=True, exist_ok=True)
+        global_file = out_dir / "model_comparison.json"
+        global_file.write_text(json.dumps(
+            {"models": list(per_model), "per_model": per_model}, indent=2))
+        print(f"\n-> Modellvergleich (On-Premise vs. Cloud): {global_file}")
 
 
 if __name__ == "__main__":

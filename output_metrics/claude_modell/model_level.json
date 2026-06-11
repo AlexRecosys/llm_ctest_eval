@@ -1,0 +1,26 @@
+{
+  "model_summary": {
+    "variables": {
+      "total_futs": 12,
+      "futs_without_values": [
+        "compare_pointers"
+      ]
+    },
+    "run_statistics": {
+      "total_runs": 36,
+      "runs_all_tests_passed": 23,
+      "futs_all_tests_passed": 7
+    },
+    "coverage": {
+      "line_coverage": 77.17,
+      "branch_coverage": 62.52
+    },
+    "rates": {
+      "compile_error_rate": 8.33,
+      "linker_error_rate": 2.78,
+      "runtime_error_rate": 1.67,
+      "assert_error_rate": 7.78,
+      "pass_rate": 90.56
+    }
+  }
+}

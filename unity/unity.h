@@ -696,3 +696,18 @@ void verifyTest(void);
 }
 #endif
 #endif
+
+
+
+
+#define RUN_TEST_SAFE(func)                                      \
+    do {                                                         \
+        unity_in_test = 1;                                       \
+        if (sigsetjmp(unity_sigsegv_jmp, 1) == 0) {             \
+            UnityDefaultTestRun(func, #func, __LINE__);          \
+        } else {                                                 \
+            UnityPrint("SIGSEGV in " #func "\n");                \
+            Unity.TestFailures++;                                \
+        }                                                        \
+        unity_in_test = 0;                                       \
+    } while(0)

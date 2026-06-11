@@ -1,0 +1,31 @@
+{
+  "model_summary": {
+    "variables": {
+      "total_futs": 12,
+      "futs_without_values": [
+        "compare_pointers",
+        "csv_clear_row",
+        "csv_insert_field",
+        "csv_remove_row",
+        "parse_number",
+        "parse_string"
+      ]
+    },
+    "run_statistics": {
+      "total_runs": 36,
+      "runs_all_tests_passed": 15,
+      "futs_all_tests_passed": 5
+    },
+    "coverage": {
+      "line_coverage": 35.51,
+      "branch_coverage": 33.97
+    },
+    "rates": {
+      "compile_error_rate": 0.0,
+      "linker_error_rate": 25.0,
+      "runtime_error_rate": 4.76,
+      "assert_error_rate": 4.76,
+      "pass_rate": 90.48
+    }
+  }
+}

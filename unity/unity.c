@@ -4,6 +4,11 @@
     Copyright (c) 2007-26 Mike Karlesky, Mark VanderVoord, & Greg Williams
     SPDX-License-Identifier: MIT
 ========================================================================= */
+#define _POSIX_C_SOURCE 200809L
+
+#include <setjmp.h>
+#include <signal.h>
+#include <stddef.h>
 
 #include "unity.h"
 
@@ -2635,3 +2640,29 @@ int UnityTestMatches(void)
 
 #endif /* UNITY_USE_COMMAND_LINE_ARGS */
 /*-----------------------------------------------*/
+
+
+
+
+static sigjmp_buf unity_sigsegv_jmp;
+static volatile int unity_in_test = 0;
+
+static void unity_sigsegv_handler(int sig)
+{
+    (void)sig;
+    if (unity_in_test) {
+        unity_in_test = 0;
+        siglongjmp(unity_sigsegv_jmp, 1);
+    }
+    signal(SIGSEGV, SIG_DFL);
+    raise(SIGSEGV);
+}
+
+void unity_install_sighandler(void)
+{
+    struct sigaction sa = {0};
+    sa.sa_handler = unity_sigsegv_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESETHAND;
+    sigaction(SIGSEGV, &sa, NULL);
+}
