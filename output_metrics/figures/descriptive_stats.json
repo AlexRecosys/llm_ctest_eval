@@ -1,0 +1,238 @@
+{
+  "by_model": {
+    "claude": {
+      "line_coverage": {
+        "n": 36,
+        "mean": 75.09,
+        "median": 86.06,
+        "std": 35.46,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "branch_coverage": {
+        "n": 33,
+        "mean": 66.41,
+        "median": 79.17,
+        "std": 33.52,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "pass_rate": {
+        "n": 32,
+        "mean": 89.38,
+        "median": 100.0,
+        "std": 22.13,
+        "min": 20.0,
+        "max": 100.0
+      },
+      "assert_error_rate": {
+        "n": 32,
+        "mean": 8.75,
+        "median": 0.0,
+        "std": 22.11,
+        "min": 0.0,
+        "max": 80.0
+      },
+      "runtime_error_rate": {
+        "n": 32,
+        "mean": 1.88,
+        "median": 0.0,
+        "std": 5.92,
+        "min": 0.0,
+        "max": 20.0
+      },
+      "compile_error_rate": {
+        "n": 36,
+        "mean": 8.33,
+        "median": 0.0,
+        "std": 28.03,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "linker_error_rate": {
+        "n": 36,
+        "mean": 2.78,
+        "median": 0.0,
+        "std": 16.67,
+        "min": 0.0,
+        "max": 100.0
+      }
+    },
+    "qwen": {
+      "line_coverage": {
+        "n": 36,
+        "mean": 44.44,
+        "median": 37.5,
+        "std": 45.72,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "branch_coverage": {
+        "n": 33,
+        "mean": 35.61,
+        "median": 0.0,
+        "std": 40.13,
+        "min": 0.0,
+        "max": 91.67
+      },
+      "pass_rate": {
+        "n": 18,
+        "mean": 90.48,
+        "median": 100.0,
+        "std": 21.91,
+        "min": 42.86,
+        "max": 100.0
+      },
+      "assert_error_rate": {
+        "n": 18,
+        "mean": 4.76,
+        "median": 0.0,
+        "std": 10.96,
+        "min": 0.0,
+        "max": 28.57
+      },
+      "runtime_error_rate": {
+        "n": 18,
+        "mean": 4.76,
+        "median": 0.0,
+        "std": 10.96,
+        "min": 0.0,
+        "max": 28.57
+      },
+      "compile_error_rate": {
+        "n": 36,
+        "mean": 0.0,
+        "median": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "linker_error_rate": {
+        "n": 36,
+        "mean": 25.0,
+        "median": 0.0,
+        "std": 43.92,
+        "min": 0.0,
+        "max": 100.0
+      }
+    }
+  },
+  "by_codebase": {
+    "cjson_codebase": {
+      "line_coverage": {
+        "n": 36,
+        "mean": 58.63,
+        "median": 81.18,
+        "std": 42.96,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "branch_coverage": {
+        "n": 36,
+        "mean": 52.55,
+        "median": 70.72,
+        "std": 38.5,
+        "min": 0.0,
+        "max": 93.75
+      },
+      "pass_rate": {
+        "n": 24,
+        "mean": 100.0,
+        "median": 100.0,
+        "std": 0.0,
+        "min": 100.0,
+        "max": 100.0
+      },
+      "assert_error_rate": {
+        "n": 24,
+        "mean": 0.0,
+        "median": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "runtime_error_rate": {
+        "n": 24,
+        "mean": 0.0,
+        "median": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "compile_error_rate": {
+        "n": 36,
+        "mean": 5.56,
+        "median": 0.0,
+        "std": 23.23,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "linker_error_rate": {
+        "n": 36,
+        "mean": 27.78,
+        "median": 0.0,
+        "std": 45.43,
+        "min": 0.0,
+        "max": 100.0
+      }
+    },
+    "csv_codebase": {
+      "line_coverage": {
+        "n": 36,
+        "mean": 60.9,
+        "median": 81.99,
+        "std": 44.53,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "branch_coverage": {
+        "n": 30,
+        "mean": 49.17,
+        "median": 66.67,
+        "std": 41.97,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "pass_rate": {
+        "n": 26,
+        "mean": 80.33,
+        "median": 100.0,
+        "std": 27.23,
+        "min": 20.0,
+        "max": 100.0
+      },
+      "assert_error_rate": {
+        "n": 26,
+        "mean": 14.07,
+        "median": 0.0,
+        "std": 24.42,
+        "min": 0.0,
+        "max": 80.0
+      },
+      "runtime_error_rate": {
+        "n": 26,
+        "mean": 5.6,
+        "median": 0.0,
+        "std": 10.64,
+        "min": 0.0,
+        "max": 28.57
+      },
+      "compile_error_rate": {
+        "n": 36,
+        "mean": 2.78,
+        "median": 0.0,
+        "std": 16.67,
+        "min": 0.0,
+        "max": 100.0
+      },
+      "linker_error_rate": {
+        "n": 36,
+        "mean": 0.0,
+        "median": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      }
+    }
+  }
+}

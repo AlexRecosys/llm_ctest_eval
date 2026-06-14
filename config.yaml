@@ -1,7 +1,3 @@
-# Definiert welche Modelle, welche Temperatur/Parameter, 
-# wie viele Wiederholungen pro Funktion, Pfade usw.
-
-
 
 # === Modell-Endpunkte ===
 
@@ -19,10 +15,10 @@ models:
     model_name: "qwen3-coder-next:latest"
     temperature: 0
 
-# === Experiment-Parameter ===
+# === Durchfürungseinstellungen ===
 experiment:
   runs_per_function: 3
-  prompt_version: "prompt_v8.txt"
+  prompt_version: "prompt_v10.txt"
   gcc_flags: ["-fprofile-arcs", "-ftest-coverage", "-Wall", "-DUNITY_INCLUDE_DOUBLE"]
 
 
@@ -40,5 +36,4 @@ paths:
 codebases:
   csv_codebase: "csv.h"
   cjson_codebase: "cJSON.h"
-  gocr_codebase: "gocr.h"
-  redis_codebase: "sds.h"
+  hashmap_codebase: "hashmap.h"

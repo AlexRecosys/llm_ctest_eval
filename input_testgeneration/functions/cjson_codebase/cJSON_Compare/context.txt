@@ -1,16 +1,7 @@
-You are working with two C libraries:
-
 ## cJSON (cJSON.c, cJSON_Utils.c)
-A JSON parser and generator in C (version 1.7.19).
-The central data structure is cJSON - a doubly linked list.
-Public API functions are prefixed with cJSON_.
-Internal helper functions are static and can only be tested
-indirectly through the public API.
-Memory management is handled via global hooks (default: malloc/free/realloc).
-
-## csv (csv.c)
-A CSV parser in C.
-The central data structure is CSV_BUFFER - a 2D array of CSV_FIELD pointers.
-Public API functions are prefixed with csv_.
-Internal helper functions are static.
-Default delimiters: comma as field separator, double quote as text delimiter.
+A JSON parser and generator in C (version 1.7.19). The central data structure
+is cJSON — a doubly linked list node representing a JSON tree. Public API
+functions are prefixed with cJSON_. Internal helper functions are static and
+can only be tested indirectly through the public API. Memory management is
+handled via global hooks (default: malloc/free/realloc); every cJSON tree
+returned by the API must be released with cJSON_Delete().

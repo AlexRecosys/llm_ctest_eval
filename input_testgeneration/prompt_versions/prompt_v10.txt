@@ -2,11 +2,10 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 {function_under_test}
 
 
-**Setup & Teardown**
+**Requirements**
 
 - Do NOT use mocks, stubs, or fakes of any kind. Use actual project functions.
 - Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
-(- When a buffer field is const-qualified, point it at a string literal or stack buffer and do NOT free it.)
 - Initialize all real dependencies the function under test requires
 - Add unity_install_sighandler(); to the main methode, like in the example below.
 

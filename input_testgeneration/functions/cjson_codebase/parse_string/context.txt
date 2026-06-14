@@ -1,34 +1,7 @@
-The function under test is defined in cJSON.c.
-
-Private definitions it depends on (already provided by #include "cJSON.c";
-shown here only so you know how to construct the input struct — do NOT redefine them):
-
-typedef struct internal_hooks {
-    void *(CJSON_CDECL *allocate)(size_t size);
-    void  (CJSON_CDECL *deallocate)(void *pointer);
-    void *(CJSON_CDECL *reallocate)(void *pointer, size_t size);
-} internal_hooks;
-
-typedef struct parse_buffer {
-    const unsigned char *content;
-    size_t length;
-    size_t offset;
-    size_t depth;
-    internal_hooks hooks;
-} parse_buffer;
-
-static unsigned char get_decimal_point(void);
-#define buffer_at_offset(buffer) ((buffer)->content + (buffer)->offset)
-#define can_access_at_index(buffer, index) ((buffer)->offset + index < (buffer)->length)
-
-How to construct a valid input buffer (fill the hooks with the real allocator,
-point content at a string literal):
-
-    parse_buffer buf;
-    memset(&buf, 0, sizeof(buf));
-    buf.content        = (const unsigned char *)"42";
-    buf.length         = strlen("42");
-    buf.offset         = 0;
-    buf.hooks.allocate   = malloc;
-    buf.hooks.deallocate = free;
-    buf.hooks.reallocate = realloc;
+## cJSON (cJSON.c, cJSON_Utils.c)
+A JSON parser and generator in C (version 1.7.19). The central data structure
+is cJSON — a doubly linked list node representing a JSON tree. Public API
+functions are prefixed with cJSON_. Internal helper functions are static and
+can only be tested indirectly through the public API. Memory management is
+handled via global hooks (default: malloc/free/realloc); every cJSON tree
+returned by the API must be released with cJSON_Delete().

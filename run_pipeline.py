@@ -1,4 +1,3 @@
-"""Orchestriert die gesamte Pipeline: Generation -> Compile & Run -> Analyse."""
 
 import subprocess
 import sys
