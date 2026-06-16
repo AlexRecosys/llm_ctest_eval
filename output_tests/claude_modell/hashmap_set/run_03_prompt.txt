@@ -1,0 +1,81 @@
+You are a C testing expert specializing in the Unity test framework. Generate a complete, compilable Unity unit test file for the following C function:
+const void *hashmap_set(struct hashmap *map, const void *item) {
+    return hashmap_set_with_hash(map, item, get_hash(map, item));
+}
+
+
+**Requirements**
+
+- Do NOT use mocks, stubs, or fakes of any kind. Use actual project functions.
+- Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
+- Initialize all real dependencies the function under test requires
+- Add unity_install_sighandler(); to the main methode, like in the example below.
+
+
+
+**Linkage Strategy**
+The function under test may be static. Therefore the test file MUST #include the .c source file as the first include directive (e.g. #include "foo.c").
+Do NOT re-declare, copy, or re-define anything from the included source.
+
+
+
+**File Structure (in this exact order)**
+
+1. All `#include` directives. ORDER: first `#include` the `.c` source file that defines the function under test (see Linkage strategy), then Unity, then the project headers, then the standard headers.
+
+2. File-scope static variables / fixtures
+
+3. All helper functions and macros at the TOP of the file, before any test case
+
+4. All test cases
+
+5. `main(void)` — MANDATORY, NEVER OMIT THIS FUNCTION.
+   You MUST output this function as the final block of the file.
+   Dynamically include every test you generated above:
+
+   int main(void) {
+       unity_install_sighandler();
+       UNITY_BEGIN();
+       RUN_TEST(test_case_name_1);
+       RUN_TEST(test_case_name_2);
+       ...
+       return UNITY_END();
+   }
+
+Assertions
+Use the most specific macro. Only these exist — do NOT invent others:
+Equality (expected, actual):
+TEST_ASSERT_EQUAL_INT · TEST_ASSERT_EQUAL_UINT · TEST_ASSERT_EQUAL_HEX · TEST_ASSERT_EQUAL_FLOAT · TEST_ASSERT_EQUAL_DOUBLE · TEST_ASSERT_EQUAL_PTR · TEST_ASSERT_NOT_EQUAL
+Strings / Memory:
+TEST_ASSERT_EQUAL_STRING · TEST_ASSERT_EQUAL_STRING_LEN · TEST_ASSERT_EQUAL_MEMORY · TEST_ASSERT_EQUAL_*_ARRAY
+Tolerance (delta, expected, actual):
+TEST_ASSERT_INT_WITHIN · TEST_ASSERT_UINT_WITHIN · TEST_ASSERT_FLOAT_WITHIN · TEST_ASSERT_DOUBLE_WITHIN · TEST_ASSERT_GREATER_THAN · TEST_ASSERT_LESS_THAN
+Bool / Pointer (1 arg):
+TEST_ASSERT_TRUE · TEST_ASSERT_FALSE · TEST_ASSERT_NULL · TEST_ASSERT_NOT_NULL
+Use _MESSAGE variants when a failure would otherwise be ambiguous.
+
+
+**Constraints**
+- Output ONLY the C source file — no prose, no markdown fences, no explenation
+- Use exact identifier names from the project context - do not invent function or type names
+
+
+
+
+**Project Context**
+Header: hashmap.h
+
+Function context: ## hashmap (hashmap.c)
+A generic open-addressing hashmap in C using Robin Hood hashing. The central
+data structure is struct hashmap (opaque). Items are stored by value (shallow
+copy of elsize bytes); the caller supplies hash and compare callbacks that
+operate on the key portion of the item struct. Public API functions are
+prefixed with hashmap_. Internal helpers are static. The map is not thread-safe.
+Pointers returned by hashmap_get(), hashmap_set(), and hashmap_delete() are
+invalidated by subsequent map operations — callers must copy values out
+immediately. Memory management uses malloc/realloc/free by default, replaceable
+via hashmap_new_with_allocator().
+
+
+
+Now generate the test cases.
