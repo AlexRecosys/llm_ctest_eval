@@ -6,14 +6,14 @@ models:
     api_url: "https://api.anthropic.com/v1/messages"
     model_name: "claude-sonnet-4-6"
     temperature: 0
-  deepseek:
-    api_url: "https://api.deepseek.com/v1/chat/completions"
-    model_name: "deepseek-coder"
-    temperature: 0
+    
+
   qwen:
     api_url: "http://localhost:11434/v1/chat/completions"
     model_name: "qwen3-coder-next:latest"
     temperature: 0
+    
+
 
 # === Durchfürungseinstellungen ===
 experiment:
@@ -31,9 +31,11 @@ paths:
   output_tests: "output_tests"
   output_metrics: "output_metrics"
   build_dir: "build"
+  output_local_codebase: "src/crs"
 
 # === Codebases (Mapping: Codebase-Name -> Header-Datei) ===
 codebases:
   csv_codebase: "csv.h"
   cjson_codebase: "cJSON.h"
   hashmap_codebase: "hashmap.h"
+  # crs_codebase: "crs_string.h"

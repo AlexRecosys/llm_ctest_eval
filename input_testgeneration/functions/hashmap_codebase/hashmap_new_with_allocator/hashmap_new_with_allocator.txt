@@ -1,0 +1,59 @@
+struct hashmap *hashmap_new_with_allocator(void *(*_malloc)(size_t), 
+    void *(*_realloc)(void*, size_t), void (*_free)(void*),
+    size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
+    uint64_t (*hash)(const void *item, uint64_t seed0, uint64_t seed1),
+    int (*compare)(const void *a, const void *b, void *udata),
+    void (*elfree)(void *item),
+    void *udata)
+{
+    _malloc = _malloc ? _malloc : __malloc ? __malloc : malloc;
+    _realloc = _realloc ? _realloc : __realloc ? __realloc : realloc;
+    _free = _free ? _free : __free ? __free : free;
+    size_t ncap = 16;
+    if (cap < ncap) {
+        cap = ncap;
+    } else {
+        while (ncap < cap) {
+            ncap *= 2;
+        }
+        cap = ncap;
+    }
+    size_t bucketsz = sizeof(struct bucket) + elsize;
+    while (bucketsz & (sizeof(uintptr_t)-1)) {
+        bucketsz++;
+    }
+    // hashmap + spare + edata
+    size_t size = sizeof(struct hashmap)+bucketsz*2;
+    struct hashmap *map = _malloc(size);
+    if (!map) {
+        return NULL;
+    }
+    memset(map, 0, sizeof(struct hashmap));
+    map->elsize = elsize;
+    map->bucketsz = bucketsz;
+    map->seed0 = seed0;
+    map->seed1 = seed1;
+    map->hash = hash;
+    map->compare = compare;
+    map->elfree = elfree;
+    map->udata = udata;
+    map->spare = ((char*)map)+sizeof(struct hashmap);
+    map->edata = (char*)map->spare+bucketsz;
+    map->cap = cap;
+    map->nbuckets = cap;
+    map->mask = map->nbuckets-1;
+    map->buckets = _malloc(map->bucketsz*map->nbuckets);
+    if (!map->buckets) {
+        _free(map);
+        return NULL;
+    }
+    memset(map->buckets, 0, map->bucketsz*map->nbuckets);
+    map->growpower = 1;
+    map->loadfactor = clamp_load_factor(HASHMAP_LOAD_FACTOR, GROW_AT) * 100;
+    map->growat = map->nbuckets * (map->loadfactor / 100.0);
+    map->shrinkat = map->nbuckets * SHRINK_AT;
+    map->malloc = _malloc;
+    map->realloc = _realloc;
+    map->free = _free;
+    return map;  
+}

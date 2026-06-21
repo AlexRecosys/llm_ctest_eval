@@ -1,466 +1,435 @@
-#include "cJSON.c"
-#include "unity.h"
 #include "cJSON.h"
+#include "unity.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include "cJSON.c"
 
-/* File-scope variables */
-static cJSON item;
-static parse_buffer buffer;
 
-/* Helper: initialize a parse_buffer with a given string */
-static void init_parse_buffer(parse_buffer *buf, const char *content)
+/* ------------------------------------------------------------------ */
+/* Helper: parse a JSON string value using the public cJSON_Parse API  */
+/* ------------------------------------------------------------------ */
+
+static cJSON *parse_json_string(const char *json)
 {
-    buf->content = (const unsigned char *)content;
-    buf->length = strlen(content);
-    buf->offset = 0;
-    buf->depth = 0;
-    buf->hooks.allocate = malloc;
-    buf->hooks.deallocate = free;
-    buf->hooks.reallocate = realloc;
+    return cJSON_Parse(json);
 }
 
-/* Helper: reset the item struct */
-static void reset_item(cJSON *it)
-{
-    memset(it, 0, sizeof(cJSON));
-}
+/* ------------------------------------------------------------------ */
+/* setUp / tearDown                                                     */
+/* ------------------------------------------------------------------ */
 
 void setUp(void)
 {
-    reset_item(&item);
-    memset(&buffer, 0, sizeof(parse_buffer));
+    /* nothing needed */
 }
 
 void tearDown(void)
 {
-    if (item.valuestring != NULL)
-    {
-        free(item.valuestring);
-        item.valuestring = NULL;
-    }
+    /* nothing needed */
 }
 
-/* ---- Test cases ---- */
+/* ------------------------------------------------------------------ */
+/* Test cases                                                           */
+/* ------------------------------------------------------------------ */
 
-/* Simple plain string */
+/* Basic simple string */
 void test_parse_string_simple(void)
 {
-    const char *input = "\"hello\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(cJSON_String, item.type);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
-    TEST_ASSERT_EQUAL_STRING("hello", item.valuestring);
+    cJSON *item = parse_json_string("\"hello\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    TEST_ASSERT_EQUAL_STRING("hello", item->valuestring);
+    cJSON_Delete(item);
 }
 
 /* Empty string */
 void test_parse_string_empty(void)
 {
-    const char *input = "\"\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(cJSON_String, item.type);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
-    TEST_ASSERT_EQUAL_STRING("", item.valuestring);
+    cJSON *item = parse_json_string("\"\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    TEST_ASSERT_EQUAL_STRING("", item->valuestring);
+    cJSON_Delete(item);
 }
 
-/* String with escape sequences: \n \t \r \b \f */
-void test_parse_string_escape_newline(void)
+/* String with spaces */
+void test_parse_string_with_spaces(void)
 {
-    const char *input = "\"line1\\nline2\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("line1\nline2", item.valuestring);
+    cJSON *item = parse_json_string("\"hello world\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING("hello world", item->valuestring);
+    cJSON_Delete(item);
 }
 
-void test_parse_string_escape_tab(void)
-{
-    const char *input = "\"col1\\tcol2\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("col1\tcol2", item.valuestring);
-}
-
-void test_parse_string_escape_carriage_return(void)
-{
-    const char *input = "\"foo\\rbar\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("foo\rbar", item.valuestring);
-}
-
+/* Escape sequence: backspace \b */
 void test_parse_string_escape_backspace(void)
 {
-    const char *input = "\"foo\\bbar\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("foo\bbar", item.valuestring);
+    cJSON *item = parse_json_string("\"a\\bb\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    TEST_ASSERT_EQUAL_INT('a',  (unsigned char)item->valuestring[0]);
+    TEST_ASSERT_EQUAL_INT('\b', (unsigned char)item->valuestring[1]);
+    TEST_ASSERT_EQUAL_INT('b',  (unsigned char)item->valuestring[2]);
+    TEST_ASSERT_EQUAL_INT('\0', (unsigned char)item->valuestring[3]);
+    cJSON_Delete(item);
 }
 
+/* Escape sequence: form-feed \f */
 void test_parse_string_escape_formfeed(void)
 {
-    const char *input = "\"foo\\fbar\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("foo\fbar", item.valuestring);
+    cJSON *item = parse_json_string("\"a\\fb\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_INT('\f', (unsigned char)item->valuestring[1]);
+    cJSON_Delete(item);
 }
 
-/* Escaped quote */
+/* Escape sequence: newline \n */
+void test_parse_string_escape_newline(void)
+{
+    cJSON *item = parse_json_string("\"a\\nb\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_INT('\n', (unsigned char)item->valuestring[1]);
+    cJSON_Delete(item);
+}
+
+/* Escape sequence: carriage return \r */
+void test_parse_string_escape_carriage_return(void)
+{
+    cJSON *item = parse_json_string("\"a\\rb\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_INT('\r', (unsigned char)item->valuestring[1]);
+    cJSON_Delete(item);
+}
+
+/* Escape sequence: tab \t */
+void test_parse_string_escape_tab(void)
+{
+    cJSON *item = parse_json_string("\"a\\tb\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_INT('\t', (unsigned char)item->valuestring[1]);
+    cJSON_Delete(item);
+}
+
+/* Escape sequence: escaped quote \" */
 void test_parse_string_escape_quote(void)
 {
-    const char *input = "\"say \\\"hello\\\"\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("say \"hello\"", item.valuestring);
+    cJSON *item = parse_json_string("\"a\\\"b\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING("a\"b", item->valuestring);
+    cJSON_Delete(item);
 }
 
-/* Escaped backslash */
+/* Escape sequence: escaped backslash \\ */
 void test_parse_string_escape_backslash(void)
 {
-    const char *input = "\"path\\\\to\\\\file\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("path\\to\\file", item.valuestring);
+    cJSON *item = parse_json_string("\"a\\\\b\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING("a\\b", item->valuestring);
+    cJSON_Delete(item);
 }
 
-/* Escaped forward slash */
+/* Escape sequence: escaped forward slash \/ */
 void test_parse_string_escape_forward_slash(void)
 {
-    const char *input = "\"a\\/b\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("a/b", item.valuestring);
+    cJSON *item = parse_json_string("\"a\\/b\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING("a/b", item->valuestring);
+    cJSON_Delete(item);
 }
 
-/* Not a string: starts with something other than '"' */
-void test_parse_string_not_a_string(void)
+/* Multiple escape sequences in one string */
+void test_parse_string_multiple_escapes(void)
 {
-    const char *input = "hello";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
+    cJSON *item = parse_json_string("\"\\t\\n\\r\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_INT('\t', (unsigned char)item->valuestring[0]);
+    TEST_ASSERT_EQUAL_INT('\n', (unsigned char)item->valuestring[1]);
+    TEST_ASSERT_EQUAL_INT('\r', (unsigned char)item->valuestring[2]);
+    TEST_ASSERT_EQUAL_INT('\0', (unsigned char)item->valuestring[3]);
+    cJSON_Delete(item);
 }
 
-/* Unterminated string (no closing quote) */
-void test_parse_string_unterminated(void)
-{
-    const char *input = "\"hello";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
-}
-
-/* Backslash at end of buffer (no character after backslash) */
-void test_parse_string_backslash_at_end(void)
-{
-    const char *input = "\"hello\\";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
-}
-
-/* Invalid escape sequence */
-void test_parse_string_invalid_escape(void)
-{
-    const char *input = "\"hello\\x\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
-}
-
-/* UTF-16 escape: basic ASCII character via \u */
+/* UTF-16 escape: basic ASCII via \uXXXX */
 void test_parse_string_utf16_ascii(void)
 {
     /* \u0041 = 'A' */
-    const char *input = "\"\\u0041\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
-    TEST_ASSERT_EQUAL_STRING("A", item.valuestring);
+    cJSON *item = parse_json_string("\"\\u0041\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    TEST_ASSERT_EQUAL_INT('A', (unsigned char)item->valuestring[0]);
+    cJSON_Delete(item);
 }
 
 /* UTF-16 escape: two-byte UTF-8 character */
 void test_parse_string_utf16_two_byte(void)
 {
-    /* \u00E9 = é (U+00E9) */
-    const char *input = "\"\\u00E9\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
-    /* UTF-8 encoding of U+00E9: 0xC3 0xA9 */
-    TEST_ASSERT_EQUAL_HEX(0xC3, (unsigned char)item.valuestring[0]);
-    TEST_ASSERT_EQUAL_HEX(0xA9, (unsigned char)item.valuestring[1]);
-    TEST_ASSERT_EQUAL_HEX(0x00, (unsigned char)item.valuestring[2]);
+    /* \u00E9 = é (U+00E9) encoded as UTF-8: 0xC3 0xA9 */
+    cJSON *item = parse_json_string("\"\\u00E9\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    TEST_ASSERT_EQUAL_INT((unsigned char)0xC3, (unsigned char)item->valuestring[0]);
+    TEST_ASSERT_EQUAL_INT((unsigned char)0xA9, (unsigned char)item->valuestring[1]);
+    cJSON_Delete(item);
 }
 
 /* UTF-16 surrogate pair */
 void test_parse_string_utf16_surrogate_pair(void)
 {
-    /* U+1F600 = 😀, encoded as surrogate pair \uD83D\uDE00 */
-    const char *input = "\"\\uD83D\\uDE00\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
+    /* \uD83D\uDE00 = U+1F600 (grinning face emoji) */
+    cJSON *item = parse_json_string("\"\\uD83D\\uDE00\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
     /* UTF-8 encoding of U+1F600: F0 9F 98 80 */
-    TEST_ASSERT_EQUAL_HEX(0xF0, (unsigned char)item.valuestring[0]);
-    TEST_ASSERT_EQUAL_HEX(0x9F, (unsigned char)item.valuestring[1]);
-    TEST_ASSERT_EQUAL_HEX(0x98, (unsigned char)item.valuestring[2]);
-    TEST_ASSERT_EQUAL_HEX(0x80, (unsigned char)item.valuestring[3]);
+    TEST_ASSERT_EQUAL_INT((unsigned char)0xF0, (unsigned char)item->valuestring[0]);
+    TEST_ASSERT_EQUAL_INT((unsigned char)0x9F, (unsigned char)item->valuestring[1]);
+    TEST_ASSERT_EQUAL_INT((unsigned char)0x98, (unsigned char)item->valuestring[2]);
+    TEST_ASSERT_EQUAL_INT((unsigned char)0x80, (unsigned char)item->valuestring[3]);
+    cJSON_Delete(item);
 }
 
-/* Invalid UTF-16: lone high surrogate without low surrogate */
-void test_parse_string_utf16_lone_high_surrogate(void)
+/* Fail: not a string (starts with a number) */
+void test_parse_string_fail_not_string(void)
 {
-    const char *input = "\"\\uD83D\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
+    cJSON *item = parse_json_string("42");
+    /* 42 is a valid JSON number, not a string */
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_Number, item->type);
+    cJSON_Delete(item);
 }
 
-/* Invalid UTF-16: incomplete \u sequence */
-void test_parse_string_utf16_incomplete(void)
+/* Fail: unterminated string */
+void test_parse_string_fail_unterminated(void)
 {
-    const char *input = "\"\\u004\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
+    cJSON *item = parse_json_string("\"hello");
+    TEST_ASSERT_NULL(item);
 }
 
-/* String with multiple escape sequences */
-void test_parse_string_multiple_escapes(void)
+/* Fail: string ending with lone backslash */
+void test_parse_string_fail_trailing_backslash(void)
 {
-    const char *input = "\"\\t\\n\\r\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("\t\n\r", item.valuestring);
+    cJSON *item = parse_json_string("\"hello\\");
+    TEST_ASSERT_NULL(item);
 }
 
-/* Verify buffer offset is updated correctly after parsing */
-void test_parse_string_offset_updated(void)
+/* Fail: invalid escape sequence */
+void test_parse_string_fail_invalid_escape(void)
 {
-    const char *input = "\"hello\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    /* offset should point past the closing quote */
-    TEST_ASSERT_EQUAL_UINT(strlen("\"hello\""), buffer.offset);
+    cJSON *item = parse_json_string("\"\\q\"");
+    TEST_ASSERT_NULL(item);
 }
 
-/* String with only spaces */
-void test_parse_string_spaces(void)
+/* Fail: lone high surrogate without low surrogate */
+void test_parse_string_fail_lone_high_surrogate(void)
 {
-    const char *input = "\"   \"";
-    init_parse_buffer(&buffer, input);
+    cJSON *item = parse_json_string("\"\\uD800\"");
+    TEST_ASSERT_NULL(item);
+}
 
-    cJSON_bool result = parse_string(&item, &buffer);
+/* Fail: lone low surrogate */
+void test_parse_string_fail_lone_low_surrogate(void)
+{
+    cJSON *item = parse_json_string("\"\\uDC00\"");
+    TEST_ASSERT_NULL(item);
+}
 
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("   ", item.valuestring);
+/* String with all printable ASCII characters */
+void test_parse_string_printable_ascii(void)
+{
+    /* Build a JSON string containing printable ASCII 0x20..0x7E (excluding " and \) */
+    char json[256];
+    char expected[256];
+    int ji = 0, ei = 0;
+    unsigned char c;
+
+    json[ji++] = '"';
+    for (c = 0x20; c <= 0x7E; c++)
+    {
+        if (c == '"' || c == '\\')
+            continue;
+        json[ji++] = (char)c;
+        expected[ei++] = (char)c;
+    }
+    json[ji++] = '"';
+    json[ji] = '\0';
+    expected[ei] = '\0';
+
+    cJSON *item = parse_json_string(json);
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING(expected, item->valuestring);
+    cJSON_Delete(item);
+}
+
+/* String inside an object */
+void test_parse_string_inside_object(void)
+{
+    cJSON *root = parse_json_string("{\"key\":\"value\"}");
+    TEST_ASSERT_NOT_NULL(root);
+    TEST_ASSERT_EQUAL_INT(cJSON_Object, root->type);
+
+    cJSON *item = cJSON_GetObjectItem(root, "key");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING("value", item->valuestring);
+    cJSON_Delete(root);
+}
+
+/* String inside an array */
+void test_parse_string_inside_array(void)
+{
+    cJSON *root = parse_json_string("[\"first\",\"second\"]");
+    TEST_ASSERT_NOT_NULL(root);
+    TEST_ASSERT_EQUAL_INT(cJSON_Array, root->type);
+
+    cJSON *first = cJSON_GetArrayItem(root, 0);
+    TEST_ASSERT_NOT_NULL(first);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, first->type);
+    TEST_ASSERT_EQUAL_STRING("first", first->valuestring);
+
+    cJSON *second = cJSON_GetArrayItem(root, 1);
+    TEST_ASSERT_NOT_NULL(second);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, second->type);
+    TEST_ASSERT_EQUAL_STRING("second", second->valuestring);
+
+    cJSON_Delete(root);
 }
 
 /* Long string */
 void test_parse_string_long(void)
 {
-    char long_input[1024 + 3];
+    char json[1024 + 3];
     char expected[1024 + 1];
-    memset(expected, 'a', 1024);
+    int i;
+
+    json[0] = '"';
+    for (i = 0; i < 1024; i++)
+    {
+        json[i + 1] = 'a';
+        expected[i] = 'a';
+    }
+    json[1025] = '"';
+    json[1026] = '\0';
     expected[1024] = '\0';
 
-    long_input[0] = '"';
-    memset(long_input + 1, 'a', 1024);
-    long_input[1025] = '"';
-    long_input[1026] = '\0';
-
-    init_parse_buffer(&buffer, long_input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING(expected, item.valuestring);
+    cJSON *item = parse_json_string(json);
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_EQUAL_STRING(expected, item->valuestring);
+    cJSON_Delete(item);
 }
 
-/* String with null byte in content (length-based, not null-terminated) */
-void test_parse_string_with_unicode_null(void)
+/* String with unicode null character \u0000 */
+void test_parse_string_unicode_null(void)
 {
-    /* \u0000 is a valid JSON escape for the null character */
-    const char *input = "\"\\u0000\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
-    /* The first byte should be 0x00 (null character encoded as UTF-8) */
-    TEST_ASSERT_EQUAL_HEX(0x00, (unsigned char)item.valuestring[0]);
+    /* \u0000 should produce a null byte in the output */
+    cJSON *item = parse_json_string("\"\\u0000\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    /* The first byte should be 0x00 (null) */
+    TEST_ASSERT_EQUAL_INT(0x00, (unsigned char)item->valuestring[0]);
+    cJSON_Delete(item);
 }
 
-/* Verify item type is set to cJSON_String on success */
-void test_parse_string_sets_type(void)
+/* String with mixed content: text + escapes + unicode */
+void test_parse_string_mixed_content(void)
 {
-    const char *input = "\"test\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(cJSON_String, item.type);
+    cJSON *item = parse_json_string("\"Hello\\nWorld\\u0021\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_NOT_NULL(item->valuestring);
+    TEST_ASSERT_EQUAL_INT('H',  (unsigned char)item->valuestring[0]);
+    TEST_ASSERT_EQUAL_INT('e',  (unsigned char)item->valuestring[1]);
+    TEST_ASSERT_EQUAL_INT('l',  (unsigned char)item->valuestring[2]);
+    TEST_ASSERT_EQUAL_INT('l',  (unsigned char)item->valuestring[3]);
+    TEST_ASSERT_EQUAL_INT('o',  (unsigned char)item->valuestring[4]);
+    TEST_ASSERT_EQUAL_INT('\n', (unsigned char)item->valuestring[5]);
+    TEST_ASSERT_EQUAL_INT('W',  (unsigned char)item->valuestring[6]);
+    TEST_ASSERT_EQUAL_INT('o',  (unsigned char)item->valuestring[7]);
+    TEST_ASSERT_EQUAL_INT('r',  (unsigned char)item->valuestring[8]);
+    TEST_ASSERT_EQUAL_INT('l',  (unsigned char)item->valuestring[9]);
+    TEST_ASSERT_EQUAL_INT('d',  (unsigned char)item->valuestring[10]);
+    TEST_ASSERT_EQUAL_INT('!',  (unsigned char)item->valuestring[11]);
+    cJSON_Delete(item);
 }
 
-/* Verify valuestring is NULL on failure */
-void test_parse_string_valuestring_null_on_fail(void)
+/* Verify item type is exactly cJSON_String (not a combination) */
+void test_parse_string_type_is_exactly_cjson_string(void)
 {
-    const char *input = "not_a_string";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
-    TEST_ASSERT_NULL(item.valuestring);
+    cJSON *item = parse_json_string("\"test\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_EQUAL_INT(cJSON_String, item->type);
+    TEST_ASSERT_TRUE(cJSON_IsString(item));
+    cJSON_Delete(item);
 }
 
-/* String that is just a single character */
-void test_parse_string_single_char(void)
+/* Verify that a parsed string is not treated as other types */
+void test_parse_string_not_other_types(void)
 {
-    const char *input = "\"x\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_STRING("x", item.valuestring);
+    cJSON *item = parse_json_string("\"test\"");
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_FALSE(cJSON_IsNumber(item));
+    TEST_ASSERT_FALSE(cJSON_IsArray(item));
+    TEST_ASSERT_FALSE(cJSON_IsObject(item));
+    TEST_ASSERT_FALSE(cJSON_IsNull(item));
+    TEST_ASSERT_FALSE(cJSON_IsBool(item));
+    cJSON_Delete(item);
 }
 
-/* Three-byte UTF-8 via \u escape */
-void test_parse_string_utf16_three_byte(void)
-{
-    /* \u4E2D = 中 (U+4E2D) */
-    const char *input = "\"\\u4E2D\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_NOT_NULL(item.valuestring);
-    /* UTF-8 encoding of U+4E2D: E4 B8 AD */
-    TEST_ASSERT_EQUAL_HEX(0xE4, (unsigned char)item.valuestring[0]);
-    TEST_ASSERT_EQUAL_HEX(0xB8, (unsigned char)item.valuestring[1]);
-    TEST_ASSERT_EQUAL_HEX(0xAD, (unsigned char)item.valuestring[2]);
-}
-
-/* Input that starts with a number, not a string */
-void test_parse_string_starts_with_number(void)
-{
-    const char *input = "42";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_FALSE(result);
-}
-
-/* String with escaped backslash followed by n (should be backslash then newline) */
-void test_parse_string_backslash_then_newline(void)
-{
-    const char *input = "\"\\\\n\"";
-    init_parse_buffer(&buffer, input);
-
-    cJSON_bool result = parse_string(&item, &buffer);
-
-    TEST_ASSERT_TRUE(result);
-    /* \\n in JSON = literal backslash followed by 'n' */
-    TEST_ASSERT_EQUAL_STRING("\\n", item.valuestring);
-}
+/* ------------------------------------------------------------------ */
+/* main                                                                 */
+/* ------------------------------------------------------------------ */
 
 int main(void)
 {
     unity_install_sighandler();
     UNITY_BEGIN();
+
     RUN_TEST(test_parse_string_simple);
     RUN_TEST(test_parse_string_empty);
-    RUN_TEST(test_parse_string_escape_newline);
-    RUN_TEST(test_parse_string_escape_tab);
-    RUN_TEST(test_parse_string_escape_carriage_return);
+    RUN_TEST(test_parse_string_with_spaces);
     RUN_TEST(test_parse_string_escape_backspace);
     RUN_TEST(test_parse_string_escape_formfeed);
+    RUN_TEST(test_parse_string_escape_newline);
+    RUN_TEST(test_parse_string_escape_carriage_return);
+    RUN_TEST(test_parse_string_escape_tab);
     RUN_TEST(test_parse_string_escape_quote);
     RUN_TEST(test_parse_string_escape_backslash);
     RUN_TEST(test_parse_string_escape_forward_slash);
-    RUN_TEST(test_parse_string_not_a_string);
-    RUN_TEST(test_parse_string_unterminated);
-    RUN_TEST(test_parse_string_backslash_at_end);
-    RUN_TEST(test_parse_string_invalid_escape);
+    RUN_TEST(test_parse_string_multiple_escapes);
     RUN_TEST(test_parse_string_utf16_ascii);
     RUN_TEST(test_parse_string_utf16_two_byte);
     RUN_TEST(test_parse_string_utf16_surrogate_pair);
-    RUN_TEST(test_parse_string_utf16_lone_high_surrogate);
-    RUN_TEST(test_parse_string_utf16_incomplete);
-    RUN_TEST(test_parse_string_multiple_escapes);
-    RUN_TEST(test_parse_string_offset_updated);
-    RUN_TEST(test_parse_string_spaces);
+    RUN_TEST(test_parse_string_fail_not_string);
+    RUN_TEST(test_parse_string_fail_unterminated);
+    RUN_TEST(test_parse_string_fail_trailing_backslash);
+    RUN_TEST(test_parse_string_fail_invalid_escape);
+    RUN_TEST(test_parse_string_fail_lone_high_surrogate);
+    RUN_TEST(test_parse_string_fail_lone_low_surrogate);
+    RUN_TEST(test_parse_string_printable_ascii);
+    RUN_TEST(test_parse_string_inside_object);
+    RUN_TEST(test_parse_string_inside_array);
     RUN_TEST(test_parse_string_long);
-    RUN_TEST(test_parse_string_with_unicode_null);
-    RUN_TEST(test_parse_string_sets_type);
-    RUN_TEST(test_parse_string_valuestring_null_on_fail);
-    RUN_TEST(test_parse_string_single_char);
-    RUN_TEST(test_parse_string_utf16_three_byte);
-    RUN_TEST(test_parse_string_starts_with_number);
-    RUN_TEST(test_parse_string_backslash_then_newline);
+    RUN_TEST(test_parse_string_unicode_null);
+    RUN_TEST(test_parse_string_mixed_content);
+    RUN_TEST(test_parse_string_type_is_exactly_cjson_string);
+    RUN_TEST(test_parse_string_not_other_types);
+
     return UNITY_END();
 }

@@ -22,4 +22,4 @@ Required includes:
 #include <string.h>
 #include <signal.h>
 
-Return ONLY raw C code. No markdown, no explanation, no backticks.
+Return ONLY raw C code. No markdown fences, no explanation.

@@ -6,55 +6,94 @@
   "per_model": {
     "claude": {
       "variables": {
-        "total_futs": 12,
+        "total_futs": 39,
         "futs_without_values": [
-          "compare_pointers"
+          "csv_clear_row",
+          "csv_copy_row",
+          "csv_get_width",
+          "csv_insert_field",
+          "csv_load",
+          "csv_remove_row",
+          "csv_save"
         ]
       },
       "run_statistics": {
-        "total_runs": 36,
-        "runs_all_tests_passed": 23,
-        "futs_all_tests_passed": 7
+        "total_runs": 117,
+        "runs_all_tests_passed": 70,
+        "futs_all_tests_passed": 18
       },
       "coverage": {
-        "line_coverage": 77.17,
-        "branch_coverage": 62.52
+        "line_coverage": 74.04,
+        "branch_coverage": 65.8
+      },
+      "coverage_filtered": {
+        "line_coverage": 94.19,
+        "branch_coverage": 85.41
       },
       "rates": {
-        "compile_error_rate": 8.33,
-        "linker_error_rate": 2.78,
-        "runtime_error_rate": 1.67,
-        "assert_error_rate": 7.78,
-        "pass_rate": 90.56
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.85,
+        "runtime_error_rate": 21.37,
+        "assert_error_rate": 18.8,
+        "pass_rate": 59.83
       }
     },
     "qwen": {
       "variables": {
-        "total_futs": 12,
+        "total_futs": 39,
         "futs_without_values": [
-          "compare_pointers",
+          "cJSON_AddItemToArray",
+          "cJSON_Compare",
+          "cJSON_CreateStringArray",
+          "cJSON_GetArraySize",
+          "cJSON_GetObjectItem",
+          "cJSON_InsertItemInArray",
+          "cJSON_Minify",
+          "cJSON_ParseWithOpts",
+          "cJSON_ReplaceItemInObject",
+          "cJSON_SetValuestring",
+          "csv_clear_field",
           "csv_clear_row",
-          "csv_insert_field",
+          "csv_copy_field",
+          "csv_copy_row",
+          "csv_get_width",
+          "csv_load",
           "csv_remove_row",
+          "csv_save",
+          "hashmap_delete",
+          "hashmap_delete_with_hash",
+          "hashmap_free",
+          "hashmap_get_with_hash",
+          "hashmap_iter",
+          "hashmap_new",
+          "hashmap_new_with_allocator",
+          "hashmap_scan",
+          "hashmap_set_load_factor",
+          "hashmap_set_with_hash",
+          "parse_hex4",
           "parse_number",
           "parse_string"
         ]
       },
       "run_statistics": {
-        "total_runs": 36,
-        "runs_all_tests_passed": 15,
-        "futs_all_tests_passed": 5
+        "total_runs": 117,
+        "runs_all_tests_passed": 6,
+        "futs_all_tests_passed": 2
       },
       "coverage": {
-        "line_coverage": 35.51,
-        "branch_coverage": 33.97
+        "line_coverage": 9.43,
+        "branch_coverage": 8.53
+      },
+      "coverage_filtered": {
+        "line_coverage": 84.79,
+        "branch_coverage": 77.83
       },
       "rates": {
-        "compile_error_rate": 0.0,
-        "linker_error_rate": 25.0,
-        "runtime_error_rate": 4.76,
-        "assert_error_rate": 4.76,
-        "pass_rate": 90.48
+        "compile_error_rate": 23.93,
+        "linker_error_rate": 43.59,
+        "runtime_error_rate": 80.34,
+        "assert_error_rate": 14.53,
+        "pass_rate": 5.13
       }
     }
   }

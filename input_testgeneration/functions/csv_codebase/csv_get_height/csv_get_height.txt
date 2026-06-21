@@ -1,4 +1,0 @@
-int csv_get_height(CSV_BUFFER *buffer)
-{
-        return buffer->rows;
-}

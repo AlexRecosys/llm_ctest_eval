@@ -1,0 +1,5 @@
+void hashmap_set_load_factor(struct hashmap *map, double factor) {
+    factor = clamp_load_factor(factor, map->loadfactor / 100.0);
+    map->loadfactor = factor * 100;
+    map->growat = map->nbuckets * (map->loadfactor / 100.0);
+}

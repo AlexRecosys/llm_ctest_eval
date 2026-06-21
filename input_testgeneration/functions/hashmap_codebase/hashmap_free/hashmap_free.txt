@@ -1,0 +1,6 @@
+void hashmap_free(struct hashmap *map) {
+    if (!map) return;
+    free_elements(map);
+    map->free(map->buckets);
+    map->free(map);
+}

@@ -98,3 +98,8 @@ reports/
 *.swp
 
 token_github.txt
+
+previous_runs
+
+src/crs/
+

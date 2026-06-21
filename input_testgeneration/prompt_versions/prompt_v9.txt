@@ -1,46 +1,27 @@
-You are a C testing expert specializing in the Unity test framework. Generate a complete, compilable Unity unit test file for the following C function: 
+You are a C testing expert specializing in the Unity test framework. Generate a complete, compilable Unity unit test file for the following C function:
 
 {function_under_test}
 
-## Requirements
+
+Project Context:
+{context}
 
 
-**Setup & Teardown**
+This is the content of the header_file:
+{header_code}
 
-- Do NOT use mocks, stubs, or fakes of any kind.
+Requirements:
 
+- Do NOT use mocks, stubs, or fakes of any kind. Use actual project functions.
 - Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
-
-- Initialize all real dependencies the function under test requires.
-
-- Clean up all allocated resources in tearDown() to prevent leaks between tests.
-
-- Handle segmentation faults gracefully via signal handling (SIGSEGV) and report them as test failures.
+- Initialize all real dependencies the function under test requires
+- Add unity_install_sighandler(); to the main method, like in the example below.
 
 
-**Linkage strategy (CRITICAL — read before writing any code)**
 
-- The function under test may be declared `static`. A `static` function has internal linkage and therefore CANNOT be linked from another translation unit. Calling it from the test file while it lives in a separate object file produces an `undefined reference` linker error.
+File Structure (in this exact order):
 
-- Therefore, the test file MUST `#include` the `.c` SOURCE FILE that defines the function under test as the FIRST include directive (the source filename is given in the project context below), e.g. `#include "cJSON.c"`. The build compiles this test file together with unity.c; the included `.c` source is NOT passed to the compiler separately, so there are no duplicate-symbol errors.
-
-- Do NOT re-declare the function under test.
-
-- Do NOT copy/paste the body of the function under test into the file.
-
-- Do NOT re-define any private type, macro, or helper function that the function under test depends on (for example internal structs, internal hook structs, or buffer-access macros). They are already provided by the included source file. Re-defining them causes "redefinition" or "incompatible types" errors.
-
-- Public types come from the project header(s); include those AFTER the source file.
-
-
-**Required standard headers**
-
-- Include exactly the standard headers your assertions and the function need, and no others. Common ones: <stdlib.h>, <string.h>, <limits.h>, <math.h>, <float.h> (for DBL_EPSILON), <signal.h> (for SIGSEGV handling), <locale.h> (only if you call setlocale or use LC_NUMERIC).
-
- 
-**File Structure (in this exact order)**
-
-1. All `#include` directives. ORDER: first `#include` the `.c` source file that defines the function under test (see Linkage strategy), then Unity, then the project headers, then the standard headers.
+1. All `#include` directives. ORDER: first `#include` the header file {header_name} that declares the function under test , then Unity, then the project headers, then the standard headers.
 
 2. File-scope static variables / fixtures
 
@@ -53,6 +34,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
    Dynamically include every test you generated above:
 
    int main(void) {{
+       unity_install_sighandler();
        UNITY_BEGIN();
        RUN_TEST(test_case_name_1);
        RUN_TEST(test_case_name_2);
@@ -60,64 +42,27 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
        return UNITY_END();
    }}
 
-**Assertions**
-
-- Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`.
-
-- Only the macros listed below exist. Do NOT invent macros. In particular there is NO `TEST_ASSERT_WITHIN` and NO `TEST_ASSERT_EQUAL_SIZE` / `TEST_ASSERT_EQUAL_SIZE_MESSAGE`. Argument order matters. Every macro also has a `_MESSAGE` variant that takes one extra final string argument.
-
-  Equality (2 args: expected, actual):
-  - `TEST_ASSERT_EQUAL_INT(expected, actual)`
-  - `TEST_ASSERT_EQUAL_UINT(expected, actual)`  — use this for size_t scalars, casting if needed
-  - `TEST_ASSERT_EQUAL_HEX(expected, actual)`   (also _HEX8/16/32)
-  - `TEST_ASSERT_EQUAL_FLOAT(expected, actual)`  (tolerant compare, 2 args)
-  - `TEST_ASSERT_EQUAL_DOUBLE(expected, actual)` (tolerant compare, exactly 2 args — NOT 3)
-  - `TEST_ASSERT_EQUAL_PTR(expected, actual)`
-  - `TEST_ASSERT_NOT_EQUAL(threshold, actual)`
-
-  Strings / memory / arrays:
-  - `TEST_ASSERT_EQUAL_STRING(expected, actual)`
-  - `TEST_ASSERT_EQUAL_STRING_LEN(expected, actual, len)`
-  - `TEST_ASSERT_EQUAL_MEMORY(expected, actual, len)`
-  - `TEST_ASSERT_EQUAL_*_ARRAY(expected, actual, num_elements)`  (e.g. _INT_ARRAY)
-
-  Tolerance / ranges (delta is the FIRST argument):
-  - `TEST_ASSERT_INT_WITHIN(delta, expected, actual)`
-  - `TEST_ASSERT_UINT_WITHIN(delta, expected, actual)`
-  - `TEST_ASSERT_FLOAT_WITHIN(delta, expected, actual)`
-  - `TEST_ASSERT_DOUBLE_WITHIN(delta, expected, actual)`  — use this for a double comparison with tolerance, NOT a 3-argument EQUAL_DOUBLE
-  - `TEST_ASSERT_GREATER_THAN(threshold, actual)`
-  - `TEST_ASSERT_LESS_THAN(threshold, actual)`
-
-  Booleans / pointers (1 arg):
-  - `TEST_ASSERT_TRUE(condition)`
-  - `TEST_ASSERT_FALSE(condition)`
-  - `TEST_ASSERT_NULL(pointer)`
-  - `TEST_ASSERT_NOT_NULL(pointer)`
+Do NOT re-declare, copy, or re-define anything from the included source.
 
 
-**Constraints**
+Assertions:
 
-- Output ONLY the C source file — no prose, no markdown fences, no explanation
-
-- Code must compile cleanly with `-Wall -Wextra` against the provided project headers
-
-- Use the exact identifier names from the project context — do not invent function or type names
-
-- Include setUp(void) and tearDown(void) (non-static, visible to Unity).
-
-## Project context:
-
-Include the following header files: 
-
-{header_name}
-
-This is the content of the headers for reference:
-
-{header_code}
+For unity assertions use the Use the most specific macros.  Only the following exist — do NOT invent others:
+Equality (expected, actual):
+TEST_ASSERT_EQUAL_INT · TEST_ASSERT_EQUAL_UINT · TEST_ASSERT_EQUAL_HEX · TEST_ASSERT_EQUAL_FLOAT · TEST_ASSERT_EQUAL_DOUBLE · TEST_ASSERT_EQUAL_PTR · TEST_ASSERT_NOT_EQUAL
+Strings / Memory:
+TEST_ASSERT_EQUAL_STRING · TEST_ASSERT_EQUAL_STRING_LEN · TEST_ASSERT_EQUAL_MEMORY · TEST_ASSERT_EQUAL_*_ARRAY
+Tolerance (delta, expected, actual):
+TEST_ASSERT_INT_WITHIN · TEST_ASSERT_UINT_WITHIN · TEST_ASSERT_FLOAT_WITHIN · TEST_ASSERT_DOUBLE_WITHIN · TEST_ASSERT_GREATER_THAN · TEST_ASSERT_LESS_THAN
+Bool / Pointer (1 arg):
+TEST_ASSERT_TRUE · TEST_ASSERT_FALSE · TEST_ASSERT_NULL · TEST_ASSERT_NOT_NULL
+Use _MESSAGE variants when a failure would otherwise be ambiguous.
 
 
-This is the context of the function:
-{context}
+Constraints:
+- Output ONLY the C source file — no prose, no markdown fences, no explenation
+- Use exact identifier names from the project context - do not invent function or type names
 
-Now you can Generate the testcases.
+
+
+Now generate the test cases.

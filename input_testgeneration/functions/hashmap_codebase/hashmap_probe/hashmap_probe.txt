@@ -1,0 +1,8 @@
+const void *hashmap_probe(struct hashmap *map, uint64_t position) {
+    size_t i = position & map->mask;
+    struct bucket *bucket = bucket_at(map, i);
+    if (!bucket->dib) {
+        return NULL;
+    }
+    return bucket_item(bucket);
+}

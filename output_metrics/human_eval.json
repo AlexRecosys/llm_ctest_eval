@@ -1,0 +1,96 @@
+{
+  "claude": {
+    "csv": {
+      "csv_clear_field": 0,
+      "csv_clear_row": 5,
+      "csv_copy_field": 8,
+      "csv_copy_row": 6,
+      "csv_get_field": 2,
+      "csv_get_field_length": 6,
+      "csv_get_width": 6,
+      "csv_insert_field": 7,
+      "csv_load": 5,
+      "csv_remove_field": 3,
+      "csv_remove_row": 7,
+      "csv_save": 7,
+      "csv_set_field": 2
+    },
+    "hashmap": {
+      "hashmap_clear": 6,
+      "hashmap_set_grow_by_power": 9,
+      "hashmap_delete": 8,
+      "hashmap_delete_with_hash": 9,
+      "hashmap_free": 6,
+      "hashmap_iter": 7,
+      "hashmap_get_with_hash": 9,
+      "hashmap_new": 10,
+      "hashmap_new_with_allocator": 10,
+      "hashmap_probe": 9,
+      "hashmap_scan": 9,
+      "hashmap_set_load_factor": 2,
+      "hashmap_set_with_hash": 5
+    },
+    "cjson": {
+      "cJSON_AddItemToArray": 3,
+      "cJSON_Compare": 7,
+      "cJSON_GetArraySize": 7,
+      "cJSON_GetObjectItem": 6,
+      "cJSON_InsertItemInArray": 6,
+      "cJSON_Minify": 9,
+      "cJSON_ParseWithOpts": 10,
+      "cJSON_CreateStringArray": 8,
+      "cJSON_ReplaceItemInObject": 7,
+      "cJSON_SetValuestring": 0,
+      "parse_hex4": 8,
+      "parse_number": 9,
+      "parse_string": 10
+    }
+  },
+  "qwen": {
+    "csv": {
+      "csv_clear_field": 5,
+      "csv_clear_row": 6,
+      "csv_copy_field": 7,
+      "csv_copy_row": 4,
+      "csv_get_field": 0,
+      "csv_get_field_length": 0,
+      "csv_get_width": 4,
+      "csv_insert_field": 3,
+      "csv_load": 7,
+      "csv_remove_field": 0,
+      "csv_remove_row": 8,
+      "csv_save": 8,
+      "csv_set_field": 2
+    },
+    "hashmap": {
+      "hashmap_clear": 0,
+      "hashmap_set_grow_by_power": 2,
+      "hashmap_delete": 7,
+      "hashmap_delete_with_hash": 2,
+      "hashmap_free": 6,
+      "hashmap_iter": 0,
+      "hashmap_get_with_hash": 5,
+      "hashmap_new": 6,
+      "hashmap_new_with_allocator": 7,
+      "hashmap_probe": 3,
+      "hashmap_scan": 6,
+      "hashmap_set_load_factor": 7,
+      "hashmap_set_with_hash": 6
+    },
+    "cjson": {
+      "cJSON_AddItemToArray": 3,
+      "cJSON_Compare": 10,
+      "cJSON_GetArraySize": 6,
+      "cJSON_GetObjectItem": 8,
+      "cJSON_InsertItemInArray": 7,
+      "cJSON_Minify": 0,
+      "cJSON_ParseWithOpts": 7,
+      "cJSON_CreateStringArray": 5,
+      "cJSON_ReplaceItemInObject": 9,
+      "cJSON_SetValuestring": 2,
+      "parse_hex4": 7,
+      "parse_number": 10,
+      "parse_string": 10
+    }
+  }
+}

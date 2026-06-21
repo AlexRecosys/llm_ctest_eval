@@ -3,5 +3,4 @@ A CSV parser and writer in C. The central data structure is CSV_BUFFER — a 2D
 array of CSV_FIELD pointers representing rows and columns. Public API functions
 are prefixed with csv_. Internal helper functions are static and can only be
 tested indirectly through the public API. Default delimiters: comma as field
-separator, double quote as text delimiter. Memory is managed manually; the
-caller must free CSV_BUFFER instances with csv_free().
+separator, double quote as text delimiter.

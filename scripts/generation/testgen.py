@@ -98,7 +98,7 @@ def call_claude(prompt, cfg):
     }
     body = {
         "model": model_cfg["model_name"],
-        "max_tokens": 4096,
+        "max_tokens": 60000,
         "temperature": model_cfg["temperature"],
         "messages": [{"role": "user", "content": prompt}],
     }
@@ -107,20 +107,6 @@ def call_claude(prompt, cfg):
     return resp.json()["content"][0]["text"]
 
 
-def call_deepseek(prompt, cfg):
-    model_cfg = cfg["models"]["deepseek"]
-    headers = {
-        "Authorization": f"Bearer {cfg['api_keys']['deepseek']}",
-        "Content-Type": "application/json",
-    }
-    body = {
-        "model": model_cfg["model_name"],
-        "temperature": model_cfg["temperature"],
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    resp = requests.post(model_cfg["api_url"], headers=headers, json=body, timeout=120)
-    resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"]
 
 
 def call_qwen(prompt, cfg):
@@ -131,7 +117,11 @@ def call_qwen(prompt, cfg):
         "model": model_cfg["model_name"],
         "temperature": model_cfg["temperature"],
         "messages": [{"role": "user", "content": prompt}],
-        "think":True
+        "max_tokens": 60000,
+        "think":True,
+        "options": {
+            "num_ctx": 32000
+        }
     }
     resp = requests.post(model_cfg["api_url"], headers=headers, json=body, timeout=300)
     resp.raise_for_status()
@@ -140,7 +130,6 @@ def call_qwen(prompt, cfg):
 
 API_DISPATCH = {
     "claude": call_claude,
-    "deepseek": call_deepseek,
     "qwen": call_qwen,
 }
 

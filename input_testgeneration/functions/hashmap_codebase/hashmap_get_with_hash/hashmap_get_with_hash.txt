@@ -1,0 +1,17 @@
+const void *hashmap_get_with_hash(const struct hashmap *map, const void *key,
+    uint64_t hash)
+{
+    hash = clip_hash(hash);
+    size_t i = hash & map->mask;
+    while(1) {
+        struct bucket *bucket = bucket_at(map, i);
+        if (!bucket->dib) return NULL;
+        if (bucket->hash == hash) {
+            void *bitem = bucket_item(bucket);
+            if (!map->compare || map->compare(key, bitem, map->udata) == 0) {
+                return bitem;
+            }
+        }
+        i = (i + 1) & map->mask;
+    }
+}

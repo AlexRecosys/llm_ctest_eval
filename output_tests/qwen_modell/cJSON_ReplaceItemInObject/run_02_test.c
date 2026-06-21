@@ -1,331 +1,414 @@
 #include "cJSON.c"
 #include "unity.h"
 
-/* Helper macros */
-#define TEST_ASSERT_CJSON_BOOL_EQUAL(expected, actual) \
-    TEST_ASSERT_EQUAL_INT((cJSON_bool)(expected), (cJSON_bool)(actual))
+/* Global hooks for initialization */
+static cJSON_Hooks test_hooks = {
+    .malloc_fn = malloc,
+    .free_fn = free
+};
 
-/* Global fixtures */
-static cJSON *test_object = NULL;
-static cJSON *item_to_replace = NULL;
-static cJSON *replacement_item = NULL;
-
-/* Helper functions */
-static void setup_test_object(void)
+/* Helper: create a cJSON object with one key-value pair */
+static cJSON* create_test_object(const char *key, cJSON *value)
 {
-    test_object = cJSON_CreateObject();
-    TEST_ASSERT_NOT_NULL(test_object);
-
-    item_to_replace = cJSON_CreateString("original_value");
-    TEST_ASSERT_NOT_NULL(item_to_replace);
-    cJSON_AddItemToObject(test_object, "key", item_to_replace);
-}
-
-static void cleanup_test_objects(void)
-{
-    if (test_object != NULL)
-    {
-        cJSON_Delete(test_object);
-        test_object = NULL;
+    cJSON *obj = cJSON_CreateObject();
+    if (obj == NULL) {
+        return NULL;
     }
-    if (replacement_item != NULL)
-    {
-        cJSON_Delete(replacement_item);
-        replacement_item = NULL;
+    if (!cJSON_AddItemToObject(obj, key, value)) {
+        cJSON_Delete(obj);
+        return NULL;
+    }
+    return obj;
+}
+
+/* Helper: compare two cJSON objects for structural equality (keys and children only) */
+static cJSON_bool objects_equal(const cJSON *a, const cJSON *b)
+{
+    if (a == b) {
+        return true;
+    }
+    if (a == NULL || b == NULL) {
+        return false;
+    }
+    if (a->type != b->type) {
+        return false;
+    }
+    if (a->type & (cJSON_Object | cJSON_Array)) {
+        const cJSON *child_a = a->child;
+        const cJSON *child_b = b->child;
+        while (child_a != NULL && child_b != NULL) {
+            if (strcmp(child_a->string, child_b->string) != 0) {
+                return false;
+            }
+            if (!objects_equal(child_a, child_b)) {
+                return false;
+            }
+            child_a = child_a->next;
+            child_b = child_b->next;
+        }
+        if (child_a != NULL || child_b != NULL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/* Helper: get item by key for verification */
+static cJSON* get_item(cJSON *obj, const char *key)
+{
+    return cJSON_GetObjectItem(obj, key);
+}
+
+/* Helper: free replacement item after test to avoid leaks */
+static void cleanup_replacement(cJSON *replacement)
+{
+    if (replacement != NULL) {
+        /* Ensure string is not const before freeing */
+        replacement->type &= ~cJSON_StringIsConst;
+        cJSON_free(replacement->string);
+        replacement->string = NULL;
+        cJSON_Delete(replacement);
     }
 }
 
-/* Test Cases */
-
-void test_cJSON_ReplaceItemInObject_ReplaceExistingKeyWithNewString(void)
+/* Test: Replace existing item in object */
+void test_cJSON_ReplaceItemInObject_ReplaceExistingItem(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *old_item = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateString("new_value");
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("old_value"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
+    old_item = get_item(obj, "key1");
+    TEST_ASSERT_NOT_NULL(old_item);
+    TEST_ASSERT_EQUAL_STRING("old_value", cJSON_GetStringValue(old_item));
 
-    /* Verify the replacement */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_STRING("new_value", cJSON_GetStringValue(retrieved));
+    new_item = cJSON_CreateString("new_value");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    /* Original item should be detached and not part of the object */
-    TEST_ASSERT_NULL(item_to_replace->parent);
-    TEST_ASSERT_NULL(item_to_replace->next);
-    TEST_ASSERT_NULL(item_to_replace->prev);
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key1", new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_PTR(new_item, get_item(obj, "key1"));
+    TEST_ASSERT_NULL(get_item(obj, "key1")->prev);  /* Should be first child */
+    TEST_ASSERT_EQUAL_STRING("new_value", cJSON_GetStringValue(get_item(obj, "key1")));
+    TEST_ASSERT_NULL(old_item->next);  /* Old item detached */
+    TEST_ASSERT_NULL(old_item->prev);
+    TEST_ASSERT_NULL(old_item->child);
+    TEST_ASSERT_NULL(old_item->string);  /* String freed */
+    TEST_ASSERT_EQUAL_INT(0, old_item->type & cJSON_StringIsConst);
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceExistingKeyWithNumber(void)
+/* Test: Replace non-existing item (should not add new item) */
+void test_cJSON_ReplaceItemInObject_ReplaceNonExistingItem(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateNumber(42.0);
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("value1"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
+    new_item = cJSON_CreateString("new_value");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_DOUBLE(42.0, cJSON_GetNumberValue(retrieved));
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "nonexistent", new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_NULL(get_item(obj, "nonexistent"));
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1"));
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceExistingKeyWithObject(void)
+/* Test: Replace with NULL replacement (should fail) */
+void test_cJSON_ReplaceItemInObject_NullReplacement(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateObject();
-    TEST_ASSERT_NOT_NULL(replacement_item);
-    cJSON_AddStringToObject(replacement_item, "nested", "value");
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("value1"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key1", NULL);
 
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_INT(cJSON_Object, retrieved->type);
+    /* Verify */
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1"));
+    TEST_ASSERT_EQUAL_STRING("value1", cJSON_GetStringValue(get_item(obj, "key1")));
 
-    cJSON *nested = cJSON_GetObjectItem(retrieved, "nested");
-    TEST_ASSERT_NOT_NULL(nested);
-    TEST_ASSERT_EQUAL_STRING("value", cJSON_GetStringValue(nested));
-
-    cleanup_test_objects();
+    /* Cleanup */
+    cJSON_Delete(obj);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceNonExistentKeyReturnsFalse(void)
+/* Test: Replace with NULL string (should fail) */
+void test_cJSON_ReplaceItemInObject_NullString(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateString("new_value");
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("value1"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "nonexistent", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_False, result);
+    new_item = cJSON_CreateString("new_value");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    /* Original item should remain unchanged */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_STRING("original_value", cJSON_GetStringValue(retrieved));
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, NULL, new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1"));
+    TEST_ASSERT_EQUAL_STRING("value1", cJSON_GetStringValue(get_item(obj, "key1")));
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithNullItem(void)
+/* Test: Replace item with existing string that has non-const flag (should free old string) */
+void test_cJSON_ReplaceItemInObject_FreeOldString(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = NULL;
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("old_value"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_False, result);
+    new_item = cJSON_CreateString("new_value");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    /* Original item should remain unchanged */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_STRING("original_value", cJSON_GetStringValue(retrieved));
+    /* Verify old string exists */
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1"));
+    TEST_ASSERT_EQUAL_STRING("old_value", cJSON_GetStringValue(get_item(obj, "key1")));
 
-    cleanup_test_objects();
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key1", new_item);
+
+    /* Verify */
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_STRING("new_value", cJSON_GetStringValue(get_item(obj, "key1")));
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithNullObject(void)
+/* Test: Replace with const string (should not free replacement->string) */
+void test_cJSON_ReplaceItemInObject_ConstStringReplacement(void)
 {
-    replacement_item = cJSON_CreateString("new_value");
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
+    const char *const_string = "const_value";
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(NULL, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_False, result);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("old_value"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cleanup_test_objects();
+    new_item = cJSON_CreateString(const_string);
+    TEST_ASSERT_NOT_NULL(new_item);
+
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key1", new_item);
+
+    /* Verify */
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_STRING(const_string, cJSON_GetStringValue(get_item(obj, "key1")));
+    /* After replacement, string should be non-const (cJSON duplicates it) */
+    TEST_ASSERT_EQUAL_INT(0, get_item(obj, "key1")->type & cJSON_StringIsConst);
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithNullString(void)
+/* Test: Replace item in object with multiple items */
+void test_cJSON_ReplaceItemInObject_MultipleItems(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateString("new_value");
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = cJSON_CreateObject();
+    TEST_ASSERT_NOT_NULL(obj);
+    TEST_ASSERT_TRUE(cJSON_AddItemToObject(obj, "key1", cJSON_CreateString("value1")));
+    TEST_ASSERT_TRUE(cJSON_AddItemToObject(obj, "key2", cJSON_CreateString("value2")));
+    TEST_ASSERT_TRUE(cJSON_AddItemToObject(obj, "key3", cJSON_CreateString("value3")));
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, NULL, replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_False, result);
+    new_item = cJSON_CreateString("replaced_value2");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    /* Original item should remain unchanged */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_STRING("original_value", cJSON_GetStringValue(retrieved));
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key2", new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_STRING("value1", cJSON_GetStringValue(get_item(obj, "key1")));
+    TEST_ASSERT_EQUAL_STRING("replaced_value2", cJSON_GetStringValue(get_item(obj, "key2")));
+    TEST_ASSERT_EQUAL_STRING("value3", cJSON_GetStringValue(get_item(obj, "key3")));
+    TEST_ASSERT_EQUAL_INT(3, cJSON_GetArraySize(obj));
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithEmptyStringKey(void)
+/* Test: Replace item with object (type change) */
+void test_cJSON_ReplaceItemInObject_ReplaceWithTypeChange(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateString("new_value");
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("old_value"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_False, result);
+    new_item = cJSON_CreateObject();
+    TEST_ASSERT_NOT_NULL(new_item);
+    TEST_ASSERT_TRUE(cJSON_AddItemToObject(new_item, "nested", cJSON_CreateString("nested_value")));
 
-    /* Original item should remain unchanged */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_STRING("original_value", cJSON_GetStringValue(retrieved));
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key1", new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_PTR(new_item, get_item(obj, "key1"));
+    TEST_ASSERT_EQUAL_INT(cJSON_Object, get_item(obj, "key1")->type & ~cJSON_StringIsConst);
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1")->child);
+    TEST_ASSERT_EQUAL_STRING("nested", get_item(obj, "key1")->child->string);
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithCaseSensitiveKey(void)
-{
-    setup_test_object();
-
-    replacement_item = cJSON_CreateString("new_value");
-    TEST_ASSERT_NOT_NULL(replacement_item);
-
-    /* cJSON_ReplaceItemInObject is case-insensitive */
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "KEY", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
-
-    /* Verify the replacement */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_STRING("new_value", cJSON_GetStringValue(retrieved));
-
-    cleanup_test_objects();
-}
-
-void test_cJSON_ReplaceItemInObject_ReplaceWithSameItem(void)
-{
-    setup_test_object();
-
-    /* Replacing with the same item should succeed */
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", item_to_replace);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
-
-    /* Verify the item is still present */
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_EQUAL_PTR(item_to_replace, retrieved);
-
-    cleanup_test_objects();
-}
-
-void test_cJSON_ReplaceItemInObject_ReplaceWithObjectHavingChilds(void)
-{
-    setup_test_object();
-
-    replacement_item = cJSON_CreateObject();
-    TEST_ASSERT_NOT_NULL(replacement_item);
-    cJSON_AddNumberToObject(replacement_item, "a", 1.0);
-    cJSON_AddStringToObject(replacement_item, "b", "test");
-
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
-
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_INT(cJSON_Object, retrieved->type);
-    TEST_ASSERT_NOT_NULL(cJSON_GetObjectItem(retrieved, "a"));
-    TEST_ASSERT_NOT_NULL(cJSON_GetObjectItem(retrieved, "b"));
-
-    cleanup_test_objects();
-}
-
+/* Test: Replace item with array (type change) */
 void test_cJSON_ReplaceItemInObject_ReplaceWithArray(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateArray();
-    TEST_ASSERT_NOT_NULL(replacement_item);
-    cJSON_AddNumberToObject(replacement_item, "0", 1.0);
-    cJSON_AddStringToObject(replacement_item, "1", "test");
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("old_value"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
+    new_item = cJSON_CreateArray();
+    TEST_ASSERT_NOT_NULL(new_item);
+    TEST_ASSERT_TRUE(cJSON_AddItemToArray(new_item, cJSON_CreateString("array_value")));
 
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_INT(cJSON_Array, retrieved->type);
-    TEST_ASSERT_EQUAL_INT(2, cJSON_GetArraySize(retrieved));
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "key1", new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_PTR(new_item, get_item(obj, "key1"));
+    TEST_ASSERT_EQUAL_INT(cJSON_Array, get_item(obj, "key1")->type & ~cJSON_StringIsConst);
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1")->child);
+
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithBool(void)
+/* Test: Replace item with NULL object (should fail) */
+void test_cJSON_ReplaceItemInObject_NullObject(void)
 {
-    setup_test_object();
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateTrue();
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
+    new_item = cJSON_CreateString("new_value");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_INT(cJSON_True, retrieved->type);
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(NULL, "key1", new_item);
 
-    cleanup_test_objects();
+    /* Verify */
+    TEST_ASSERT_FALSE(result);
+
+    /* Cleanup */
+    cleanup_replacement(new_item);
 }
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithNull(void)
+/* Test: Replace item with empty string key (should fail) */
+void test_cJSON_ReplaceItemInObject_EmptyStringKey(void)
 {
-    setup_test_object();
+    cJSON *obj = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result;
 
-    replacement_item = cJSON_CreateNull();
-    TEST_ASSERT_NOT_NULL(replacement_item);
+    /* Setup */
+    cJSON_InitHooks(&test_hooks);
+    obj = create_test_object("key1", cJSON_CreateString("value1"));
+    TEST_ASSERT_NOT_NULL(obj);
 
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
+    new_item = cJSON_CreateString("new_value");
+    TEST_ASSERT_NOT_NULL(new_item);
 
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_INT(cJSON_NULL, retrieved->type);
+    /* Execute */
+    result = cJSON_ReplaceItemInObject(obj, "", new_item);
 
-    cleanup_test_objects();
-}
+    /* Verify */
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_NOT_NULL(get_item(obj, "key1"));
 
-void test_cJSON_ReplaceItemInObject_ReplaceWithRaw(void)
-{
-    setup_test_object();
-
-    replacement_item = cJSON_CreateRaw("{\"raw\":\"json\"}");
-    TEST_ASSERT_NOT_NULL(replacement_item);
-
-    cJSON_bool result = cJSON_ReplaceItemInObject(test_object, "key", replacement_item);
-    TEST_ASSERT_CJSON_BOOL_EQUAL(cJSON_True, result);
-
-    cJSON *retrieved = cJSON_GetObjectItem(test_object, "key");
-    TEST_ASSERT_NOT_NULL(retrieved);
-    TEST_ASSERT_EQUAL_INT(cJSON_Raw, retrieved->type);
-    TEST_ASSERT_EQUAL_STRING("{\"raw\":\"json\"}", cJSON_GetStringValue(retrieved));
-
-    cleanup_test_objects();
+    /* Cleanup */
+    cJSON_Delete(obj);
+    cleanup_replacement(new_item);
 }
 
 int main(void)
 {
     unity_install_sighandler();
     UNITY_BEGIN();
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceExistingKeyWithNewString);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceExistingKeyWithNumber);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceExistingKeyWithObject);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceNonExistentKeyReturnsFalse);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithNullItem);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithNullObject);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithNullString);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithEmptyStringKey);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithCaseSensitiveKey);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithSameItem);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithObjectHavingChilds);
+
+    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceExistingItem);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceNonExistingItem);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_NullReplacement);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_NullString);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_FreeOldString);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_ConstStringReplacement);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_MultipleItems);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithTypeChange);
     RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithArray);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithBool);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithNull);
-    RUN_TEST(test_cJSON_ReplaceItemInObject_ReplaceWithRaw);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_NullObject);
+    RUN_TEST(test_cJSON_ReplaceItemInObject_EmptyStringKey);
+
     return UNITY_END();
 }

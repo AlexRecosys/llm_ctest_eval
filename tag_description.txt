@@ -1,3 +1,0 @@
-Das Cloud LLM hat für die Funktion Compare Pointers, die #include "cJSON_Utils.c" included statt cJSON.c
-
-

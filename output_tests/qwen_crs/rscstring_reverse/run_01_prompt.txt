@@ -1,0 +1,358 @@
+You are a C testing expert specializing in the Unity test framework. Generate a complete, compilable Unity unit test file for the following C function:
+
+/** Reverses a string and preserves the multi byte characters
+ *  
+ *  @param src : The string to be reversed
+ *  @param MA  : Memory allocator
+ *  @return    : Reversed string
+ */
+rscstring_t *rscstring_reverse(rscstring_t *src, rsMA_t *MA) {
+  if (src) {
+    rs32u_t n = rscstring_bytelen(src);
+    rs32u_t offset = n;
+    rscstring_t *dest=(rscstring_t *) rs_alloc(n+1,MA);
+    if (dest) {
+      while (offset > 0) {
+        rs32u_t nb;
+        (void)rscstring_decode(src,&nb);
+        memcpy(dest+offset-nb, src, nb);
+        offset -= nb;
+        src += nb;
+      }
+      dest[n]=0;
+      return dest;
+    }
+  }
+  return NULL;
+}
+
+
+Project Context:
+These are the types of the parameters:
+
+typedef char rscstring_t;
+
+typedef struct rsMA_t rsMA_t;
+
+
+Initialize an rsMA_t via this function:
+
+rsMA_t *rs_get_MA(void);
+
+
+This is the function to free memory in the memory allocator:
+rsbool_t rs_free(void *data, rsMA_t *MA);
+
+
+
+
+This is the content of crs_string.h:
+//===========================================================================
+// Copyright 2022 recosys GmbH, Konstanz - All rights reserved
+//===========================================================================
+// Null-terminated C text string
+
+#ifndef CRS_STRING_H
+#define CRS_STRING_H
+
+#include "crs_core.h"
+#include "crs_dir.h"  /* rscstringdir_t */
+
+/* --- rschar_t  --------------------------------------------------------- */
+  
+typedef rs32u_t rschar_t; /* character with 32-bit code page */
+typedef struct rsvalist_t rsvalist_t;
+
+#define RSCSTRING_ASCII_END 128
+CRSI rsbool_t rschar_isascii(rschar_t cp) {
+  return (cp<RSCSTRING_ASCII_END);
+}
+rsbool_t rschar_ispunctuation(rs32u_t cp);
+rsbool_t rschar_isupper(rschar_t cp);
+rsbool_t rschar_islower(rschar_t cp);
+rsbool_t rschar_isalpha(rschar_t cp);
+rsbool_t rschar_isspace(rschar_t cp);
+rsbool_t rschar_isalpha_anchor(rschar_t cp);
+rsbool_t rschar_isdigit_anchor(rschar_t cp);
+rsbool_t rschar_isdigit(rschar_t cp);
+rsbool_t rschar_isnumeric(rschar_t cp);
+rsbool_t rschar_iscontrol(rschar_t cp);
+rsbool_t rschar_isalphanum(rs32u_t cp);
+rschar_t rschar_tolower(rs32u_t cp);
+rschar_t rschar_toupper(rs32u_t cp);
+rschar_t rschar_from_cp1252(rs8u_t cp);
+rs8u_t rschar_to_cp1252(rschar_t cp);
+rscstring_t *rschar_to_rscstring(rschar_t cp, rsMA_t *MA);
+
+/* --- rschararr_t  ------------------------------------------------------ */
+
+RSARRTYPEFUNCS1(rschar)
+
+#define rschararr_heapsort(x) rs32uarr_heapsort((rs32uarr_t *)x)
+#define rschararr_search_binary(x,v) rs32uarr_search_binary((rs32uarr_t *)x,v,NULL)
+rsbool_t rschararr_contains(rschararr_t *src, rschar_t cp);
+  
+/* --- rscstring_t  ------------------------------------------------------ */
+
+typedef char rscstring_t;
+
+rs8uarr_t *rscstring_to_rs8uarr(rscstring_t *src, rsMA_t *MA);
+
+rs32u_t rscstring_strlen(const rscstring_t *text);
+CRSI rs32u_t rschar_bytelen(rs32u_t cp) {
+  if (cp<0x80)          return 1;
+  else if (cp<0x800)    return 2;
+  else if (cp<0x10000)  return 3;
+  else                  return 4;
+}
+
+rs32u_t rscstring_calc_bytelen_n(const rscstring_t *str, rs32u_t num_chars);
+rschar_t rscstring_to_rschar_(const rscstring_t *str, rsMA_t *MA);
+rs32u_t rscstring_is_valid_char(rscstring_t *src, rs32u_t n);
+rschar_t rscstring_decode(const rscstring_t *str, rs32u_t *nbytes);
+rschar_t rscstring_decode_rtl(const rscstring_t *str, rs32u_t *nbytes);
+rs32u_t rscstring_encode(rscstring_t *dest, rschar_t cp);
+rs32u_t rscstring_encode_rtl(rscstring_t *dest, rschar_t cp);
+rscstring_t *rscstring_reverse(rscstring_t *src, rsMA_t *MA);
+rsbool_t rscstring_isupper(const rscstring_t *text);
+rsbool_t rscstring_islower(const rscstring_t *text);
+rsbool_t rscstring_isalpha(const rscstring_t *str);
+rsbool_t rscstring_isdigit(const rscstring_t *text);
+rsbool_t rscstring_isalphanum(const rscstring_t *str);
+rsbool_t rscstring_isascii(const rscstring_t *text);
+rs32u_t rscstring_ndigit(const rscstring_t *text);
+rs32u_t rscstring_nnumeric(const rscstring_t *text);
+rs64f_t rscstring_ratio_numeric(const rscstring_t *text);
+rs32u_t rscstring_nalpha(const rscstring_t *text);
+rs32u_t rscstring_nalphanum(const rscstring_t *text);
+rscstring_t *rscstring_tolower(const rscstring_t *src, rsMA_t *MA);
+rscstring_t *rscstring_toupper(const rscstring_t *src, rsMA_t *MA);
+rscstring_t *rscstring_iso2ascii(const rscstring_t *src, rsMA_t *MA);
+void rscstring_normalize_digits_inplace(rscstring_t *src, char c);
+const rscstring_t *rscstring_normalize_digits(const rscstring_t *src, char c, rsMA_t *MA);
+const rscstring_t *rscstring_normalize_dust(const rscstring_t *src, rsMA_t *MA);
+
+const rscstring_t *rscstring_crop_punctuation(const rscstring_t *src, rsMA_t *MA);
+
+rscstring_t *rscstring_sanitize(const rscstring_t *src, rsMA_t *MA);
+const rscstring_t *rscstring_to_cp1252(const rscstring_t *text, rsMA_t *MA);
+const rscstring_t *rscstring_from_cp1252(const rscstring_t *text, rsMA_t *MA);
+const rscstring_t *rscstring_from_utf16le(rsbuffer_t *text, rsMA_t *MA);
+const rsbuffer_t *rscstring_to_utf16le(rscstring_t *src, rsMA_t *MA);
+CRSI const rs8u_t *rscstring_to_utf8(const rscstring_t *text, rsMA_t *MA) {UNREF_PARAM(MA); return (const rs8u_t *)text;}
+rs32u_t rscstring_bytelen_n(const rscstring_t *text, rs32u_t nmax);
+rs32s_t rscstring_cmp(const rscstring_t *a, const rscstring_t *b, rsbool_t ignore_case);
+rsbool_t rscstring_startswith(const rscstring_t *src, const rscstring_t *prefix, rsbool_t ignore_case);
+rsbool_t rscstring_endswith(const rscstring_t *src, const rscstring_t *suffix, rsbool_t ignore_case);
+rscstring_t *rscstring_strchr(const rscstring_t *src, rschar_t cp);
+rscstring_t *rscstring_substr(const rscstring_t *src, rs32s_t len, rsMA_t *MA);
+rscstring_t *rscstring_concat(const rscstring_t *srcA, const rscstring_t *srcB, rsMA_t *MA);
+const rscstring_t *rscstring_at(const rscstring_t *src, rs32u_t pos);
+rscstring_t *rscstring_cut(const rscstring_t *src, rs32s_t *from, rs32s_t *to, rsMA_t *MA);
+rsbool_t rscstring_starts_with(const rscstring_t *src, const rscstring_t *str);
+
+int rscstring_count_lines(const char *str);
+rs32u_t rscstring_count_char(rscstring_t *src, rschar_t cp);
+rs32u_t rscstring_count(const rscstring_t *src, const rscstring_t *pattern);
+rs32u_t rscstring_count_ascii(rscstring_t *src, char c);
+const rscstring_t *rscstring_replace(const rscstring_t *src, const rscstring_t *pattern, const rscstring_t *insert, rsMA_t *MA);
+const rscstring_t *rscstring_replace_all(const rscstring_t *src, const rscstring_t *pattern, const rscstring_t *insert, rsMA_t *MA);
+const rscstring_t *rscstring_replace_list(const char *src, rscstringvec_t *list, rsMA_t *MA);
+rscstring_t *rscstring_replace_template(rscstring_t *src, rscstringdir_t *vars, rsMA_t *MA);
+rscstring_t *rscstring_indent(const rscstring_t *src, rs32u_t n, rsMA_t *MA);
+rscstring_t *rscstring_strip(rscstring_t *src, rscstring_t *chars, rsbool_t infront_only, rsMA_t *MA);
+rscstringvec_t *rscstring_split(const rscstring_t *src, const rscstring_t *delimiter, rsMA_t* MA);
+rscstringvec_t *rscstring_split_csv(const rscstring_t *src, const rscstring_t *delimiter, rs32u_t ncol, rsMA_t* MA);
+rscstringvec_t *rscstring_split_chars(rscstring_t *src, rsMA_t *MA);
+rscstringvec_t *rscstring_split_lines(rscstring_t *src, rsbool_t keep_empty_lines, rsMA_t *MA);
+rsbool_t rscstring_to_rs16uarr_dest(rscstring_t *src, rs16uarr_t *dest, rsMA_t *MA);
+rs16uarr_t *rscstring_to_rs16uarr_(rscstring_t *src, rsMA_t *MA);
+rscstring_t *rs16uarr_to_rscstring(rs16uarr_t *src, rsMA_t *MA);
+rschararr_t *rscstring_to_rschararr(rscstring_t *src, rsMA_t* MA);
+rscstring_t *rschararr_to_rscstring(rschararr_t *src, rsMA_t* MA);
+rscstring_t *rscstring_from_file(const char *filename, rsMA_t* MA);
+rsbool_t rscstring_to_file(const rscstring_t *src, const char *filename, rsMA_t* MA);
+rscstring_t *rsbuffer_to_rscstring(rsbuffer_t *src, rsMA_t* MA);
+rscstring_t *rsbuffer_wchars_to_rscstring(rsbuffer_t *src, rsMA_t* MA);
+rscstring_t *rsbuffer_repr(rsbuffer_t *src, rs32u_t nmax, rsMA_t* MA);
+
+char *rs_substr(const char *text, size_t len, rsMA_t *MA);
+char *rs_vformat(const char *fmt, rsMA_t *MA, va_list args);
+char *rs_vaformat(const char *fmt, rsMA_t *MA, rsvalist_t *args);
+char *rs_format(const char *fmt, rsMA_t *MA, ...);
+
+CRSI void strcpy_limit(rscstring_t *dest, rs32u_t ndest, const rscstring_t *src) {
+  const rscstring_t *pmax=src+ndest-1;
+  const rscstring_t *p=strchr(src,0);
+  const rscstring_t *e=(p<pmax)?p:pmax;
+  ptrdiff_t l=e-src;
+  if (l) memcpy(dest,src,l);
+  dest[l]=0;
+}
+
+CRSI rschar_t rscstring_walk(const rscstring_t **src) {
+  rs32u_t nb;
+  rschar_t dest=rscstring_decode(*src,&nb);
+  *src+=nb;
+  return dest;
+}
+
+/* --- rscstringvec_t  --------------------------------------------------- */
+
+rscstringvec_t *rscstringvec_lines_from_string(rscstring_t *string, rsbool_t keep_empty_lines, rsMA_t* MA);
+rscstringvec_t *rscstringvec_lines_from_file(const char *filename, rsbool_t keep_empty_lines, rsMA_t *MA);
+rsbool_t rscstringvec_lines_to_file(rscstringvec_t *src, const char *filename, rsbool_t append, rsMA_t *MA);
+rscstring_t *rscstringvec_join(rscstringvec_t *src, rscstring_t *delim, rsMA_t *MA);
+rscstring_t *rscstringvec_join_csv(const rscstringvec_t *src, rs8u_t delimiter, rsbool_t quote_all, rsMA_t *MA);
+void rscstringvec_sort_inplace(rscstringvec_t *src, rsbool_t unique);
+rscstringvec_t *rscstringvec_sort(rscstringvec_t *src,rsbool_t unique,rsMA_t *MA);
+rs32uarr_t *rscstringvec_sort_index(rscstringvec_t *src, rsMA_t *MA);
+void rscstringvec_sort_strlen_inplace(rscstringvec_t *src);
+rscstringvec_t *rscstringvec_sort_strlen(rscstringvec_t *src, rsMA_t *MA);
+
+// selects all strings that are contained in src, but mot in stringvec. Both vectors must be sorted
+rscstringvec_t *rscstringvec_sorted_and_not(rscstringvec_t *src, rscstringvec_t *stringvec, rsMA_t *MA);
+
+rsbool_t rscstringvec_contains(rscstringvec_t *src, rscstring_t *text, rsbool_t ignore_case, rsMA_t *MA);
+rs32s_t rscstringvec_lookup(rscstringvec_t *src, rscstring_t *text, rsMA_t *MA);
+
+// for each idx in src, the index of src->d[idx] in textvec_ref is stored, 
+//    RSMAXINT32 if not existant
+rs32uarr_t *rscstringvec_make_maptable(rscstringvec_t *src, rscstringvec_t *textvec_ref, rsMA_t *MA);
+
+/* --- rscstringnode_t --------------------------------------------------- */
+
+typedef struct rscstringnode_t rscstringnode_t;
+struct rscstringnode_t {
+  char *d;
+  rscstringnode_t *next;
+};
+
+/* --- class rscstringlist_t --------------------------------------------- */
+
+typedef struct rscstringlist_t {
+  rscstringnode_t *first;
+  rscstringnode_t *last;
+} rscstringlist_t;
+
+rscstringlist_t *rscstringlist_alloc(rsMA_t *MA);
+void rscstringlist_append(rscstringlist_t *src, char *el, rsMA_t *MA);
+void rslog(rscstringlist_t *log, rsMA_t *MA, const char *fmt, ...);
+
+/* --- rsfilename_t ------------------------------------------------------ */
+
+const char *rs_filename_get_ext(const char *filename);
+rscstring_t *rs_filename_strip_ext(const rscstring_t *filename, rsMA_t *MA);
+char *rs_filename_get_root(const char *filename, rsMA_t *MA);
+const char *rs_filename_get_tail(const char *filename);
+char *rs_filename_get_basename(const char *filename, rsMA_t *MA);
+char *rs_filename_get_dirname(const char *filename, rsMA_t *MA);
+
+rscstring_t *rs_filename_set_ext(const char *filename, const char *ext, rsMA_t *MA);
+
+rsbool_t rs_filename_has_driveletter(const char *filename);
+rsbool_t rs_filename_is_absolute(const char *filename);
+rsbool_t rs_filename_normalize_inplace(rscstring_t *src);
+rscstring_t *rs_filename_normalize(rscstring_t *src, rsMA_t *MA);
+rscstring_t *rs_filename_make_relative(rscstring_t *filename, rscstring_t *dirname, rsbool_t jail, rsMA_t *MA);
+rscstring_t *rs_filename_join(const rscstring_t *dirname, const rscstring_t *filename, rsMA_t *MA);
+rscstring_t *rs_filename_rebase(const rscstring_t *filename, const rscstring_t *dirname, rsbool_t jail, rsMA_t *MA);
+int rs_filename_cmp(const char *a, const char *b);
+
+
+/* --- rsbuffer_t -------------------------------------------------------- */
+
+rsbool_t rsbuffer_append_char(rsbuffer_t *src, rschar_t cp, rsMA_t *MA);
+rsbool_t rsbuffer_is_valid_string(rsbuffer_t *src, rsbool_t allow_nullbyte);
+void     rsbuffer_reverse_inplace(rsbuffer_t *src);
+
+/* --- rserror_t -------------------------------------------------- */
+
+typedef struct rserrorarg_t {
+  rscstring_t *name;
+  rscstring_t *value;
+} rserrorarg_t;
+RSARRTYPEFUNCS1(rserrorarg);
+
+rscstringdir_t *rserrorargarr_to_rscstringdir(rserrorargarr_t *src, rsMA_t *MA);
+
+typedef struct rserror_t {
+  rsitemname_t id;    /* unique error ID */
+  rscstring_t *text;  /* error message format (EN) */
+  rserrorargarr_t *args;
+} rserror_t;
+
+RSVECTYPEFUNCS1(rserror);
+
+rscstring_t *rscstring_translate(rscstring_t *src, rsMA_t *MA);
+rscstring_t *rserror_format(rserror_t *src, rsMA_t *MA);
+  
+typedef rserrorarg_t rsuimessagearg_t;
+typedef rserrorargarr_t rsuimessageargarr_t;
+typedef rserror_t rsuimessage_t;
+typedef rserrorvec_t rsuimessagevec_t;
+
+rsbool_t rsuimessagevec_register_translations(rsuimessagevec_t *translations, rsMA_t *MA);
+rscstring_t *rsuimessage_format(rsuimessage_t *src, rsMA_t *MA);
+
+/* ----------------------------------------------------------------------- */
+
+#endif /* CRS_STRING_H */
+
+
+Requirements:
+
+- Do NOT use mocks, stubs, or fakes of any kind. Use actual project functions.
+- Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
+- Initialize all real dependencies the function under test requires
+- Add unity_install_sighandler(); to the main method, like in the example below.
+
+
+
+File Structure (in this exact order):
+
+1. All `#include` directives. ORDER: first `#include` the header file crs_string.h that declares the function under test , then Unity, then the project headers, then the standard headers.
+
+2. File-scope static variables / fixtures
+
+3. All helper functions and macros at the TOP of the file, before any test case
+
+4. All test cases
+
+5. `main(void)` — MANDATORY, NEVER OMIT THIS FUNCTION.
+   You MUST output this function as the final block of the file.
+   Dynamically include every test you generated above:
+
+   int main(void) {
+       unity_install_sighandler();
+       UNITY_BEGIN();
+       RUN_TEST(test_case_name_1);
+       RUN_TEST(test_case_name_2);
+       ...
+       return UNITY_END();
+   }
+
+Do NOT re-declare, copy, or re-define anything from the included source.
+
+
+Assertions:
+
+For unity assertions use the Use the most specific macros.  Only the following exist — do NOT invent others:
+Equality (expected, actual):
+TEST_ASSERT_EQUAL_INT · TEST_ASSERT_EQUAL_UINT · TEST_ASSERT_EQUAL_HEX · TEST_ASSERT_EQUAL_FLOAT · TEST_ASSERT_EQUAL_DOUBLE · TEST_ASSERT_EQUAL_PTR · TEST_ASSERT_NOT_EQUAL
+Strings / Memory:
+TEST_ASSERT_EQUAL_STRING · TEST_ASSERT_EQUAL_STRING_LEN · TEST_ASSERT_EQUAL_MEMORY · TEST_ASSERT_EQUAL_*_ARRAY
+Tolerance (delta, expected, actual):
+TEST_ASSERT_INT_WITHIN · TEST_ASSERT_UINT_WITHIN · TEST_ASSERT_FLOAT_WITHIN · TEST_ASSERT_DOUBLE_WITHIN · TEST_ASSERT_GREATER_THAN · TEST_ASSERT_LESS_THAN
+Bool / Pointer (1 arg):
+TEST_ASSERT_TRUE · TEST_ASSERT_FALSE · TEST_ASSERT_NULL · TEST_ASSERT_NOT_NULL
+Use _MESSAGE variants when a failure would otherwise be ambiguous.
+
+
+Constraints:
+- Output ONLY the C source file — no prose, no markdown fences, no explenation
+- Use exact identifier names from the project context - do not invent function or type names
+
+
+
+Now generate the test cases.

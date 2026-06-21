@@ -1,25 +1,27 @@
 You are a C testing expert specializing in the Unity test framework. Generate a complete, compilable Unity unit test file for the following C function:
+
 {function_under_test}
 
 
-**Requirements**
+Project Context:
+{context}
+
+
+This is the content of {header_name}:
+{header_code}
+
+Requirements:
 
 - Do NOT use mocks, stubs, or fakes of any kind. Use actual project functions.
 - Important: don't declare  Implementations of `setUp(void)` and `tearDown(void)` as static.
 - Initialize all real dependencies the function under test requires
-- Add unity_install_sighandler(); to the main methode, like in the example below.
+- Add unity_install_sighandler(); to the main method, like in the example below.
 
 
 
-**Linkage Strategy**
-The function under test may be static. Therefore the test file MUST #include the .c source file as the first include directive (e.g. #include "foo.c").
-Do NOT re-declare, copy, or re-define anything from the included source.
+File Structure (in this exact order):
 
-
-
-**File Structure (in this exact order)**
-
-1. All `#include` directives. ORDER: first `#include` the `.c` source file that defines the function under test (see Linkage strategy), then Unity, then the project headers, then the standard headers.
+1. All `#include` directives. ORDER: first `#include` the header file {header_name} that declares the function under test , then Unity, then the project headers, then the standard headers.
 
 2. File-scope static variables / fixtures
 
@@ -40,8 +42,12 @@ Do NOT re-declare, copy, or re-define anything from the included source.
        return UNITY_END();
    }}
 
-Assertions
-Use the most specific macro. Only these exist — do NOT invent others:
+Do NOT re-declare, copy, or re-define anything from the included source.
+
+
+Assertions:
+
+For unity assertions use the Use the most specific macros.  Only the following exist — do NOT invent others:
 Equality (expected, actual):
 TEST_ASSERT_EQUAL_INT · TEST_ASSERT_EQUAL_UINT · TEST_ASSERT_EQUAL_HEX · TEST_ASSERT_EQUAL_FLOAT · TEST_ASSERT_EQUAL_DOUBLE · TEST_ASSERT_EQUAL_PTR · TEST_ASSERT_NOT_EQUAL
 Strings / Memory:
@@ -53,15 +59,10 @@ TEST_ASSERT_TRUE · TEST_ASSERT_FALSE · TEST_ASSERT_NULL · TEST_ASSERT_NOT_NUL
 Use _MESSAGE variants when a failure would otherwise be ambiguous.
 
 
-**Constraints**
-- Output ONLY the C source file — no prose, no markdown fences, no explenation
-- Use exact identifier names from the project context - do not invent function or type names
+Constraints:
+- Output ONLY the C source file, no prose, no markdown fences, no explenation
+- Use exact identifier names from the project context, do not invent function or type names
 
 
 
-
-**Project Context**
-Header: {header_name}
-{header_code}
-Function context: {context}
 Now generate the test cases.

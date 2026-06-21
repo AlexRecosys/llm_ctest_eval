@@ -1,0 +1,7 @@
+int csv_get_width(CSV_BUFFER *buffer, size_t row)
+{
+        if (row > buffer->rows - 1)
+                return 0;
+        else 
+                return buffer->width[row];
+}

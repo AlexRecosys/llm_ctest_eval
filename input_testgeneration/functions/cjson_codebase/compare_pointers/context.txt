@@ -1,7 +1,0 @@
-## cJSON (cJSON.c, cJSON_Utils.c)
-A JSON parser and generator in C (version 1.7.19). The central data structure
-is cJSON — a doubly linked list node representing a JSON tree. Public API
-functions are prefixed with cJSON_. Internal helper functions are static and
-can only be tested indirectly through the public API. Memory management is
-handled via global hooks (default: malloc/free/realloc); every cJSON tree
-returned by the API must be released with cJSON_Delete().

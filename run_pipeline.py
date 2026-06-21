@@ -5,8 +5,10 @@ import sys
 
 STEPS = {
     "generate": "scripts/generation/testgen.py",
-    "compile": "scripts/execution/compile_and_run.py",
-    "analyze": "scripts/analyze/analyze.py",
+    "compile": "scripts/execution/data_collection_and_compilation.py",
+    "measure": "scripts/execution/01_measure_coverage.py",
+    "compute": 'scripts/execution/02_compute_metrics.py',
+    "analyze": "scripts/analyze/03_visualize.py",
 }
 
 

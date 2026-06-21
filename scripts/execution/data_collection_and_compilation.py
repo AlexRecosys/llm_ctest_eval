@@ -47,7 +47,7 @@ def build_include_flags(cfg, src_files):
 
 
 def ensure_coverage_flags(gcc_flags):
-    """Stellt sicher, dass die Instrumentierung (--coverage) aktiv ist."""
+    """Stellt sicher, dass die coverage aktiv ist."""
     flags = list(gcc_flags)
     joined = " ".join(flags)
     if "--coverage" not in joined and "-fprofile-arcs" not in joined:
@@ -80,5 +80,5 @@ def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags, cfg, tag):
 def run_test(exe, build_dir):
     """Fuehrt das kompilierte Test-Binary aus."""
     result = subprocess.run([str(exe)], capture_output=True, text=True,
-                            timeout=30, cwd=str(build_dir))
+                            timeout=10, cwd=str(build_dir))
     return result.returncode, result.stdout + result.stderr

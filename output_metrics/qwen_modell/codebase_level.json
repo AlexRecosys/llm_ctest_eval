@@ -2,55 +2,143 @@
   "cjson_codebase": {
     "codebase_summary": {
       "functions_under_test": {
-        "total_futs": 6,
-        "futs_all_tests_passed": 3
+        "total_futs": 13,
+        "futs_all_tests_passed": 0,
+        "futs_without_values": [
+          "cJSON_AddItemToArray",
+          "cJSON_Compare",
+          "cJSON_CreateStringArray",
+          "cJSON_GetArraySize",
+          "cJSON_GetObjectItem",
+          "cJSON_InsertItemInArray",
+          "cJSON_Minify",
+          "cJSON_ParseWithOpts",
+          "cJSON_ReplaceItemInObject",
+          "cJSON_SetValuestring",
+          "parse_hex4",
+          "parse_number",
+          "parse_string"
+        ]
       },
       "coverage_variables": {
-        "lines_total": 216,
-        "lines_covered": 76,
-        "branches_total": 171,
-        "branches_covered": 57
+        "lines_total": 280,
+        "lines_covered": 0,
+        "branches_total": 191,
+        "branches_covered": 0
       },
       "execution_totals": {
-        "tests_total": 45,
-        "tests_passed": 45,
-        "compile_errors": 0,
-        "linker_errors": 9,
+        "tests_total": 0,
+        "tests_passed": 0,
+        "compile_errors": 18,
+        "linker_errors": 21,
         "runtime_errors": 0,
         "assertion_errors": 0
       },
-      "futs_without_values": [
-        "compare_pointers",
-        "parse_number",
-        "parse_string"
-      ]
+      "coverage": {
+        "line_coverage": 0.0,
+        "branch_coverage": 0.0
+      },
+      "rates": {
+        "compile_error_rate": 46.15,
+        "linker_error_rate": 53.85,
+        "runtime_error_rate": 100.0,
+        "assert_error_rate": 0.0,
+        "pass_rate": 0.0,
+        "compile_success_rate": 53.85,
+        "linker_success_rate": 46.15
+      }
     }
   },
   "csv_codebase": {
     "codebase_summary": {
       "functions_under_test": {
-        "total_futs": 6,
-        "futs_all_tests_passed": 2
+        "total_futs": 13,
+        "futs_all_tests_passed": 1,
+        "futs_without_values": [
+          "csv_clear_field",
+          "csv_clear_row",
+          "csv_copy_field",
+          "csv_copy_row",
+          "csv_get_width",
+          "csv_load",
+          "csv_remove_row",
+          "csv_save"
+        ]
       },
       "coverage_variables": {
-        "lines_total": 60,
-        "lines_covered": 22,
-        "branches_total": 38,
-        "branches_covered": 14
+        "lines_total": 155,
+        "lines_covered": 37,
+        "branches_total": 112,
+        "branches_covered": 26
       },
       "execution_totals": {
-        "tests_total": 51,
-        "tests_passed": 39,
-        "compile_errors": 0,
-        "linker_errors": 0,
-        "runtime_errors": 15,
-        "assertion_errors": 6
+        "tests_total": 114,
+        "tests_passed": 69,
+        "compile_errors": 6,
+        "linker_errors": 6,
+        "runtime_errors": 12,
+        "assertion_errors": 45
       },
-      "futs_without_values": [
-        "csv_clear_row",
-        "csv_insert_field",
-        "csv_remove_row"
-      ]
+      "coverage": {
+        "line_coverage": 23.87,
+        "branch_coverage": 23.21
+      },
+      "rates": {
+        "compile_error_rate": 15.38,
+        "linker_error_rate": 15.38,
+        "runtime_error_rate": 61.54,
+        "assert_error_rate": 30.77,
+        "pass_rate": 7.69,
+        "compile_success_rate": 84.62,
+        "linker_success_rate": 84.62
+      }
+    }
+  },
+  "hashmap_codebase": {
+    "codebase_summary": {
+      "functions_under_test": {
+        "total_futs": 13,
+        "futs_all_tests_passed": 1,
+        "futs_without_values": [
+          "hashmap_delete",
+          "hashmap_delete_with_hash",
+          "hashmap_free",
+          "hashmap_get_with_hash",
+          "hashmap_iter",
+          "hashmap_new",
+          "hashmap_new_with_allocator",
+          "hashmap_scan",
+          "hashmap_set_load_factor",
+          "hashmap_set_with_hash"
+        ]
+      },
+      "coverage_variables": {
+        "lines_total": 166,
+        "lines_covered": 25,
+        "branches_total": 80,
+        "branches_covered": 8
+      },
+      "execution_totals": {
+        "tests_total": 35,
+        "tests_passed": 24,
+        "compile_errors": 4,
+        "linker_errors": 24,
+        "runtime_errors": 3,
+        "assertion_errors": 11
+      },
+      "coverage": {
+        "line_coverage": 11.85,
+        "branch_coverage": 8.33
+      },
+      "rates": {
+        "compile_error_rate": 10.26,
+        "linker_error_rate": 61.54,
+        "runtime_error_rate": 79.49,
+        "assert_error_rate": 12.82,
+        "pass_rate": 7.69,
+        "compile_success_rate": 89.74,
+        "linker_success_rate": 38.46
+      }
     }
   }
 }

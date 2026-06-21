@@ -1,0 +1,40 @@
+const void *hashmap_delete_with_hash(struct hashmap *map, const void *key,
+    uint64_t hash)
+{
+    hash = clip_hash(hash);
+    map->oom = false;
+    size_t i = hash & map->mask;
+    while(1) {
+        struct bucket *bucket = bucket_at(map, i);
+        if (!bucket->dib) {
+            return NULL;
+        }
+        void *bitem = bucket_item(bucket);
+        if (bucket->hash == hash && (!map->compare ||
+            map->compare(key, bitem, map->udata) == 0))
+        {
+            memcpy(map->spare, bitem, map->elsize);
+            bucket->dib = 0;
+            while(1) {
+                struct bucket *prev = bucket;
+                i = (i + 1) & map->mask;
+                bucket = bucket_at(map, i);
+                if (bucket->dib <= 1) {
+                    prev->dib = 0;
+                    break;
+                }
+                memcpy(prev, bucket, map->bucketsz);
+                prev->dib--;
+            }
+            map->count--;
+            if (map->nbuckets > map->cap && map->count <= map->shrinkat) {
+                // Ignore the return value. It's ok for the resize operation to
+                // fail to allocate enough memory because a shrink operation
+                // does not change the integrity of the data.
+                resize(map, map->nbuckets/2);
+            }
+            return map->spare;
+        }
+        i = (i + 1) & map->mask;
+    }
+}

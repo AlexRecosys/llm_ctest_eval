@@ -1,0 +1,3 @@
+const void *hashmap_delete(struct hashmap *map, const void *key) {
+    return hashmap_delete_with_hash(map, key, get_hash(map, key));
+}

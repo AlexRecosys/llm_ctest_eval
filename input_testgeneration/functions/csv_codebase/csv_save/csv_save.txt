@@ -1,0 +1,45 @@
+int csv_save(char *file_name, CSV_BUFFER *buffer)
+{
+
+        int i, j, k;
+        char *chloc; 
+        FILE *fp = fopen(file_name, "w");
+        if (fp == NULL)
+                return 1;
+        char text_delim = buffer->text_delim;
+        char field_delim = buffer->field_delim;
+        for(i = 0; i < buffer->rows; i++) {
+                for(j = 0; j < buffer->width[i]; j++) {
+                        chloc = strchr(buffer->field[i][j]->text, text_delim);
+                        if(chloc == NULL)
+                                chloc = strchr(buffer->field[i][j]->text, field_delim);
+                        if(chloc == NULL)
+                                chloc = strchr(buffer->field[i][j]->text, '\n');
+                        /* if any of the above characters are found, chloc will be set
+                         * and we must use text deliminators.
+                         */
+                        if(chloc != NULL) {
+                                fputc(text_delim, fp);
+                                for(k = 0; k < buffer->field[i][j]->length - 1; k++) {
+                                        /* if there are any text delims in the string,
+                                         * we must escape them.
+                                         */
+                                        if(buffer->field[i][j]->text[k] == text_delim)
+                                                fputc(text_delim, fp);
+                                        fputc(buffer->field[i][j]->text[k], fp);
+                                }
+                                fputc(text_delim, fp);
+                                chloc = NULL;
+                        } else {
+                                fputs(buffer->field[i][j]->text, fp);
+                        }
+                        if(j < buffer->width[i] - 1)
+                                fputc(field_delim, fp);
+                        else if (i < buffer->rows - 1)
+                                fputc('\n', fp);
+                }
+        }
+
+        fclose(fp);
+        return 0;
+}

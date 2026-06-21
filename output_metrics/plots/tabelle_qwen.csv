@@ -1,0 +1,44 @@
+Region,Typ,Lines Executed,Lines,Branches Executed,Branches,Compile Errors,Linker Errors,Runtime Errors,Assertion Errors,Passes,FUT_ohne_Werte
+cJSON_AddItemToArray,FUT,0,2,0,0,0,3,0,0,0,ja
+cJSON_Compare,FUT,0,52,0,48,3,0,0,0,0,ja
+cJSON_CreateStringArray,FUT,0,20,0,16,0,3,0,0,0,ja
+cJSON_GetArraySize,FUT,0,10,0,4,0,3,0,0,0,ja
+cJSON_GetObjectItem,FUT,0,2,0,0,3,0,0,0,0,ja
+cJSON_InsertItemInArray,FUT,0,16,0,12,3,0,0,0,0,ja
+cJSON_Minify,FUT,0,24,0,12,0,3,0,0,0,ja
+cJSON_ParseWithOpts,FUT,0,5,0,2,0,3,0,0,0,ja
+cJSON_ReplaceItemInObject,FUT,0,2,0,0,0,3,0,0,0,ja
+cJSON_SetValuestring,FUT,0,20,0,20,3,0,0,0,0,ja
+parse_hex4,FUT,0,14,0,16,0,3,0,0,0,ja
+parse_number,FUT,0,44,0,25,3,0,0,0,0,ja
+parse_string,FUT,0,69,0,36,3,0,0,0,0,ja
+Codebase cJSON,Codebase-Summe,0,280,0,191,18,21,0,0,0,
+csv_clear_field,FUT,0,7,0,8,0,3,0,0,0,ja
+csv_clear_row,FUT,0,17,0,10,0,3,0,0,0,ja
+csv_copy_field,FUT,0,3,0,0,3,0,0,0,0,ja
+csv_copy_row,FUT,0,16,0,16,0,0,3,0,0,ja
+csv_get_field,FUT,15,16,11,12,0,0,0,9,27,nein
+csv_get_field_length,FUT,5,6,3,4,0,0,0,12,6,nein
+csv_get_width,FUT,0,4,0,2,0,0,3,0,0,ja
+csv_insert_field,FUT,10,10,6,6,0,0,0,6,27,nein
+csv_load,FUT,0,26,0,18,0,0,3,0,0,ja
+csv_remove_field,FUT,7,7,6,6,0,0,0,18,3,nein
+csv_remove_row,FUT,0,7,0,4,3,0,0,0,0,ja
+csv_save,FUT,0,28,0,20,0,0,3,0,0,ja
+csv_set_field,FUT,0,8,0,6,0,0,0,0,6,nein
+Codebase CSV,Codebase-Summe,37,155,26,112,6,6,12,45,69,
+hashmap_clear,FUT,16,16,4,6,1,0,0,8,6,nein
+hashmap_delete,FUT,0,2,0,0,0,3,0,0,0,ja
+hashmap_delete_with_hash,FUT,0,27,0,14,0,3,0,0,0,ja
+hashmap_free,FUT,0,5,0,2,0,0,3,0,0,ja
+hashmap_get_with_hash,FUT,0,11,0,8,0,3,0,0,0,ja
+hashmap_iter,FUT,0,7,0,4,0,3,0,0,0,ja
+hashmap_new,FUT,0,2,0,0,0,3,0,0,0,ja
+hashmap_new_with_allocator,FUT,0,44,0,22,0,3,0,0,0,ja
+hashmap_probe,FUT,6,6,2,2,0,0,0,3,9,nein
+hashmap_scan,FUT,0,6,0,6,0,3,0,0,0,ja
+hashmap_set_grow_by_power,FUT,3,3,2,2,0,0,0,0,9,nein
+hashmap_set_load_factor,FUT,0,5,0,0,3,0,0,0,0,ja
+hashmap_set_with_hash,FUT,0,32,0,14,0,3,0,0,0,ja
+Codebase Hashmap,Codebase-Summe,25,166,8,80,4,24,3,11,24,
+Alle Funktionen (n=39),Gesamt,62,601,34,383,28,51,15,56,93,31 ohne Werte

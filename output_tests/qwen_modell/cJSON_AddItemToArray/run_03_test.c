@@ -5,126 +5,152 @@
 
 /* File-scope static variables / fixtures */
 static cJSON *array = NULL;
-static cJSON *item1 = NULL;
-static cJSON *item2 = NULL;
+static cJSON *item = NULL;
 
-/* Helper functions and macros */
-
-/* Setup and teardown functions */
-void setUp(void)
+/* Helper functions */
+static void setup_array(void)
 {
     array = cJSON_CreateArray();
     TEST_ASSERT_NOT_NULL(array);
-    item1 = cJSON_CreateNumber(42);
-    TEST_ASSERT_NOT_NULL(item1);
-    item2 = cJSON_CreateString("test");
-    TEST_ASSERT_NOT_NULL(item2);
 }
 
-void tearDown(void)
+static void setup_item(void)
 {
-    cJSON_Delete(array);
-    cJSON_Delete(item1);
-    cJSON_Delete(item2);
-    array = NULL;
-    item1 = NULL;
-    item2 = NULL;
+    item = cJSON_CreateNull();
+    TEST_ASSERT_NOT_NULL(item);
+}
+
+static void cleanup_array(void)
+{
+    if (array != NULL)
+    {
+        cJSON_Delete(array);
+        array = NULL;
+    }
+}
+
+static void cleanup_item(void)
+{
+    if (item != NULL)
+    {
+        cJSON_Delete(item);
+        item = NULL;
+    }
 }
 
 /* Test cases */
 
-void test_cJSON_AddItemToArray_should_add_item_to_empty_array(void)
+void test_cJSON_AddItemToArray_with_null_array_should_return_false(void)
 {
-    cJSON_bool result = cJSON_AddItemToArray(array, item1);
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(1, cJSON_GetArraySize(array));
-    TEST_ASSERT_EQUAL_PTR(item1, cJSON_GetArrayItem(array, 0));
+    TEST_ASSERT_FALSE(cJSON_AddItemToArray(NULL, item));
 }
 
-void test_cJSON_AddItemToArray_should_append_item_to_nonempty_array(void)
+void test_cJSON_AddItemToArray_with_null_item_should_return_false(void)
 {
-    /* Pre-populate array */
-    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item1));
-    TEST_ASSERT_EQUAL_INT(1, cJSON_GetArraySize(array));
-
-    /* Add second item */
-    cJSON_bool result = cJSON_AddItemToArray(array, item2);
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(2, cJSON_GetArraySize(array));
-    TEST_ASSERT_EQUAL_PTR(item1, cJSON_GetArrayItem(array, 0));
-    TEST_ASSERT_EQUAL_PTR(item2, cJSON_GetArrayItem(array, 1));
+    TEST_ASSERT_FALSE(cJSON_AddItemToArray(array, NULL));
 }
 
-void test_cJSON_AddItemToArray_should_fail_when_array_is_NULL(void)
+void test_cJSON_AddItemToArray_with_same_array_and_item_should_return_false(void)
 {
-    cJSON_bool result = cJSON_AddItemToArray(NULL, item1);
-    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_FALSE(cJSON_AddItemToArray(array, array));
 }
 
-void test_cJSON_AddItemToArray_should_fail_when_item_is_NULL(void)
+void test_cJSON_AddItemToArray_to_empty_array_should_add_item_and_set_prev_to_itself(void)
 {
-    cJSON_bool result = cJSON_AddItemToArray(array, NULL);
-    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_NULL(array->child);
+    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item));
+    TEST_ASSERT_EQUAL_PTR(array->child, item);
+    TEST_ASSERT_EQUAL_PTR(item->prev, item);
+    TEST_ASSERT_NULL(item->next);
 }
 
-void test_cJSON_AddItemToArray_should_not_steal_reference(void)
+void test_cJSON_AddItemToArray_to_nonempty_array_should_append_to_end(void)
 {
-    /* Add item to array */
-    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item1));
+    cJSON *first_item = cJSON_CreateNull();
+    cJSON *second_item = cJSON_CreateNull();
+    TEST_ASSERT_NOT_NULL(first_item);
+    TEST_ASSERT_NOT_NULL(second_item);
 
-    /* Verify item is still accessible independently */
-    TEST_ASSERT_EQUAL_INT(42, (int)item1->valuedouble);
+    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, first_item));
+    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, second_item));
 
-    /* Verify array contains same value */
-    cJSON *array_item = cJSON_GetArrayItem(array, 0);
-    TEST_ASSERT_EQUAL_PTR(item1, array_item);
-    TEST_ASSERT_EQUAL_INT(42, (int)array_item->valuedouble);
+    TEST_ASSERT_EQUAL_PTR(array->child, first_item);
+    TEST_ASSERT_EQUAL_PTR(first_item->next, second_item);
+    TEST_ASSERT_EQUAL_PTR(second_item->prev, first_item);
+    TEST_ASSERT_EQUAL_PTR(array->child->prev, second_item);
+    TEST_ASSERT_NULL(second_item->next);
+
+    cJSON_Delete(first_item);
+    cJSON_Delete(second_item);
 }
 
-void test_cJSON_AddItemToArray_should_maintain_order(void)
+void test_cJSON_AddItemToArray_multiple_items_should_maintain_circular_prev_links(void)
 {
-    cJSON *item3 = cJSON_CreateBool(1);
-    TEST_ASSERT_NOT_NULL(item3);
+    cJSON *items[3] = {0};
+    size_t i;
 
-    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item1));
-    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item2));
-    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item3));
-
-    TEST_ASSERT_EQUAL_INT(3, cJSON_GetArraySize(array));
-    TEST_ASSERT_EQUAL_PTR(item1, cJSON_GetArrayItem(array, 0));
-    TEST_ASSERT_EQUAL_PTR(item2, cJSON_GetArrayItem(array, 1));
-    TEST_ASSERT_EQUAL_PTR(item3, cJSON_GetArrayItem(array, 2));
-
-    cJSON_Delete(item3);
-}
-
-void test_cJSON_AddItemToArray_should_handle_multiple_adds(void)
-{
-    int i;
-    for (i = 0; i < 10; i++) {
-        cJSON *item = cJSON_CreateNumber(i);
-        TEST_ASSERT_NOT_NULL(item);
-        TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item));
+    for (i = 0; i < 3; ++i)
+    {
+        items[i] = cJSON_CreateNull();
+        TEST_ASSERT_NOT_NULL(items[i]);
+        TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, items[i]));
     }
 
-    TEST_ASSERT_EQUAL_INT(10, cJSON_GetArraySize(array));
-    for (i = 0; i < 10; i++) {
-        cJSON *item = cJSON_GetArrayItem(array, i);
-        TEST_ASSERT_NOT_NULL(item);
-        TEST_ASSERT_EQUAL_INT(i, (int)item->valuedouble);
+    /* Check array->child points to first item */
+    TEST_ASSERT_EQUAL_PTR(array->child, items[0]);
+
+    /* Check next/prev chain */
+    TEST_ASSERT_EQUAL_PTR(items[0]->next, items[1]);
+    TEST_ASSERT_EQUAL_PTR(items[1]->next, items[2]);
+    TEST_ASSERT_NULL(items[2]->next);
+
+    TEST_ASSERT_EQUAL_PTR(items[0]->prev, items[2]);
+    TEST_ASSERT_EQUAL_PTR(items[1]->prev, items[0]);
+    TEST_ASSERT_EQUAL_PTR(items[2]->prev, items[1]);
+
+    /* Check array->child->prev points to last item */
+    TEST_ASSERT_EQUAL_PTR(array->child->prev, items[2]);
+
+    for (i = 0; i < 3; ++i)
+    {
+        cJSON_Delete(items[i]);
     }
 }
 
+void test_cJSON_AddItemToArray_should_return_true_on_success(void)
+{
+    setup_item();
+    TEST_ASSERT_TRUE(cJSON_AddItemToArray(array, item));
+    cleanup_item();
+}
+
+void test_cJSON_AddItemToArray_should_not_modify_array_if_item_is_null(void)
+{
+    TEST_ASSERT_NULL(array->child);
+    TEST_ASSERT_FALSE(cJSON_AddItemToArray(array, NULL));
+    TEST_ASSERT_NULL(array->child);
+}
+
+void test_cJSON_AddItemToArray_should_not_modify_array_if_array_is_null(void)
+{
+    TEST_ASSERT_FALSE(cJSON_AddItemToArray(NULL, item));
+}
+
+/* main function */
 int main(void)
 {
     unity_install_sighandler();
     UNITY_BEGIN();
-    RUN_TEST(test_cJSON_AddItemToArray_should_add_item_to_empty_array);
-    RUN_TEST(test_cJSON_AddItemToArray_should_append_item_to_nonempty_array);
-    RUN_TEST(test_cJSON_AddItemToArray_should_fail_when_array_is_NULL);
-    RUN_TEST(test_cJSON_AddItemToArray_should_fail_when_item_is_NULL);
-    RUN_TEST(test_cJSON_AddItemToArray_should_not_steal_reference);
-    RUN_TEST(test_cJSON_AddItemToArray_should_maintain_order);
-    RUN_TEST(test_cJSON_AddItemToArray_should_handle_multiple_adds);
+
+    RUN_TEST(test_cJSON_AddItemToArray_with_null_array_should_return_false);
+    RUN_TEST(test_cJSON_AddItemToArray_with_null_item_should_return_false);
+    RUN_TEST(test_cJSON_AddItemToArray_with_same_array_and_item_should_return_false);
+    RUN_TEST(test_cJSON_AddItemToArray_to_empty_array_should_add_item_and_set_prev_to_itself);
+    RUN_TEST(test_cJSON_AddItemToArray_to_nonempty_array_should_append_to_end);
+    RUN_TEST(test_cJSON_AddItemToArray_multiple_items_should_maintain_circular_prev_links);
+    RUN_TEST(test_cJSON_AddItemToArray_should_return_true_on_success);
+    RUN_TEST(test_cJSON_AddItemToArray_should_not_modify_array_if_item_is_null);
+    RUN_TEST(test_cJSON_AddItemToArray_should_not_modify_array_if_array_is_null);
+
     return UNITY_END();
 }

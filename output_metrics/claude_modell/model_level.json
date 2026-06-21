@@ -1,26 +1,36 @@
 {
   "model_summary": {
     "variables": {
-      "total_futs": 12,
+      "total_futs": 39,
       "futs_without_values": [
-        "compare_pointers"
+        "csv_clear_row",
+        "csv_copy_row",
+        "csv_get_width",
+        "csv_insert_field",
+        "csv_load",
+        "csv_remove_row",
+        "csv_save"
       ]
     },
     "run_statistics": {
-      "total_runs": 36,
-      "runs_all_tests_passed": 23,
-      "futs_all_tests_passed": 7
+      "total_runs": 117,
+      "runs_all_tests_passed": 70,
+      "futs_all_tests_passed": 18
     },
     "coverage": {
-      "line_coverage": 77.17,
-      "branch_coverage": 62.52
+      "line_coverage": 74.04,
+      "branch_coverage": 65.8
+    },
+    "coverage_filtered": {
+      "line_coverage": 94.19,
+      "branch_coverage": 85.41
     },
     "rates": {
-      "compile_error_rate": 8.33,
-      "linker_error_rate": 2.78,
-      "runtime_error_rate": 1.67,
-      "assert_error_rate": 7.78,
-      "pass_rate": 90.56
+      "compile_error_rate": 0.0,
+      "linker_error_rate": 0.85,
+      "runtime_error_rate": 21.37,
+      "assert_error_rate": 18.8,
+      "pass_rate": 59.83
     }
   }
 }

@@ -2,10 +2,10 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 
 {function_under_test}
 
-## Requirements
+ Requirements
 
 
-**Setup & Teardown**
+Setup & Teardown:
 
 
 
@@ -17,7 +17,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 
 - Clean up all allocated resources in tearDown() to prevent leaks between tests
  
-**File Structure (in this exact order)**
+File Structure (in this exact order):
 
 1. All `#include` directives (Unity + project headers)
 
@@ -29,7 +29,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 
 5. `main(void)` with `UNITY_BEGIN()`, `RUN_TEST(...)` for every test, and `UNITY_END()`
  
-**Assertions**
+Assertions:
 
 - Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`. Pick from:
 
@@ -51,11 +51,11 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 
 - Always pass a descriptive message via the `_MESSAGE` variants when a failure would otherwise be ambiguous
  
-**Coverage**
+Coverage:
 
 Generate 5 test cases.
  
-**Constraints**
+Constraints:
 
 - Output ONLY the C source file — no prose, no markdown fences, no explanation
 
@@ -65,9 +65,9 @@ Generate 5 test cases.
 
 - Include setUp(void) and tearDown(void) (non-static, visible to Unity).
  
----
+
  
-## Project context:
+Project context:
 
 Include the following header files: 
 

@@ -5,6 +5,5 @@ copy of elsize bytes); the caller supplies hash and compare callbacks that
 operate on the key portion of the item struct. Public API functions are
 prefixed with hashmap_. Internal helpers are static. The map is not thread-safe.
 Pointers returned by hashmap_get(), hashmap_set(), and hashmap_delete() are
-invalidated by subsequent map operations — callers must copy values out
-immediately. Memory management uses malloc/realloc/free by default, replaceable
-via hashmap_new_with_allocator().
+invalidated by subsequent map operations callers must copy values out
+immediately.

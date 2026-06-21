@@ -1,0 +1,45 @@
+const void *hashmap_set_with_hash(struct hashmap *map, const void *item,
+    uint64_t hash)
+{
+    hash = clip_hash(hash);
+    map->oom = false;
+    if (map->count >= map->growat) {
+        if (!resize(map, map->nbuckets*(1<<map->growpower))) {
+            map->oom = true;
+            return NULL;
+        }
+    }
+
+    struct bucket *entry = map->edata;
+    entry->hash = hash;
+    entry->dib = 1;
+    void *eitem = bucket_item(entry);
+    memcpy(eitem, item, map->elsize);
+
+    void *bitem;
+    size_t i = entry->hash & map->mask;
+    while(1) {
+        struct bucket *bucket = bucket_at(map, i);
+        if (bucket->dib == 0) {
+            memcpy(bucket, entry, map->bucketsz);
+            map->count++;
+            return NULL;
+        }
+        bitem = bucket_item(bucket);
+        if (entry->hash == bucket->hash && (!map->compare ||
+            map->compare(eitem, bitem, map->udata) == 0))
+        {
+            memcpy(map->spare, bitem, map->elsize);
+            memcpy(bitem, eitem, map->elsize);
+            return map->spare;
+        }
+        if (bucket->dib < entry->dib) {
+            memcpy(map->spare, bucket, map->bucketsz);
+            memcpy(bucket, entry, map->bucketsz);
+            memcpy(entry, map->spare, map->bucketsz);
+            eitem = bucket_item(entry);
+        }
+        i = (i + 1) & map->mask;
+        entry->dib += 1;
+    }
+}

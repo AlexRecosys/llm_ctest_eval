@@ -2,49 +2,117 @@
   "cjson_codebase": {
     "codebase_summary": {
       "functions_under_test": {
-        "total_futs": 6,
-        "futs_all_tests_passed": 5
+        "total_futs": 13,
+        "futs_all_tests_passed": 11,
+        "futs_without_values": []
       },
       "coverage_variables": {
-        "lines_total": 216,
-        "lines_covered": 176,
-        "branches_total": 171,
-        "branches_covered": 110
+        "lines_total": 280,
+        "lines_covered": 268,
+        "branches_total": 191,
+        "branches_covered": 170
       },
       "execution_totals": {
-        "tests_total": 75,
-        "tests_passed": 75,
-        "compile_errors": 2,
-        "linker_errors": 1,
+        "tests_total": 1073,
+        "tests_passed": 1068,
+        "compile_errors": 0,
+        "linker_errors": 0,
         "runtime_errors": 0,
-        "assertion_errors": 0
+        "assertion_errors": 5
       },
-      "futs_without_values": [
-        "compare_pointers"
-      ]
+      "coverage": {
+        "line_coverage": 94.88,
+        "branch_coverage": 88.13
+      },
+      "rates": {
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 0.0,
+        "assert_error_rate": 12.82,
+        "pass_rate": 87.18,
+        "compile_success_rate": 100.0,
+        "linker_success_rate": 100.0
+      }
     }
   },
   "csv_codebase": {
     "codebase_summary": {
       "functions_under_test": {
-        "total_futs": 6,
-        "futs_all_tests_passed": 2
+        "total_futs": 13,
+        "futs_all_tests_passed": 1,
+        "futs_without_values": [
+          "csv_clear_row",
+          "csv_copy_row",
+          "csv_get_width",
+          "csv_insert_field",
+          "csv_load",
+          "csv_remove_row",
+          "csv_save"
+        ]
       },
       "coverage_variables": {
-        "lines_total": 60,
-        "lines_covered": 47,
-        "branches_total": 38,
-        "branches_covered": 27
+        "lines_total": 155,
+        "lines_covered": 38,
+        "branches_total": 112,
+        "branches_covered": 28
       },
       "execution_totals": {
-        "tests_total": 85,
-        "tests_passed": 68,
-        "compile_errors": 1,
+        "tests_total": 230,
+        "tests_passed": 191,
+        "compile_errors": 0,
         "linker_errors": 0,
-        "runtime_errors": 3,
-        "assertion_errors": 14
+        "runtime_errors": 23,
+        "assertion_errors": 39
       },
-      "futs_without_values": []
+      "coverage": {
+        "line_coverage": 21.51,
+        "branch_coverage": 21.43
+      },
+      "rates": {
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 0.0,
+        "runtime_error_rate": 58.97,
+        "assert_error_rate": 30.77,
+        "pass_rate": 10.26,
+        "compile_success_rate": 100.0,
+        "linker_success_rate": 100.0
+      }
+    }
+  },
+  "hashmap_codebase": {
+    "codebase_summary": {
+      "functions_under_test": {
+        "total_futs": 13,
+        "futs_all_tests_passed": 6,
+        "futs_without_values": []
+      },
+      "coverage_variables": {
+        "lines_total": 166,
+        "lines_covered": 163,
+        "branches_total": 80,
+        "branches_covered": 69
+      },
+      "execution_totals": {
+        "tests_total": 501,
+        "tests_passed": 493,
+        "compile_errors": 0,
+        "linker_errors": 1,
+        "runtime_errors": 1,
+        "assertion_errors": 8
+      },
+      "coverage": {
+        "line_coverage": 87.95,
+        "branch_coverage": 74.58
+      },
+      "rates": {
+        "compile_error_rate": 0.0,
+        "linker_error_rate": 2.56,
+        "runtime_error_rate": 5.13,
+        "assert_error_rate": 12.82,
+        "pass_rate": 82.05,
+        "compile_success_rate": 100.0,
+        "linker_success_rate": 97.44
+      }
     }
   }
 }

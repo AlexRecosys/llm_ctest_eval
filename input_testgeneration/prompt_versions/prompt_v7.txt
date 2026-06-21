@@ -6,7 +6,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 ## Requirements
 
 
-**Setup & Teardown**
+Setup & Teardown:
 
 
 - Do NOT use mocks, stubs, or fakes of any kind
@@ -20,7 +20,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 - Handle segmentation faults gracefully via signal handling (SIGSEGV) and report them as test failures.
 
  
-**File Structure (in this exact order)**
+File Structure (in this exact order):
 
 1. All `#include` directives (Unity + project headers)
 
@@ -45,7 +45,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 A file without main(void) does NOT compile. It is invalid output.
 
  
-**Assertions**
+Assertions:
 
 - Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`. Pick from:
 
@@ -67,11 +67,11 @@ A file without main(void) does NOT compile. It is invalid output.
 
 - Always pass a descriptive message via the `_MESSAGE` variants when a failure would otherwise be ambiguous
  
-**Coverage**
+Coverage:
 
 Generate 5 test cases.
  
-**Constraints**
+Constraints:
 
 - Output ONLY the C source file — no prose, no markdown fences, no explanation
 

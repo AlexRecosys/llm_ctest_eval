@@ -1,0 +1,27 @@
+int csv_copy_row(CSV_BUFFER *dest, int dest_row, 
+                        CSV_BUFFER *source, int source_row)
+{
+
+        if (source_row > source->rows - 1) {
+                csv_clear_row(dest, dest_row);
+                return 0;
+        }
+
+        while (dest->rows < (dest_row + 1)) 
+               if(append_row(dest) != 0)
+                        return 1;
+
+        while (dest->width[dest_row] > source->width[source_row])
+                if(remove_last_field(dest, dest_row) != 0)
+                        return 1;
+        
+        while (dest->width[dest_row] < source->width[source_row])
+                if(append_field(dest, dest_row) != 0)
+                        return 1;
+
+        int i;
+        for(i = 0; i < dest->width[dest_row]; i++)
+                csv_copy_field(dest, dest_row, i, source, source_row, i);
+        
+        return 0;
+}

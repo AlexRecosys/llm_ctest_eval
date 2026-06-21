@@ -1,0 +1,44 @@
+Region,Typ,Lines Executed,Lines,Branches Executed,Branches,Compile Errors,Linker Errors,Runtime Errors,Assertion Errors,Passes,FUT_ohne_Werte
+cJSON_AddItemToArray,FUT,2,2,0,0,0,0,0,0,60,nein
+cJSON_Compare,FUT,49,52,43,48,0,0,0,0,159,nein
+cJSON_CreateStringArray,FUT,18,20,13,16,0,0,0,0,55,nein
+cJSON_GetArraySize,FUT,10,10,4,4,0,0,0,0,53,nein
+cJSON_GetObjectItem,FUT,2,2,0,0,0,0,0,0,69,nein
+cJSON_InsertItemInArray,FUT,16,16,12,12,0,0,0,2,62,nein
+cJSON_Minify,FUT,24,24,12,12,0,0,0,3,99,nein
+cJSON_ParseWithOpts,FUT,5,5,2,2,0,0,0,0,98,nein
+cJSON_ReplaceItemInObject,FUT,2,2,0,0,0,0,0,0,53,nein
+cJSON_SetValuestring,FUT,18,20,15,20,0,0,0,0,60,nein
+parse_hex4,FUT,14,14,16,16,0,0,0,0,134,nein
+parse_number,FUT,43,44,23,25,0,0,0,0,81,nein
+parse_string,FUT,65,69,30,36,0,0,0,0,85,nein
+Codebase cJSON,Codebase-Summe,268,280,170,191,0,0,0,5,1068,
+csv_clear_field,FUT,7,7,7,8,0,0,0,26,19,nein
+csv_clear_row,FUT,0,17,0,10,0,0,3,0,0,ja
+csv_copy_field,FUT,3,3,0,0,0,0,0,3,42,nein
+csv_copy_row,FUT,0,16,0,16,0,0,3,0,0,ja
+csv_get_field,FUT,15,16,11,12,0,0,0,4,41,nein
+csv_get_field_length,FUT,6,6,4,4,0,0,2,0,13,nein
+csv_get_width,FUT,0,4,0,2,0,0,3,0,0,ja
+csv_insert_field,FUT,0,10,0,6,0,0,3,0,0,ja
+csv_load,FUT,0,26,0,18,0,0,3,0,0,ja
+csv_remove_field,FUT,7,7,6,6,0,0,0,6,31,nein
+csv_remove_row,FUT,0,7,0,4,0,0,3,0,0,ja
+csv_save,FUT,0,28,0,20,0,0,3,0,0,ja
+csv_set_field,FUT,0,8,0,6,0,0,0,0,45,nein
+Codebase CSV,Codebase-Summe,38,155,28,112,0,0,23,39,191,
+hashmap_clear,FUT,16,16,5,6,0,0,0,1,46,nein
+hashmap_delete,FUT,2,2,0,0,0,0,0,0,35,nein
+hashmap_delete_with_hash,FUT,26,27,11,14,0,0,0,0,39,nein
+hashmap_free,FUT,5,5,2,2,0,0,0,0,35,nein
+hashmap_get_with_hash,FUT,11,11,6,8,0,0,0,0,34,nein
+hashmap_iter,FUT,7,7,4,4,0,0,0,0,35,nein
+hashmap_new,FUT,2,2,0,0,0,0,0,1,48,nein
+hashmap_new_with_allocator,FUT,44,44,19,22,0,1,0,0,58,nein
+hashmap_probe,FUT,6,6,2,2,0,0,0,2,27,nein
+hashmap_scan,FUT,6,6,6,6,0,0,1,0,27,nein
+hashmap_set_grow_by_power,FUT,3,3,2,2,0,0,0,0,41,nein
+hashmap_set_load_factor,FUT,5,5,0,0,0,0,0,2,31,nein
+hashmap_set_with_hash,FUT,30,32,12,14,0,0,0,2,37,nein
+Codebase Hashmap,Codebase-Summe,163,166,69,80,0,1,1,8,493,
+Alle Funktionen (n=39),Gesamt,469,601,267,383,0,1,24,52,1752,7 ohne Werte

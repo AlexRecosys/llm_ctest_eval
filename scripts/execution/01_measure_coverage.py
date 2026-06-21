@@ -1,24 +1,3 @@
-#!/usr/bin/env python3
-"""01_measure_coverage.py
-
-Kompiliert und fuehrt die generierten Unit-Tests aus und erfasst pro Lauf die
-Rohdaten fuer 02_compute_metrics.py:
-
-- Strukturelle Code-Eigenschaften (lines_total / branches_total) werden GENAU
-  EINMAL statisch aus den physischen Quelldateien gelesen ("Keep Bounded"):
-  Die Codebase wird einmalig mit --coverage uebersetzt und die .gcno-Notes via
-  gcov --json-format ausgewertet (ohne Ausfuehrung -> count = 0, aber die
-  Menge der ausfuehrbaren Zeilen und Branches steht fest).
-- Pro Lauf werden die abgedeckten Zeilennummern und Branch-IDs gespeichert
-  (covered_lines / covered_branches), damit Script 02 die Union ueber die
-  Laeufe bilden kann ("Take the Union"). Nicht-kompilierende Laeufe erhalten
-  die 0%-Strafe: covered = 0 bei vollen statischen Totals.
-- Ausfuehrungsereignisse (tests_total, runtime_errors, ...) werden pro Lauf
-  gezaehlt und in Script 02 kumulativ aufsummiert ("Sum over all runs").
-
-Ausgabe: <output_metrics>/<model>_modell/raw_metrics.json
-"""
-
 import gzip
 import json
 import re
@@ -34,9 +13,6 @@ from data_collection_and_compilation  import (build_include_flags, find_source_f
 RUN_FILE_PATTERN = "run_*_test.c"
 
 
-# ---------------------------------------------------------------------------
-# Konfiguration & Projektstruktur
-# ---------------------------------------------------------------------------
 
 def load_config():
     script_dir = Path(__file__).parent
@@ -53,69 +29,6 @@ def load_config():
     return cfg
 
 
-# def find_source_files(src_dir, codebase_name):
-#     """Findet alle .c-Dateien einer Codebase fuer die Kompilierung."""
-#     codebase_path = Path(src_dir) / codebase_name
-#     return list(codebase_path.glob("*.c"))
-
-
-# def codebase_for_function(func_name, functions_dir):
-#     """Ermittelt die Codebase anhand des Ordners, in dem die Funktion liegt."""
-#     for codebase_dir in Path(functions_dir).iterdir():
-#         if not codebase_dir.is_dir():
-#             continue
-#         for f in codebase_dir.rglob("*.txt"):
-#             if f.stem == func_name:
-#                 return codebase_dir.name
-#     return None
-
-
-# def build_include_flags(cfg, src_files):
-#     unity_include = Path(cfg["paths"]["unity_dir"]).resolve()
-#     src_root = Path(cfg["paths"]["src_dir"]).resolve()
-#     unique_dirs = sorted({str(f.parent.resolve()) for f in src_files})
-#     return [f"-I{unity_include}", f"-I{src_root}"] + [f"-I{d}" for d in unique_dirs]
-
-
-# def ensure_coverage_flags(gcc_flags):
-#     """Stellt sicher, dass die Instrumentierung (--coverage) aktiv ist."""
-#     flags = list(gcc_flags)
-#     joined = " ".join(flags)
-#     if "--coverage" not in joined and "-fprofile-arcs" not in joined:
-#         flags.append("--coverage")
-#     return flags
-
-
-# # ---------------------------------------------------------------------------
-# # Kompilieren & Ausfuehren
-# # ---------------------------------------------------------------------------
-
-# def compile_test(test_file, src_files, unity_c, build_dir, gcc_flags, cfg, tag):
-#     """Kompiliert einen Testlauf in ein eigenes Unterverzeichnis."""
-#     test_build_dir = (build_dir / f"test_{tag}").resolve()
-#     test_build_dir.mkdir(parents=True, exist_ok=True)
-#     output_binary = test_build_dir / f"test_{tag}"
-
-#     includes = build_include_flags(cfg, src_files)
-#     cmd = (["gcc"] + list(gcc_flags) + includes
-#            + [str(test_file.resolve()), str(unity_c.resolve())]
-#            + ["-o", str(output_binary), "-lm"])
-
-#     try:
-#         result = subprocess.run(cmd, capture_output=True, text=True,
-#                                 timeout=60, cwd=test_build_dir)
-#     except subprocess.TimeoutExpired:
-#         return False, "compiler timeout", output_binary, test_build_dir
-
-#     log = result.stdout + result.stderr
-#     return result.returncode == 0, log, output_binary, test_build_dir
-
-
-# def run_test(exe, build_dir):
-#     """Fuehrt das kompilierte Test-Binary aus."""
-#     result = subprocess.run([str(exe)], capture_output=True, text=True,
-#                             timeout=30, cwd=str(build_dir))
-#     return result.returncode, result.stdout + result.stderr
 
 
 def classify_test_result(returncode, test_output):
@@ -135,6 +48,29 @@ def classify_translation_error(compile_log):
     if compile_log and "undefined reference" in compile_log:
         return "linker_error"
     return "compile_error"
+
+
+def classify_fut_run_outcome(run_result):
+    """FUT-Lauf-Klassifikation  RE + AE + P = 1.
+    """
+    if run_result.get("all_tests_passed"):
+        return {"runtime_error_status": 0,
+                "assertion_error_status": 0,
+                "pass_status": 1}
+
+    is_assertion = (
+        run_result.get("compiled")
+        and run_result.get("test_status") == "assertion_error"
+        and not run_result.get("runtime_errors")
+    )
+    if is_assertion:
+        return {"runtime_error_status": 0,
+                "assertion_error_status": 1,
+                "pass_status": 0}
+
+    return {"runtime_error_status": 1,
+            "assertion_error_status": 0,
+            "pass_status": 0}
 
 
 def count_test_metrics(test_output):
@@ -159,9 +95,6 @@ def count_test_metrics(test_output):
             "runtime_errors": runtime, "assertion_errors": assertion}
 
 
-# ---------------------------------------------------------------------------
-# gcov-JSON-Helfer
-# ---------------------------------------------------------------------------
 
 def _gcov_generate_json(build_dir, note_or_data_files):
     """Erzeugt fuer die uebergebenen .gcno/.gcda-Dateien die .gcov.json.gz."""
@@ -185,7 +118,7 @@ def _function_lines(file_entry, func_name):
 
 
 def _line_and_branch_sets(lines):
-    """Extrahiert Zeilennummern und Branch-IDs (Zeile:Index) inkl. Abdeckung."""
+    """Extrahiert Zeilennummern und Branch-IDs """
     line_numbers, covered_lines = set(), set()
     branch_ids, covered_branches = set(), set()
     for l in lines:
@@ -217,17 +150,9 @@ def extract_function_coverage(data, func_name):
     return None
 
 
-# ---------------------------------------------------------------------------
-# Statische Totals ("Keep Bounded"): einmal pro Codebase aus den Quelldateien
-# ---------------------------------------------------------------------------
 
 def measure_static_totals(cfg, codebase, src_files, build_dir, gcc_flags):
-    """Liest lines_total / branches_total GENAU EINMAL aus den physischen
-    Quelldateien der Codebase (ohne Multiplikation mit der Lauf-Anzahl).
-
-    Vorgehen: jede .c-Datei wird mit --coverage zu einem Objekt uebersetzt;
-    gcov auf die .gcno-Notes liefert die ausfuehrbaren Zeilen und Branches
-    jeder Funktion mit count = 0 (keine Ausfuehrung noetig)."""
+    """Liest lines_total, branches_total """
     static_dir = (build_dir / f"_static_{codebase}").resolve()
     static_dir.mkdir(parents=True, exist_ok=True)
     includes = build_include_flags(cfg, src_files)
@@ -268,9 +193,6 @@ def measure_static_totals(cfg, codebase, src_files, build_dir, gcc_flags):
     return totals
 
 
-# ---------------------------------------------------------------------------
-# Lauf-Coverage
-# ---------------------------------------------------------------------------
 
 def measure_run_coverage(test_build_dir, func_name):
     """Coverage eines Laufs aus den .gcda-Daten der FUT extrahieren."""
@@ -286,13 +208,7 @@ def measure_run_coverage(test_build_dir, func_name):
 
 
 def apply_coverage(run_result, run_cov, static):
-    """Traegt Totals (statisch, bounded) und Covered-Mengen in den Lauf ein.
 
-    - Statische Totals haben Vorrang; Lauf-Coverage wird auf die statische
-      Zeilen-/Branch-Menge geschnitten (Inlining-Artefakte ausschliessen).
-    - Kompiliert nicht / keine gcda (Crash vor dem Flush): 0%-Strafe, d.h.
-      covered = 0 bei vollen statischen Totals.
-    """
     if static:
         run_result["lines_total"] = static["lines_total"]
         run_result["branches_total"] = static["branches_total"]
@@ -320,9 +236,6 @@ def apply_coverage(run_result, run_cov, static):
         run_result["coverage_source"] = "static_penalty" if static else "unavailable"
 
 
-# ---------------------------------------------------------------------------
-# Hauptverarbeitung pro Modell
-# ---------------------------------------------------------------------------
 
 def process_model(model_name, cfg):
     """Misst alle Tests eines Modells und schreibt raw_metrics.json."""
@@ -384,6 +297,9 @@ def process_model(model_name, cfg):
                 "return_code": None,
                 "test_status": None,
                 "all_tests_passed": False,
+                "runtime_error_status": 0,
+                "assertion_error_status": 0,
+                "pass_status": 0,
                 "tests_total": 0,
                 "tests_passed": 0,
                 "runtime_errors": 0,
@@ -415,7 +331,6 @@ def process_model(model_name, cfg):
                     run_result["test_status"] = "error"
                     run_result["error_message"] = traceback.format_exc()
             else:
-                # Uebersetzungsfehler: binaere Flags gemaess Schema setzen.
                 err_type = classify_translation_error(compile_log)
                 run_result["test_status"] = err_type
                 run_result["compile_error_status"] = int(err_type == "compile_error")
@@ -429,7 +344,9 @@ def process_model(model_name, cfg):
                 and run_result["tests_total"] > 0
                 and run_result["tests_passed"] == run_result["tests_total"])
 
-            # Aufraeumen: Instrumentierungs-Artefakte des Laufs entfernen.
+
+            run_result.update(classify_fut_run_outcome(run_result))
+
             for pattern in ("*.gcda", "*.gcno", "*.gcov.json.gz"):
                 for f in test_build_dir.glob(pattern):
                     f.unlink()

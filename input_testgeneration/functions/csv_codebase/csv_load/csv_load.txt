@@ -1,0 +1,43 @@
+int csv_load(CSV_BUFFER *buffer, char *file_name)
+{
+
+        FILE *fp = fopen(file_name, "r");
+        if (fp == NULL)
+                return 1;
+
+        int next = 1;
+        bool end = false;
+        bool first = true;
+        int i = -1, j = -1;
+
+        while (!end) {
+
+                if (!first) {
+                        next = read_next_field(fp, 
+                                        buffer->field_delim, buffer->text_delim,
+                                        buffer->field[i][j-1]);
+                }
+
+                if (next == 2) 
+                        end = true;
+
+                if (next == 1) {
+                        if (append_row(buffer) != 0)
+                                return 2;
+                        j = 1;
+                        i++;
+                }
+
+                if (next == 0) {
+                        if (append_field(buffer, i) != 0) 
+                                return 2;
+                        j++;
+                }
+
+
+                if (first) first = false;
+        }
+
+        fclose(fp);
+        return 0;
+}

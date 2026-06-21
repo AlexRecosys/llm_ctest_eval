@@ -1,0 +1,3 @@
+void hashmap_set_grow_by_power(struct hashmap *map, size_t power) {
+    map->growpower = power < 1 ? 1 : power > 16 ? 16 : power;
+}

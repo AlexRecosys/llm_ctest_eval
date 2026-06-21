@@ -1,0 +1,10 @@
+int csv_get_field_length(CSV_BUFFER *buffer, size_t row, size_t entry)
+{
+
+        if (row > buffer->rows - 1)
+                return 0;
+        else if (entry > buffer->width[row] - 1)
+                return 0;
+        else 
+                return buffer->field[row][entry]->length - 1;
+}

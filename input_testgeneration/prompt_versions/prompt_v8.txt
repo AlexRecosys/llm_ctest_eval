@@ -5,7 +5,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 ## Requirements
 
 
-**Setup & Teardown**
+Setup & Teardown:
 
 
 - Do NOT use mocks, stubs, or fakes of any kind
@@ -21,7 +21,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 - Handle segmentation faults gracefully via signal handling (SIGSEGV) and report them as test failures.
 
 
-**Linkage strategy (CRITICAL — read before writing any code)**
+Linkage strategy (CRITICAL — read before writing any code):
 
 - The function under test may be declared `static`. A `static` function has internal linkage and therefore CANNOT be linked from another translation unit. Calling it from the test file while it lives in a separate object file produces an `undefined reference` linker error.
 
@@ -36,12 +36,12 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 - Public types come from the project header(s); include those AFTER the source file.
 
 
-**Required standard headers**
+Required standard headers:
 
 - Include exactly the standard headers your assertions and the function need, and no others. Common ones: <stdlib.h>, <string.h>, <limits.h>, <math.h>, <float.h> (for DBL_EPSILON), <signal.h> (for SIGSEGV handling), <locale.h> (only if you call setlocale or use LC_NUMERIC).
 
  
-**File Structure (in this exact order)**
+File Structure (in this exact order):
 
 1. All `#include` directives. ORDER: first `#include` the `.c` source file that defines the function under test (see Linkage strategy), then Unity, then the project headers, then the standard headers.
 
@@ -66,7 +66,7 @@ You are a C testing expert specializing in the Unity test framework. Generate a 
 A file without main(void) does NOT compile. It is invalid output.
 
  
-**Assertions**
+Assertions:
 
 - Use the most specific Unity macro for each check — do NOT default everything to `TEST_ASSERT_EQUAL`.
 
@@ -103,11 +103,11 @@ A file without main(void) does NOT compile. It is invalid output.
 
 - Always pass a descriptive message via the `_MESSAGE` variants when a failure would otherwise be ambiguous
  
-**Coverage**
+Coverage:
 
 Generate 5 test cases.
  
-**Constraints**
+Constraints:
 
 - Output ONLY the C source file — no prose, no markdown fences, no explanation
 
